@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QRCodeSVG } from 'qrcode.react';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { AutomationService } from '@/services/AutomationService';
 
 interface Expense {
   id: string;
@@ -356,6 +357,14 @@ const BarberDashboard = () => {
         };
         await addDoc(collection(db, 'products'), newProduct);
         toast({ title: 'Success', description: 'Product added successfully ✓' });
+
+        // Trigger Automated MCP Action to post product to social media
+        await AutomationService.autoPostToSocialMedia(
+          barberId,
+          newProductData.image || "default-product.jpg",
+          `New Product Alert: ${newProductData.name} is now available in our store for ${newProductData.price} DZD!`
+        );
+        toast({ title: 'Automation', description: 'Product auto-posted to Social Media (MCP)' });
       }
 
       setIsProductDialogOpen(false);

@@ -16,6 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Calendar, Clock, CreditCard, Users2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AutomationService } from '@/services/AutomationService';
 
 interface StaffMember {
     id: string;
@@ -174,6 +175,21 @@ const Book = () => {
         setBookingLoading(true);
 
         try {
+            // Smart Payment Routing
+            let transactionId = null;
+            if (paymentMethod !== 'cash') {
+                const paymentResult = await AutomationService.processPayment(paymentMethod, totalAmount, 'DZD');
+                if (!paymentResult.success) {
+                    throw new Error("Online Payment Failed. Please try a different method or pay in cash.");
+                }
+                transactionId = paymentResult.transactionId;
+
+                toast({
+                    title: 'Payment Processed',
+                    description: `Successfully paid via ${paymentMethod} (Ref: ${transactionId})`,
+                });
+            }
+
             await addDoc(collection(db, 'appointments'), {
                 barber_id: id,
                 customer_id: user.uid,
@@ -183,14 +199,22 @@ const Book = () => {
                 appointment_date: date.toISOString(),
                 appointment_time: time,
                 payment_method: paymentMethod,
+                transaction_id: transactionId,
                 barber_chair_id: selectedChair,
                 status: 'pending',
                 created_at: new Date().toISOString()
             });
 
+            // Automated CRM Action: Send WhatsApp Reminder
+            await AutomationService.scheduleAppointmentReminder(
+                user.phoneNumber || "Unknown",
+                user.displayName || "Customer",
+                `${date.toDateString()} at ${time}`
+            );
+
             toast({
                 title: 'Success',
-                description: 'Your appointment has been booked successfully!',
+                description: 'Your appointment has been booked and a reminder has been scheduled automatically!',
             });
             navigate(`/`); // Can navigate to user appointments later
         } catch (error: unknown) {
