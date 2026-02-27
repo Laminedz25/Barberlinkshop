@@ -339,25 +339,17 @@ const Book = () => {
                             </CardHeader>
                             <CardContent>
                                 <RadioGroup value={paymentMethod} onValueChange={(val: string) => setPaymentMethod(val)}>
-                                    <div className="flex items-center space-x-2 mb-2">
+                                    <div className="flex items-center space-x-2 mb-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-border/50">
+                                        <RadioGroupItem value="cib" id="cib" />
+                                        <Label htmlFor="cib" className="cursor-pointer font-medium w-full">CIB / EDAHABIA (البطاقة البنكية أو الذهبية)</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2 mb-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-border/50">
                                         <RadioGroupItem value="baridimob" id="baridimob" />
-                                        <Label htmlFor="baridimob" className="cursor-pointer">BaridiMob (بريدي موب)</Label>
+                                        <Label htmlFor="baridimob" className="cursor-pointer font-medium w-full">BaridiMob (بريدي موب)</Label>
                                     </div>
-                                    <div className="flex items-center space-x-2 mb-2">
-                                        <RadioGroupItem value="paypal" id="paypal" />
-                                        <Label htmlFor="paypal" className="cursor-pointer">PayPal</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2 mb-2">
-                                        <RadioGroupItem value="visacard" id="visacard" />
-                                        <Label htmlFor="visacard" className="cursor-pointer">Visa Card</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2 mb-2">
-                                        <RadioGroupItem value="google_pay" id="google_pay" />
-                                        <Label htmlFor="google_pay" className="cursor-pointer">Google Pay</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
+                                    <div className="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-border/50">
                                         <RadioGroupItem value="cash" id="cash" />
-                                        <Label htmlFor="cash" className="cursor-pointer">Cash after service (الدفع في الصالون)</Label>
+                                        <Label htmlFor="cash" className="cursor-pointer font-medium w-full">Cash (الدفع نقداً في الصالون)</Label>
                                     </div>
                                 </RadioGroup>
                             </CardContent>
