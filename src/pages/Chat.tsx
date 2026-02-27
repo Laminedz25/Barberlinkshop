@@ -10,8 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import Navigation from '@/components/Navigation';
-import { Send, User as UserIcon } from 'lucide-react';
-
+import { Send, User as UserIcon, Mic, MicOff } from 'lucide-react';
 interface Message {
     id: string;
     sender_id: string;
@@ -35,8 +34,46 @@ const Chat = () => {
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
+    const [isRecording, setIsRecording] = useState(false);
     const [otherUser, setOtherUser] = useState<UserProfile | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    const handleStartRecording = () => {
+        // @ts-expect-error - SpeechRecognition may be webkitSpeechRecognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            toast({ title: t('error'), description: "Your browser does not support speech recognition.", variant: 'destructive' });
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = document.documentElement.dir === 'rtl' ? 'ar-SA' : 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+            setIsRecording(true);
+        };
+
+        recognition.onresult = (event: { results: { transcript: string }[][] }) => {
+            const transcript = event.results[0][0].transcript;
+            setNewMessage((prev) => (prev ? prev + " " + transcript : transcript));
+        };
+
+        recognition.onerror = (event: { error: string }) => {
+            console.error("Speech recognition error", event.error);
+            setIsRecording(false);
+            if (event.error === 'not-allowed') {
+                toast({ title: t('error'), description: "Microphone access denied.", variant: 'destructive' });
+            }
+        };
+
+        recognition.onend = () => {
+            setIsRecording(false);
+        };
+
+        recognition.start();
+    };
 
     useEffect(() => {
         if (!user) {
@@ -155,13 +192,24 @@ const Chat = () => {
 
                         <div className="p-4 border-t bg-background">
                             <form onSubmit={handleSendMessage} className="flex gap-2">
+                                <Button
+                                    type="button"
+                                    size="icon"
+                                    variant="outline"
+                                    className={`rounded-full shrink-0 transition-colors ${isRecording ? 'bg-destructive/10 text-destructive border-destructive/50 animate-pulse' : ''}`}
+                                    onClick={handleStartRecording}
+                                    title="Voice Input"
+                                >
+                                    {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                                </Button>
                                 <Input
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
                                     placeholder="Type your message here..."
                                     className="flex-1 rounded-full"
+                                    disabled={isRecording}
                                 />
-                                <Button type="submit" size="icon" className="rounded-full shrink-0" disabled={!newMessage.trim()}>
+                                <Button type="submit" size="icon" className="rounded-full shrink-0" disabled={!newMessage.trim() || isRecording}>
                                     <Send className="h-4 w-4" />
                                 </Button>
                             </form>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,8 +25,32 @@ const AIAssistant = () => {
     const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
     const [input, setInput] = useState("");
     const [isTyping, setIsTyping] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const { isRTL } = useLanguage();
+
+    const handleStartRecording = () => {
+        // @ts-expect-error - webkitSpeechRecognition might be used
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.error("Speech recognition not supported");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = isRTL ? 'ar-SA' : 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => setIsRecording(true);
+        recognition.onresult = (event: { results: { transcript: string }[][] }) => {
+            const transcript = event.results[0][0].transcript;
+            setInput((prev) => (prev ? prev + " " + transcript : transcript));
+        };
+        recognition.onerror = () => setIsRecording(false);
+        recognition.onend = () => setIsRecording(false);
+        recognition.start();
+    };
 
     useEffect(() => {
         if (isOpen && scrollRef.current) {
@@ -137,14 +161,24 @@ const AIAssistant = () => {
                         }}
                         className={`flex gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
                     >
+                        <Button
+                            type="button"
+                            size="icon"
+                            variant="outline"
+                            className={`rounded-full shrink-0 h-10 w-10 transition-colors ${isRecording ? 'bg-destructive/10 text-destructive border-destructive/50 animate-pulse' : ''}`}
+                            onClick={handleStartRecording}
+                        >
+                            {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                        </Button>
                         <Input
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="اكتب رسالتك الذكية هنا..."
                             className={`flex-1 rounded-full ${isRTL ? "text-right" : ""}`}
                             dir={isRTL ? "rtl" : "ltr"}
+                            disabled={isRecording}
                         />
-                        <Button type="submit" size="icon" disabled={!input.trim() || isTyping} className="rounded-full shrink-0 h-10 w-10">
+                        <Button type="submit" size="icon" disabled={!input.trim() || isTyping || isRecording} className="rounded-full shrink-0 h-10 w-10">
                             <Send className="h-4 w-4" />
                         </Button>
                     </form>

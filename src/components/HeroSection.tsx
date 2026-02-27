@@ -21,10 +21,10 @@ const HeroSection = () => {
       {/* Hero Content */}
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto text-center space-y-8">
-          
+
           {/* Main Headline */}
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-7xl font-bold text-foreground leading-tight">
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-5 duration-700">
+            <h1 className="text-5xl md:text-7xl font-bold text-foreground leading-tight tracking-tight">
               {t('hero.title')}
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
@@ -33,7 +33,7 @@ const HeroSection = () => {
           </div>
 
           {/* Search Bar */}
-          <div className="max-w-4xl mx-auto space-y-4">
+          <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200 fill-mode-both">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative">
                 <Input
@@ -50,14 +50,14 @@ const HeroSection = () => {
                 <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               </div>
             </div>
-            <Button 
-              size="lg" 
-              className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white px-12 py-6 text-lg"
+            <Button
+              size="lg"
+              className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white px-12 py-6 text-lg rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-105"
             >
               {t('hero.search.button')}
             </Button>
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               variant="outline"
               className="w-full md:w-auto border-border bg-card/50 backdrop-blur-sm px-8 py-6"
             >
