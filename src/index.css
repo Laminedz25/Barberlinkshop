@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Barber App Design System - Premium salon booking experience */
+
+@layer base {
+  :root {
+    /* Base colors - warm neutral palette */
+    --background: 28 20% 98%;
+    --foreground: 25 15% 15%;
+
+    /* Card system - elegant elevation */
+    --card: 0 0% 100%;
+    --card-foreground: 25 15% 15%;
+
+    /* Interactive elements */
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 15% 15%;
+
+    /* Primary brand - vibrant blue */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 98%;
+    
+    /* Premium gold accent */
+    --gold: 45 85% 55%;
+    --gold-foreground: 25 25% 20%;
+
+    /* Secondary - soft neutrals */
+    --secondary: 25 15% 92%;
+    --secondary-foreground: 25 15% 15%;
+
+    /* Muted elements */
+    --muted: 25 10% 94%;
+    --muted-foreground: 25 8% 45%;
+
+    /* Accent - warm highlight */
+    --accent: 25 25% 88%;
+    --accent-foreground: 25 15% 15%;
+
+    /* Status colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 25 25% 20%;
+
+    /* Form elements */
+    --border: 25 15% 88%;
+    --input: 25 15% 88%;
+    --ring: 217 91% 60%;
+
+    /* Design tokens */
+    --radius: 0.75rem;
+    
+    /* Premium gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
+    --gradient-card: linear-gradient(180deg, hsl(var(--card)), hsl(var(--muted)));
+    --gradient-subtle: linear-gradient(135deg, hsl(var(--background)), hsl(var(--secondary)));
+    
+    /* Shadows - elegant depth */
+    --shadow-elegant: 0 10px 30px -5px hsl(var(--primary) / 0.1);
+    --shadow-card: 0 4px 20px -2px hsl(var(--primary) / 0.08);
+    --shadow-glow: 0 0 40px hsl(var(--gold) / 0.15);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* Sidebar system */
+    --sidebar-background: 28 20% 98%;
+    --sidebar-foreground: 25 15% 15%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 25 15% 92%;
+    --sidebar-accent-foreground: 25 15% 15%;
+    --sidebar-border: 25 15% 88%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .dark {
+    /* Dark theme - sophisticated dark salon ambiance */
+    --background: 25 15% 8%;
+    --foreground: 28 20% 95%;
+
+    --card: 25 15% 10%;
+    --card-foreground: 28 20% 95%;
+
+    --popover: 25 15% 10%;
+    --popover-foreground: 28 20% 95%;
+
+    --primary: 217 91% 65%;
+    --primary-foreground: 0 0% 98%;
+    
+    --gold: 45 85% 65%;
+    --gold-foreground: 25 25% 10%;
+
+    --secondary: 25 15% 15%;
+    --secondary-foreground: 28 20% 95%;
+
+    --muted: 25 10% 12%;
+    --muted-foreground: 25 8% 65%;
+
+    --accent: 25 25% 18%;
+    --accent-foreground: 28 20% 95%;
+
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 28 20% 95%;
+    
+    --success: 142 76% 46%;
+    --success-foreground: 28 20% 95%;
+    
+    --warning: 38 92% 60%;
+    --warning-foreground: 25 25% 10%;
+
+    --border: 25 15% 18%;
+    --input: 25 15% 18%;
+    --ring: 217 91% 65%;
+    
+    /* Dark gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 65%), hsl(217 91% 75%));
+    --gradient-card: linear-gradient(180deg, hsl(var(--card)), hsl(var(--muted)));
+    --gradient-subtle: linear-gradient(135deg, hsl(var(--background)), hsl(var(--secondary)));
+    
+    --shadow-elegant: 0 10px 30px -5px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 4px 20px -2px hsl(0 0% 0% / 0.2);
+    --shadow-glow: 0 0 40px hsl(var(--gold) / 0.2);
+    
+    --sidebar-background: 25 15% 8%;
+    --sidebar-foreground: 28 20% 95%;
+    --sidebar-primary: 217 91% 65%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 25 15% 15%;
+    --sidebar-accent-foreground: 28 20% 95%;
+    --sidebar-border: 25 15% 18%;
+    --sidebar-ring: 217 91% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Tajawal', 'Poppins', sans-serif;
+  }
+  
+  /* RTL support for Arabic */
+  [dir="rtl"] body {
+    font-family: 'Tajawal', sans-serif;
+  }
+  
+  [dir="ltr"] body {
+    font-family: 'Poppins', 'Tajawal', sans-serif;
+  }
+  
+  /* Custom utility classes */
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+  
+  .shadow-elegant {
+    box-shadow: var(--shadow-elegant);
+  }
+  
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+}
