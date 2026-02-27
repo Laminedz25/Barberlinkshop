@@ -93,11 +93,7 @@ const BarberProfile = () => {
 
 
 
-  const mockStaff: StaffMember[] = [
-    { id: 's1', name: 'Ahmed', role: 'Senior Barber', avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&h=200&auto=format&fit=crop&q=80', rating: 4.8 },
-    { id: 's2', name: 'Karim', role: 'Fade Specialist', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&auto=format&fit=crop&q=80', rating: 4.9 },
-    { id: 's3', name: 'Youssef', role: 'Hair Stylist', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&auto=format&fit=crop&q=80', rating: 4.7 }
-  ];
+  const [staffList, setStaffList] = useState<StaffMember[]>([]);
 
   useEffect(() => {
     fetchBarberData();
@@ -130,6 +126,14 @@ const BarberProfile = () => {
         servicesList.push({ id: doc.id, ...doc.data() } as Service);
       });
       setServices(servicesList);
+
+      const staffQuery = query(collection(db, 'staff'), where('barber_id', '==', id));
+      const staffSnap = await getDocs(staffQuery);
+      const staffData: StaffMember[] = [];
+      staffSnap.forEach(doc => {
+        staffData.push({ id: doc.id, ...doc.data() } as StaffMember);
+      });
+      setStaffList(staffData);
 
       const reviewsQuery = query(collection(db, 'reviews'), where('barber_id', '==', id));
       const reviewsSnap = await getDocs(reviewsQuery);
@@ -277,11 +281,8 @@ const BarberProfile = () => {
   }
 
   const getServiceName = (service: Service) => {
-    switch (language) {
-      case 'ar': return service.name_ar;
-      case 'fr': return service.name_fr || service.name_en;
-      default: return service.name_en || service.name_ar;
-    }
+    // Enforce Arabic names as primary choice per user request
+    return service.name_ar || service.name_fr || service.name_en;
   };
 
   return (
@@ -440,22 +441,26 @@ const BarberProfile = () => {
 
               <TabsContent value="staff">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {mockStaff.map((staff) => (
-                    <Card key={staff.id} className="bg-white/60 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/50 p-6 rounded-[2rem] shadow-md hover:shadow-xl transition-all text-center group">
-                      <div className="mx-auto w-24 h-24 mb-4 rounded-full overflow-hidden border-4 border-primary/20 group-hover:border-primary transition-colors">
-                        <img src={staff.avatar} alt={staff.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
-                      </div>
-                      <h3 className="text-xl font-bold">{staff.name}</h3>
-                      <p className="text-primary font-medium mb-2">{staff.role}</p>
-                      <div className="flex justify-center items-center gap-1 mb-6">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-bold">{staff.rating}</span>
-                      </div>
-                      <Button onClick={() => navigate(`/book/${id}?chair=${staff.id}`)} className="w-full rounded-full shadow-lg shadow-primary/20">
-                        {t('staff.book')} {staff.name}
-                      </Button>
-                    </Card>
-                  ))}
+                  {staffList.length === 0 ? (
+                    <div className="col-span-full text-center py-16 text-muted-foreground text-lg font-medium">No staff members found.</div>
+                  ) : (
+                    staffList.map((staff) => (
+                      <Card key={staff.id} className="bg-white/60 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/50 p-6 rounded-[2rem] shadow-md hover:shadow-xl transition-all text-center group">
+                        <div className="mx-auto w-24 h-24 mb-4 rounded-full overflow-hidden border-4 border-primary/20 group-hover:border-primary transition-colors">
+                          <img src={staff.avatar || "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&h=200&auto=format&fit=crop&q=80"} alt={staff.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                        </div>
+                        <h3 className="text-xl font-bold">{staff.name}</h3>
+                        <p className="text-primary font-medium mb-2">{staff.role}</p>
+                        <div className="flex justify-center items-center gap-1 mb-6">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          <span className="font-bold">{staff.rating}</span>
+                        </div>
+                        <Button onClick={() => navigate(`/book/${id}?chair=${staff.id}`)} className="w-full rounded-full shadow-lg shadow-primary/20">
+                          {t('staff.book')} {staff.name}
+                        </Button>
+                      </Card>
+                    ))
+                  )}
                 </div>
               </TabsContent>
 

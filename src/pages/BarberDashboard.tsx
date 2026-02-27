@@ -85,6 +85,7 @@ const BarberDashboard = () => {
     name_en: '',
     name_fr: '',
     description_ar: '',
+    description_en: '',
     description_fr: '',
     price: 0,
     duration_minutes: 30,
@@ -513,8 +514,8 @@ const BarberDashboard = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="price">{t('dashboard.service.price')}</Label>
-                        <Input id="price" type="number" className="mt-1" value={formData.price} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} required min="0" />
+                        <Label htmlFor="price">{t('dashboard.service.price')} (د.ج)</Label>
+                        <Input id="price" type="number" className="mt-1" value={formData.price} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} required min="100" />
                       </div>
                       <div>
                         <Label htmlFor="duration">{t('dashboard.service.duration')}</Label>

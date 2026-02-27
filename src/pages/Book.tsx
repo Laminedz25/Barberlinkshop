@@ -54,11 +54,7 @@ const Book = () => {
     const initialChair = searchParams.get('chair') || 'any';
     const [selectedChair, setSelectedChair] = useState<string>(initialChair);
 
-    const mockStaff: StaffMember[] = [
-        { id: 's1', name: 'Ahmed (Senior Barber)', role: 'Senior Barber' },
-        { id: 's2', name: 'Karim (Fade Specialist)', role: 'Fade Specialist' },
-        { id: 's3', name: 'Youssef (Hair Stylist)', role: 'Hair Stylist' }
-    ];
+    const [staffList, setStaffList] = useState<StaffMember[]>([]);
 
     // Hardcoded timeslots for demonstration
     const timeSlots = ["09:00 AM", "10:00 AM", "11:00 AM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM"];
@@ -116,10 +112,20 @@ const Book = () => {
             servicesList.sort((a, b) => (b.usage_count || 0) - (a.usage_count || 0));
 
             setServices(servicesList);
+
+            // Fetch Staff for this salon
+            const staffQuery = query(collection(db, 'staff'), where('barber_id', '==', id));
+            const staffSnap = await getDocs(staffQuery);
+            const staffData: StaffMember[] = [];
+            staffSnap.forEach((doc) => {
+                staffData.push({ id: doc.id, ...doc.data() } as StaffMember);
+            });
+            setStaffList(staffData);
+
         } catch (error: unknown) {
             toast({
                 title: t('error'),
-                description: error.message,
+                description: (error as Error).message,
                 variant: 'destructive',
             });
         } finally {
@@ -128,11 +134,8 @@ const Book = () => {
     };
 
     const getServiceName = (service: Service) => {
-        switch (language) {
-            case 'ar': return service.name_ar;
-            case 'fr': return service.name_fr || service.name_en;
-            default: return service.name_en || service.name_ar;
-        }
+        // Enforce Arabic names as primary choice per user request
+        return service.name_ar || service.name_fr || service.name_en;
     };
 
     const toggleService = (serviceId: string) => {
@@ -288,7 +291,7 @@ const Book = () => {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="any">{t('booking.notspecified')}</SelectItem>
-                                        {mockStaff.map(staff => (
+                                        {staffList.map(staff => (
                                             <SelectItem key={staff.id} value={staff.id}>{staff.name}</SelectItem>
                                         ))}
                                     </SelectContent>
@@ -375,7 +378,7 @@ const Book = () => {
                                     </div>
                                     <div className="flex justify-between items-center text-sm border-b pb-2">
                                         <span className="text-muted-foreground flex items-center gap-1"><Users2 className="h-4 w-4" /> Staff</span>
-                                        <span className="font-medium">{selectedChair === 'any' ? t('booking.notspecified') : mockStaff.find(s => s.id === selectedChair)?.name}</span>
+                                        <span className="font-medium">{selectedChair === 'any' ? t('booking.notspecified') : staffList.find(s => s.id === selectedChair)?.name}</span>
                                     </div>
 
                                     <div className="pt-2">
