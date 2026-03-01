@@ -315,7 +315,6 @@ const translations = {
     'barber.select_time': 'Select Time',
     'barber.book_offline': 'Add Walk-in Appointment',
     'barber.vacant_chair_desc': 'There is a vacant chair available in this salon. Apply to rent it!',
-    'staff.book': 'Book with',
   },
   fr: {
     // Navigation
@@ -620,7 +619,6 @@ const translations = {
     'barber.select_time': 'Sélectionner l\'Heure',
     'barber.book_offline': 'Ajouter Rendez-vous Hors ligne',
     'barber.vacant_chair_desc': 'Il y a un siège vacant disponible dans ce salon. Postulez pour le louer !',
-    'staff.book': 'Réserver avec',
   },
   ar: {
     // Navigation
@@ -925,7 +923,6 @@ const translations = {
     'barber.select_time': 'وقت الحجز',
     'barber.book_offline': 'تأكيد الحجز المباشر',
     'barber.vacant_chair_desc': 'يوجد كرسي شاغر للإيجار داخل هذا الصالون، يمكنك التقديم للعمل هنا!',
-    'staff.book': 'إحجز مع',
   }
 };
 

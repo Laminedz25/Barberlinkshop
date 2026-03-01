@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { Plus, Edit, Trash2, DollarSign, Clock, QrCode, ImagePlus, UserPlus, Link as LinkIcon, CheckCircle2, XCircle, Check, TrendingUp, TrendingDown, ShoppingBag } from 'lucide-react';
+import { Plus, Edit, Trash2, DollarSign, Clock, QrCode, ImagePlus, UserPlus, Link as LinkIcon, CheckCircle2, XCircle, Check, TrendingUp, TrendingDown, ShoppingBag, AlertTriangle, ListOrdered, Gift } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -702,8 +702,14 @@ const BarberDashboard = () => {
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products.map((product) => (
-                    <div key={product.id} className="group overflow-hidden flex flex-col bg-white/60 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/50 rounded-[2rem] shadow-md hover:shadow-2xl transition-all">
-                      <div className="h-48 overflow-hidden bg-slate-100 dark:bg-slate-900">
+                    <div key={product.id} className="group relative overflow-hidden flex flex-col bg-white/60 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/50 rounded-[2rem] shadow-md hover:shadow-2xl transition-all">
+                      {product.price > 1000 && (
+                        <div className="absolute top-4 right-4 z-10 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg animate-pulse">
+                          <AlertTriangle className="w-3 h-3" />
+                          Low Stock
+                        </div>
+                      )}
+                      <div className="h-48 overflow-hidden bg-slate-100 dark:bg-slate-900 relative">
                         <img src={product.image || 'https://images.unsplash.com/photo-1599305090598-fe179d501227?w=500&auto=format&fit=crop'} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                       </div>
                       <div className="p-5 flex flex-col flex-1">
@@ -782,6 +788,23 @@ const BarberDashboard = () => {
                     ))}
                   </div>
                 )}
+              </div>
+
+              <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-3xl p-6 shadow-xl mb-6">
+                <h2 className="text-2xl font-bold flex items-center gap-3 mb-2 text-primary">
+                  <ListOrdered className="h-6 w-6" /> Smart Waitlist (Auto-Queue)
+                </h2>
+                <p className="text-sm text-foreground/80 mb-6">Your schedule is full for today? Let clients join the waitlist and auto-fill any cancellations.</p>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/80 dark:bg-slate-800/80 p-4 rounded-2xl shadow-sm border border-white/50 dark:border-slate-700/50">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold text-xl">3</div>
+                    <div>
+                      <h4 className="font-bold">Clients Waiting</h4>
+                      <p className="text-sm text-muted-foreground line-clamp-1">Notifications are active for the next available slot.</p>
+                    </div>
+                  </div>
+                  <Button variant="outline" className="rounded-xl border-primary hover:bg-primary hover:text-white shrink-0">View Queue</Button>
+                </div>
               </div>
 
               <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-6 shadow-xl">
@@ -874,6 +897,28 @@ const BarberDashboard = () => {
                       <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                       {t('dashboard.gallery.upload')}
                     </Button>
+                  </div>
+                </div>
+
+                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl flex flex-col col-span-1 md:col-span-2 mt-4 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/20 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-yellow-500/30 transition-colors" />
+                  <div>
+                    <h2 className="text-2xl font-bold flex items-center gap-3 mb-2 text-amber-600 dark:text-amber-500">
+                      <Gift className="h-6 w-6" /> Loyalty & Rewards Program
+                    </h2>
+                    <p className="text-sm text-muted-foreground mb-6">Engage your most loyal customers with custom points and rewards.</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-yellow-50 dark:bg-yellow-900/10 p-5 rounded-2xl border border-yellow-200 dark:border-yellow-900/30 flex items-center gap-4">
+                      <div className="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center text-white"><Gift className="w-6 h-6" /></div>
+                      <div>
+                        <h4 className="font-bold text-yellow-900 dark:text-yellow-400">10 Points = 1 DZD</h4>
+                        <p className="text-xs text-yellow-700 dark:text-yellow-600">Reward rate for successful bookings</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-start md:justify-end">
+                      <Button className="rounded-full shadow-lg bg-yellow-500 hover:bg-yellow-600 text-white px-8">Configure Options</Button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User, Mic, MicOff, Paperclip } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Mic, MicOff, Paperclip, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +28,7 @@ const AIAssistant = () => {
     const [input, setInput] = useState("");
     const [isTyping, setIsTyping] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
+    const [isTTSEnabled, setIsTTSEnabled] = useState(false);
     const [fileAttachment, setFileAttachment] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [aiContext, setAiContext] = useState("");
@@ -97,13 +98,25 @@ const AIAssistant = () => {
 
         // Mock AI response
         setTimeout(() => {
+            let botResponse = getMockResponse(userMsg.text);
+            if (fileAttachment && fileAttachment.type.startsWith('image/')) {
+                botResponse = "لقد قمت بتحليل صورتك المرفقة بناءً على شكل وجهك. أنصحك بتسريحة (Fade Haircut) مع تخفيف اللحية من الجوانب لتعطيك مظهراً أكثر حدة وأناقة! هل ترغب في حجز موعد لتطبيق هذه التسريحة؟";
+            }
+
             const botMsg: ChatMessage = {
                 id: (Date.now() + 1).toString(),
-                text: getMockResponse(userMsg.text),
+                text: botResponse,
                 isBot: true,
             };
             setMessages((prev) => [...prev, botMsg]);
             setIsTyping(false);
+
+            if (isTTSEnabled) {
+                const utterance = new SpeechSynthesisUtterance(botResponse);
+                utterance.lang = isRTL ? 'ar-SA' : 'en-US';
+                window.speechSynthesis.speak(utterance);
+            }
+
         }, 1500);
     };
 
@@ -114,15 +127,15 @@ const AIAssistant = () => {
         const baseContext = aiContext ? `[AI System Rule: ${aiContext}] ` : "";
 
         if (q.includes("احجز") || q.includes("حجز") || q.includes("book")) {
-            return baseContext + "يمكنك الحجز بسهولة! فقط ابحث عن الصالون المناسب لك في الصفحة الرئيسية، ثم اضغط على زر 'احجز الآن' في صفحة الحلاق.";
+            return baseContext + "تم مبدئياً البحث عن موعد متاح لك! هناك موعد فارغ غداً الساعة 4:00 مساءً. يمكنك تأكيده من خلال زيارة صفحة الحلاق والضغط على زر الحجز المباشر.";
         }
         if (q.includes("سعر") || q.includes("اسعار") || q.includes("price")) {
             return baseContext + "الأسعار تختلف حسب كل صالون والخدمة المقدمة. يمكنك رؤية تفاصيل الأسعار لكل خدمة داخل الصفحة الشخصية للحلاق الذي تختاره.";
         }
-        if (q.includes("دفع") || q.includes("pay")) {
-            return baseContext + "نحن نوفر الدفع الإلكتروني المسبق، بالإضافة إلى ميزة الدفع نقداً داخل الصالون بعد الاستفادة من الخدمة.";
+        if (q.includes("دفع") || q.includes("pay") || q.includes("نقاط") || q.includes("points")) {
+            return baseContext + "نحن نوفر الدفع الإلكتروني المسبق الدفع، ويمكنك استخدام 'نقاط الولاء' الخاصة بك للحصول على خصومات حصرية أو حلاقة مجانية!";
         }
-        return baseContext + "هذا سؤال ممتاز! بصفتي المساعد الذكي لمنصة barberlinkshop، أنا هنا لتسهيل تجربتك. هل ترغب في مساعدة للبحث عن صالون معين في مدينتك؟";
+        return baseContext + "هذا سؤال ممتاز! بصفتي المساعد الذكي لمنصة barberlinkshop، أنا هنا لتسهيل تجربتك. يمكنك إرسال صورتك لأقترح لك تسريحة، أو سؤالي عن حجز موعد.";
     };
 
     if (!isOpen) {
@@ -143,9 +156,14 @@ const AIAssistant = () => {
                     <Bot className="h-6 w-6" />
                     <CardTitle className="text-lg">barberlinkshop AI</CardTitle>
                 </div>
-                <Button variant="ghost" size="icon" className="hover:bg-primary-foreground/20 text-white rounded-full h-8 w-8" onClick={() => setIsOpen(false)}>
-                    <X className="h-5 w-5" />
-                </Button>
+                <div className="flex items-center">
+                    <Button variant="ghost" size="icon" className="hover:bg-primary-foreground/20 text-white rounded-full h-8 w-8 mr-1" onClick={() => setIsTTSEnabled(!isTTSEnabled)} title="Toggle Voice / تفعيل الصوت">
+                        {isTTSEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 opacity-70" />}
+                    </Button>
+                    <Button variant="ghost" size="icon" className="hover:bg-primary-foreground/20 text-white rounded-full h-8 w-8" onClick={() => setIsOpen(false)}>
+                        <X className="h-5 w-5" />
+                    </Button>
+                </div>
             </CardHeader>
 
             <CardContent className="flex-1 flex flex-col p-0 bg-background/95 backdrop-blur">
