@@ -302,6 +302,20 @@ const translations = {
     'notification.upcoming.30m': 'Appointment in 30 minutes!',
     'notification.upcoming.15m': 'Appointment in 15 minutes!',
     'notification.upcoming.msg': 'You have an appointment scheduled with',
+
+    // New Features
+    'barber.vacant_chair': 'Vacant Chair for Rent',
+    'barber.staff': 'Salon Barbers',
+    'barber.offline_booking': 'Add Walk-in (Offline)',
+    'barber.offline_desc': 'Book an appointment for a returning customer who came without using the app.',
+    'barber.customer_name': 'Customer Name',
+    'barber.customer_phone': 'Customer Phone',
+    'barber.select_services': 'Select Services',
+    'barber.select_date': 'Select Date',
+    'barber.select_time': 'Select Time',
+    'barber.book_offline': 'Add Walk-in Appointment',
+    'barber.vacant_chair_desc': 'There is a vacant chair available in this salon. Apply to rent it!',
+    'staff.book': 'Book with',
   },
   fr: {
     // Navigation
@@ -593,6 +607,20 @@ const translations = {
     'notification.upcoming.30m': 'Rendez-vous dans 30 minutes!',
     'notification.upcoming.15m': 'Rendez-vous dans 15 minutes!',
     'notification.upcoming.msg': 'Vous avez un rendez-vous prévu avec',
+
+    // New Features
+    'barber.vacant_chair': 'Siège Vacant à Louer',
+    'barber.staff': 'Coiffeurs du Salon',
+    'barber.offline_booking': 'Ajouter Client sans RDV (Hors ligne)',
+    'barber.offline_desc': 'Prendre rendez-vous pour un client fidèle venu sans utiliser l\'application.',
+    'barber.customer_name': 'Nom du Client',
+    'barber.customer_phone': 'Téléphone du Client',
+    'barber.select_services': 'Sélectionner des Services',
+    'barber.select_date': 'Sélectionner la Date',
+    'barber.select_time': 'Sélectionner l\'Heure',
+    'barber.book_offline': 'Ajouter Rendez-vous Hors ligne',
+    'barber.vacant_chair_desc': 'Il y a un siège vacant disponible dans ce salon. Postulez pour le louer !',
+    'staff.book': 'Réserver avec',
   },
   ar: {
     // Navigation
@@ -884,11 +912,25 @@ const translations = {
     'notification.upcoming.30m': 'موعدك بعد 30 دقيقة!',
     'notification.upcoming.15m': 'موعدك بعد 15 دقيقة!',
     'notification.upcoming.msg': 'لديك موعد مقرر مع',
+
+    // New Features
+    'barber.vacant_chair': 'كرسي شاغر للإيجار',
+    'barber.staff': 'حلاقين الصالون',
+    'barber.offline_booking': 'إضافة زبون مباشر (بدون منصة)',
+    'barber.offline_desc': 'إضافة حجز لزبون أتى للصالون دون حجز في المنصة مسبقاً للحصول على تقارير مبيعات دقيقة ولملئ جدول الأوقات.',
+    'barber.customer_name': 'اسم الزبون',
+    'barber.customer_phone': 'رقم هاتف الزبون (اختياري)',
+    'barber.select_services': 'اختر الخدمات',
+    'barber.select_date': 'تاريخ الحجز',
+    'barber.select_time': 'وقت الحجز',
+    'barber.book_offline': 'تأكيد الحجز المباشر',
+    'barber.vacant_chair_desc': 'يوجد كرسي شاغر للإيجار داخل هذا الصالون، يمكنك التقديم للعمل هنا!',
+    'staff.book': 'إحجز مع',
   }
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en'); // Default to English
+  const [language, setLanguage] = useState<Language>('ar'); // Default to Arabic
 
   useEffect(() => {
     const savedLang = localStorage.getItem('language') as Language;

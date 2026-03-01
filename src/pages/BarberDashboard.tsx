@@ -105,6 +105,12 @@ const BarberDashboard = () => {
   const [expenseName, setExpenseName] = useState('');
   const [expenseAmount, setExpenseAmount] = useState('');
 
+  const [isWalkinDialogOpen, setIsWalkinDialogOpen] = useState(false);
+  const [walkinName, setWalkinName] = useState('');
+  const [walkinSelectedServices, setWalkinSelectedServices] = useState<string[]>([]);
+  const [walkinDate, setWalkinDate] = useState(new Date().toISOString().split('T')[0]);
+  const [walkinTime, setWalkinTime] = useState('14:00');
+
   useEffect(() => {
     if (!user) {
       navigate('/auth');
@@ -411,6 +417,52 @@ const BarberDashboard = () => {
     } catch (error: unknown) {
       const err = error as Error;
       toast({ title: t('error'), description: err.message, variant: 'destructive' });
+    }
+  };
+
+  const handleWalkinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!barberId || walkinSelectedServices.length === 0) return;
+
+    const totalPrice = walkinSelectedServices.reduce((sum, sId) => {
+      const s = services.find(x => x.id === sId);
+      return sum + (s?.price || 0);
+    }, 0);
+
+    const totalDuration = walkinSelectedServices.reduce((sum, sId) => {
+      const s = services.find(x => x.id === sId);
+      return sum + (s?.duration_minutes || 0);
+    }, 0);
+
+    try {
+      await addDoc(collection(db, 'appointments'), {
+        barber_id: barberId,
+        customer_id: 'walk-in',
+        customer_name: walkinName || t('barber.customer_name'),
+        services: walkinSelectedServices,
+        total_price: totalPrice,
+        total_duration: totalDuration,
+        appointment_date: walkinDate,
+        appointment_time: walkinTime,
+        payment_method: 'salon',
+        status: 'completed',
+        created_at: new Date().toISOString()
+      });
+      toast({ title: 'Success', description: 'Walk-in booking added' });
+      setIsWalkinDialogOpen(false);
+      setWalkinName('');
+      setWalkinSelectedServices([]);
+      fetchAppointments();
+    } catch (error: unknown) {
+      toast({ variant: 'destructive', description: (error as Error).message });
+    }
+  };
+
+  const toggleWalkinService = (serviceId: string) => {
+    if (walkinSelectedServices.includes(serviceId)) {
+      setWalkinSelectedServices(walkinSelectedServices.filter(id => id !== serviceId));
+    } else {
+      setWalkinSelectedServices([...walkinSelectedServices, serviceId]);
     }
   };
 
@@ -738,10 +790,49 @@ const BarberDashboard = () => {
                 </h2>
                 <p className="text-sm text-muted-foreground mb-6">{t('dashboard.walkin.desc')}</p>
                 <div className="flex justify-center py-10 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl bg-slate-50/50 dark:bg-slate-800/50 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800">
-                  <Button variant="outline" className="rounded-full shadow-sm" size="lg" onClick={() => toast({ title: "Coming soon", description: "Walk-in management will be available in the next update." })}>
-                    <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                    {t('dashboard.walkin.add')}
-                  </Button>
+                  <Dialog open={isWalkinDialogOpen} onOpenChange={setIsWalkinDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="rounded-full shadow-sm" size="lg">
+                        <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                        {t('dashboard.walkin.add')}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md w-full rounded-[2rem] p-6 sm:p-8 bg-white/95 dark:bg-slate-900/95 backdrop-blur-3xl border-white/20">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold">{t('barber.offline_booking')}</DialogTitle>
+                      </DialogHeader>
+                      <form onSubmit={handleWalkinSubmit} className="space-y-4 mt-4">
+                        <div className="space-y-2">
+                          <Label>{t('barber.customer_name')}</Label>
+                          <Input value={walkinName} onChange={e => setWalkinName(e.target.value)} required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>{t('dashboard.tabs.services')}</Label>
+                          <div className="max-h-40 overflow-y-auto space-y-2 p-2 border rounded-xl">
+                            {services.map(s => (
+                              <div key={s.id} onClick={() => toggleWalkinService(s.id)} className={`p-2 rounded-lg cursor-pointer flex justify-between items-center transition-colors ${walkinSelectedServices.includes(s.id) ? 'bg-primary text-primary-foreground' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
+                                <span>{getServiceName(s)}</span>
+                                <span>{s.price} {t('currency')}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>{t('booking.date')}</Label>
+                            <Input type="date" value={walkinDate} onChange={e => setWalkinDate(e.target.value)} required />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>{t('booking.time')}</Label>
+                            <Input type="time" value={walkinTime} onChange={e => setWalkinTime(e.target.value)} required />
+                          </div>
+                        </div>
+                        <Button type="submit" className="w-full rounded-full mt-4 h-12 text-lg">
+                          {t('barber.book_offline')}
+                        </Button>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             </TabsContent>
