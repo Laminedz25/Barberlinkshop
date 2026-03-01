@@ -99,9 +99,9 @@ const Navigation = () => {
 
           {/* Right Side - Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="BarberLink Logo" className="h-8 w-auto mix-blend-difference" />
+            <img src="/logo.png" alt="barberlinkshop Logo" className="h-8 w-auto mix-blend-difference" />
             <h1 className="text-xl font-bold">
-              BarberLink
+              barberlinkshop
             </h1>
           </Link>
         </div>

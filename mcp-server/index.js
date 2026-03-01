@@ -7,7 +7,7 @@ import {
 
 const server = new Server(
     {
-        name: "barberlink-mcp-server",
+        name: "barberlinkshop-mcp-server",
         version: "1.0.0",
     },
     {
@@ -42,7 +42,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 // Handle tool execution
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (request.params.name === "get_barber_info") {
-        const { barberId } = request.params.arguments as { barberId: string };
+        const { barberId } = request.params.arguments;
 
         // In a real implementation, you would query Firebase here
         return {
@@ -61,7 +61,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function run() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    console.error("BarberLink MCP Server running on stdio");
+    console.error("barberlinkshop MCP Server running on stdio");
 }
 
 run().catch((error) => {

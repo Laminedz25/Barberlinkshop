@@ -1,5 +1,5 @@
 import { db } from "@/lib/firebase";
-import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
 
 /**
  * AutomationService.ts
@@ -16,11 +16,23 @@ export class AutomationService {
         try {
             console.log(`[MCP Automation - Social Media] Attempting to auto-post via Social Media MCP for Barber: ${barberId}`);
 
+            // Fetch AI Agent Prompts from Admin Settings
+            let systemPrompt = "Generate engaging Instagram captions highlighting barber skills.";
+            try {
+                const settingsRef = doc(db, 'system', 'settings');
+                const settingsSnap = await getDoc(settingsRef);
+                if (settingsSnap.exists() && settingsSnap.data().aiPrompts && settingsSnap.data().aiPrompts.social_media) {
+                    systemPrompt = settingsSnap.data().aiPrompts.social_media;
+                }
+            } catch (e) {
+                console.error("Failed to load AI Prompt settings", e);
+            }
+
             // Simulating a call to the 'social-media-marketing' MCP Server 
             // In production, this connects to the MCP tool to post to connected Facebook/Instagram accounts.
             const mcpPayload = {
                 tool: "post_to_socials",
-                arguments: { imageUrl, caption, networks: ["instagram", "facebook"] }
+                arguments: { imageUrl, baseCaption: caption, aiInstructions: systemPrompt, networks: ["instagram", "facebook"] }
             };
             console.log("Sending MCP Request:", mcpPayload);
             const mockMcpDelay = new Promise(resolve => setTimeout(resolve, 1500));
@@ -49,12 +61,24 @@ export class AutomationService {
         try {
             console.log(`[MCP Automation - CRM] Scheduling WhatsApp reminder using Whatsapp Cloud API MCP`);
 
+            let systemPrompt = "Remind users their subscription/appointment is expiring in a friendly way.";
+            try {
+                const settingsRef = doc(db, 'system', 'settings');
+                const settingsSnap = await getDoc(settingsRef);
+                if (settingsSnap.exists() && settingsSnap.data().aiPrompts && settingsSnap.data().aiPrompts.subscription_bot) {
+                    systemPrompt = settingsSnap.data().aiPrompts.subscription_bot;
+                }
+            } catch (e) {
+                console.error("Failed to load AI Prompt settings", e);
+            }
+
             // Simulating a call to the 'whatsapp-cloud-api-mcp' Server
             const mcpPayload = {
                 tool: "send_whatsapp_message",
                 arguments: {
                     to: customerPhone,
                     template: "appointment_reminder",
+                    aiContext: systemPrompt,
                     variables: { name: customerName, date: appointmentDate }
                 }
             };
@@ -111,6 +135,46 @@ export class AutomationService {
         } catch (error) {
             console.error("[Automation Error] Payment processing failed", error);
             return { success: false, message: "Transaction declined." };
+        }
+    }
+
+    /**
+     * Automated Billing & Reporting Agent
+     * Auto-runs at the end of every week/month to generate reports for Salons.
+     */
+    static async generatePeriodicReports(barberId: string) {
+        try {
+            console.log(`[MCP Automation - Reports] Generating periodic financial/billing report for ${barberId}`);
+
+            let systemPrompt = "Summarize weekly booking stats for salon owners.";
+            try {
+                const settingsRef = doc(db, 'system', 'settings');
+                const settingsSnap = await getDoc(settingsRef);
+                if (settingsSnap.exists() && settingsSnap.data().aiPrompts && settingsSnap.data().aiPrompts.reports_generator) {
+                    systemPrompt = settingsSnap.data().aiPrompts.reports_generator;
+                }
+            } catch (e) {
+                console.error("Failed to load AI Prompt settings", e);
+            }
+
+            // Simulated AI processing
+            const mcpPayload = {
+                tool: "generate_financial_report",
+                arguments: {
+                    barberId,
+                    aiInstructions: systemPrompt
+                }
+            };
+
+            console.log("Sending MCP Request:", mcpPayload);
+            const mockApiDelay = new Promise(resolve => setTimeout(resolve, 2000));
+            await mockApiDelay;
+
+            return { success: true, message: "Report successfully generated based on AI Agent training." };
+
+        } catch (error) {
+            console.error("[Automation Error] Report Generation failed", error);
+            return { success: false, message: "Report Generation failed." };
         }
     }
 }

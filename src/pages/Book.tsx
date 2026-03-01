@@ -83,6 +83,7 @@ const Book = () => {
             }
         };
         fetchBookedSlots();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, date]);
 
     useEffect(() => {
@@ -96,6 +97,7 @@ const Book = () => {
             return;
         }
         fetchServices();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, user]);
 
     const fetchServices = async () => {

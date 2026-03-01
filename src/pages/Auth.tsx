@@ -50,7 +50,14 @@ const Auth = () => {
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          navigate('/');
+          const role = docSnap.data().role;
+          if (role === 'admin') {
+            navigate('/admin');
+          } else if (role === 'barber') {
+            navigate('/dashboard');
+          } else {
+            navigate('/');
+          }
         } else {
           // They used social login but haven't completed profile
           setSocialUser(user);
@@ -90,16 +97,22 @@ const Auth = () => {
   };
 
   const createFirestoreUser = async (userAcc: User) => {
+    let role = userType === 'customer' ? 'customer' : 'barber';
+    if (email === 'admin@gmail.com') {
+      role = 'admin';
+    }
+
     await setDoc(doc(db, 'users', userAcc.uid), {
       id: userAcc.uid,
       email: email,
       full_name: fullName,
       phone: phone,
-      role: userType === 'customer' ? 'customer' : 'barber',
+      role: role,
       barber_type: userType !== 'customer' ? userType : null,
       country,
       state: stateProv,
       municipality,
+      avatar_url: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&h=200&auto=format&fit=crop',
       created_at: new Date().toISOString()
     });
 
@@ -116,6 +129,7 @@ const Auth = () => {
         salon_type: salonType,
         rating: 5,
         total_reviews: 0,
+        cover_photo_url: 'https://images.unsplash.com/photo-1512496015851-a1dc8a477858?w=800&auto=format&fit=crop',
         created_at: new Date().toISOString()
       });
     }
@@ -144,7 +158,13 @@ const Auth = () => {
       await createFirestoreUser(userAcc);
 
       toast({ title: t('auth.signup.success'), description: t('auth.signup.success.desc') });
-      navigate('/');
+      if (email === 'admin@gmail.com') {
+        navigate('/admin');
+      } else if (userType !== 'customer') {
+        navigate('/dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (error: unknown) {
       toast({ title: t('auth.error'), description: (error as Error).message, variant: 'destructive' });
     } finally {
@@ -156,7 +176,22 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCred.user;
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const role = docSnap.data().role;
+        if (role === 'admin') {
+          navigate('/admin');
+        } else if (role === 'barber') {
+          navigate('/dashboard');
+        } else {
+          navigate('/');
+        }
+      } else {
+        navigate('/');
+      }
     } catch (error: unknown) {
       toast({ title: t('auth.error'), description: (error as Error).message, variant: 'destructive' });
     } finally {
@@ -223,11 +258,11 @@ const Auth = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                   <div className="space-y-2">
                     <Label>{isRTL ? 'كلمة المرور' : 'Password'}</Label>
-                    <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+                    <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
                   </div>
                   <div className="space-y-2">
                     <Label>{isRTL ? 'تأكيد كلمة المرور' : 'Confirm Password'}</Label>
-                    <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} />
+                    <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={8} />
                   </div>
                 </div>
               )}

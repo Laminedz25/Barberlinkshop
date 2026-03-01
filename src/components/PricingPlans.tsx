@@ -3,6 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Check, Sparkles, Star, Store, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
+import { db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function PricingPlans() {
     const { t, isRTL } = useLanguage();
@@ -16,11 +19,33 @@ export default function PricingPlans() {
         });
     };
 
+    const [prices, setPrices] = useState({ basic: '1000', pro: '1500', premium: '2000' });
+
+    useEffect(() => {
+        const fetchPricing = async () => {
+            try {
+                const docRef = doc(db, 'system', 'settings');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists() && docSnap.data().prices) {
+                    const data = docSnap.data().prices;
+                    setPrices({
+                        basic: data.basic ? String(data.basic) : '1000',
+                        pro: data.pro ? String(data.pro) : '1500',
+                        premium: data.premium ? String(data.premium) : '2000'
+                    });
+                }
+            } catch (err) {
+                console.error("Error fetching dynamic pricing", err);
+            }
+        };
+        fetchPricing();
+    }, []);
+
     const plans = [
         {
             name: t('pricing.basic.name'),
             desc: t('pricing.basic.desc'),
-            price: t('pricing.basic.price'),
+            price: prices.basic,
             icon: <Star className="h-6 w-6 text-blue-500" />,
             color: "from-blue-500/20 to-transparent border-blue-500/20",
             btnClass: "bg-blue-600 hover:bg-blue-700 shadow-blue-600/20 text-white",
@@ -33,7 +58,7 @@ export default function PricingPlans() {
         {
             name: t('pricing.pro.name'),
             desc: t('pricing.pro.desc'),
-            price: t('pricing.pro.price'),
+            price: prices.pro,
             icon: <Store className="h-6 w-6 text-primary" />,
             color: "from-primary/20 to-primary/5 border-primary/50",
             btnClass: "bg-primary hover:bg-primary/90 shadow-primary/30 text-white",
@@ -48,7 +73,7 @@ export default function PricingPlans() {
         {
             name: t('pricing.premium.name'),
             desc: t('pricing.premium.desc'),
-            price: t('pricing.premium.price'),
+            price: prices.premium,
             icon: <TrendingUp className="h-6 w-6 text-yellow-500" />,
             color: "from-yellow-500/20 to-transparent border-yellow-500/20",
             btnClass: "bg-yellow-500 hover:bg-yellow-600 shadow-yellow-500/20 text-white",

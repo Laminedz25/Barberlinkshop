@@ -251,6 +251,14 @@ const BarberDashboard = () => {
       await updateDoc(appRef, { status: newStatus });
       toast({ title: 'Success', description: t(`dashboard.requests.${newStatus === 'completed' ? 'complete' : newStatus}`) || `Appointment marked as ${newStatus}` });
       fetchAppointments();
+
+      // Auto-trigger CRM WhatsApp/SMS reminder rule mapped by Subscription AI Bot
+      if (newStatus === 'accepted') {
+        const matchingApp = appointments.find(a => a.id === appId);
+        if (matchingApp && matchingApp.customer_name) {
+          AutomationService.scheduleAppointmentReminder("CustomerPhone", matchingApp.customer_name, matchingApp.appointment_date);
+        }
+      }
     } catch (error: unknown) {
       const err = error as Error;
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -329,9 +337,10 @@ const BarberDashboard = () => {
   };
 
   const getServiceName = (service: Service) => {
-    if (language === 'ar') return service.name_ar;
-    if (language === 'fr') return service.name_fr;
-    return service.name_en;
+    if (language === 'ar' && service.name_ar) return service.name_ar;
+    if (language === 'fr' && service.name_fr) return service.name_fr;
+    if (language === 'en' && service.name_en) return service.name_en;
+    return service.name_ar || service.name_en || service.name_fr;
   };
 
   const handleProductSubmit = async (e: React.FormEvent) => {
@@ -729,7 +738,7 @@ const BarberDashboard = () => {
                 </h2>
                 <p className="text-sm text-muted-foreground mb-6">{t('dashboard.walkin.desc')}</p>
                 <div className="flex justify-center py-10 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl bg-slate-50/50 dark:bg-slate-800/50 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800">
-                  <Button variant="outline" className="rounded-full shadow-sm" size="lg">
+                  <Button variant="outline" className="rounded-full shadow-sm" size="lg" onClick={() => toast({ title: "Coming soon", description: "Walk-in management will be available in the next update." })}>
                     <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                     {t('dashboard.walkin.add')}
                   </Button>
@@ -770,7 +779,7 @@ const BarberDashboard = () => {
                     <p className="text-sm text-muted-foreground mb-8">{t('dashboard.gallery.desc')}</p>
                   </div>
                   <div className="text-center py-20 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-[2rem] bg-slate-50/50 dark:bg-slate-800/50 flex-1 flex flex-col items-center justify-center transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800">
-                    <Button variant="outline" size="lg" className="rounded-full shadow-sm">
+                    <Button variant="outline" size="lg" className="rounded-full shadow-sm" onClick={() => toast({ title: "Coming soon", description: "Gallery upload will be available in the next update." })}>
                       <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                       {t('dashboard.gallery.upload')}
                     </Button>

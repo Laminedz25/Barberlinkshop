@@ -105,7 +105,7 @@ const translations = {
     'download.description': 'Experience seamless booking with our mobile app. Available for Android and iOS.',
 
     // Authentication
-    'auth.welcome': 'Welcome to BarberLink',
+    'auth.welcome': 'Welcome to barberlinkshop',
     'auth.subtitle': 'Connect with professional barbers',
     'auth.signin': 'Sign In',
     'auth.signup': 'Sign Up',
@@ -123,7 +123,7 @@ const translations = {
     'auth.loading': 'Loading...',
     'auth.error': 'Authentication Error',
     'auth.signup.success': 'Account created successfully',
-    'auth.signup.success.desc': 'Welcome to BarberLink!',
+    'auth.signup.success.desc': 'Welcome to barberlinkshop!',
 
     // Barber Profile
     'barber.notfound': 'Barber not found',
@@ -185,14 +185,14 @@ const translations = {
     'pricing.basic.f4': 'Appointment Notifications',
     'pricing.pro.name': 'Pro Plan',
     'pricing.pro.desc': 'For growing salons.',
-    'pricing.pro.price': '2500',
+    'pricing.pro.price': '1500',
     'pricing.pro.f1': 'Everything in Basic',
     'pricing.pro.f2': 'Integrated Digital Store',
     'pricing.pro.f3': 'AI Style & Makeup Assistant',
     'pricing.pro.f4': 'Weekly Financial Reports',
     'pricing.premium.name': 'Premium Plan',
     'pricing.premium.desc': 'Advanced tools for full automation.',
-    'pricing.premium.price': '5000',
+    'pricing.premium.price': '2000',
     'pricing.premium.f1': 'Everything in Pro',
     'pricing.premium.f2': 'VIP Search Placement',
     'pricing.premium.f3': 'Staff & Chairs Management',
@@ -202,7 +202,7 @@ const translations = {
     // Testimonials
     'testi.title': 'What Our Users Say',
     'testi.sub': 'Join thousands of satisfied salon owners and clients.',
-    'testi.1.text': 'BarberLink transformed my business! The AI stylist brings so many new female clients, and the automated weekly reports save me hours of accounting.',
+    'testi.1.text': 'barberlinkshop transformed my business! The AI stylist brings so many new female clients, and the automated weekly reports save me hours of accounting.',
     'testi.1.name': 'Sarah L.',
     'testi.1.role': 'Salon Owner',
     'testi.2.text': 'I manage 4 chairs in my barber shop. The platform handles all bookings seamlessly and sends SMS notifications to clients automatically.',
@@ -396,7 +396,7 @@ const translations = {
     'download.description': 'Profitez d\'une réservation fluide avec notre application mobile. Disponible pour Android et iOS.',
 
     // Authentication
-    'auth.welcome': 'Bienvenue sur BarberLink',
+    'auth.welcome': 'Bienvenue sur barberlinkshop',
     'auth.subtitle': 'Connectez-vous avec des coiffeurs professionnels',
     'auth.signin': 'Se Connecter',
     'auth.signup': 'S\'inscrire',
@@ -414,7 +414,7 @@ const translations = {
     'auth.loading': 'Chargement...',
     'auth.error': 'Erreur d\'authentification',
     'auth.signup.success': 'Compte créé avec succès',
-    'auth.signup.success.desc': 'Bienvenue sur BarberLink!',
+    'auth.signup.success.desc': 'Bienvenue sur barberlinkshop!',
 
     // Barber Profile
     'barber.notfound': 'Coiffeur introuvable',
@@ -476,7 +476,7 @@ const translations = {
     'pricing.basic.f4': 'Notifications de Rendez-vous',
     'pricing.pro.name': 'Forfait Pro',
     'pricing.pro.desc': 'Pour les salons en croissance.',
-    'pricing.pro.price': '2500',
+    'pricing.pro.price': '1500',
     'pricing.pro.f1': 'Tout dans Basique',
     'pricing.pro.f2': 'Boutique Numérique Intégrée',
     'pricing.pro.f3': 'Assistant IA Style & Maquillage',
@@ -493,7 +493,7 @@ const translations = {
     // Testimonials
     'testi.title': 'Ce que disent nos utilisateurs',
     'testi.sub': 'Rejoignez des milliers de propriétaires de salons et de clients satisfaits.',
-    'testi.1.text': 'BarberLink a transformé mon entreprise ! L\'IA m\'apporte beaucoup de nouvelles clientes et les rapports hebdomadaires automatisés me font gagner des heures de comptabilité.',
+    'testi.1.text': 'barberlinkshop a transformé mon entreprise ! L\'IA m\'apporte beaucoup de nouvelles clientes et les rapports hebdomadaires automatisés me font gagner des heures de comptabilité.',
     'testi.1.name': 'Sarah L.',
     'testi.1.role': 'Propriétaire de Salon',
     'testi.2.text': 'Je gère 4 chaises dans mon salon. La plateforme gère parfaitement toutes les réservations et envoie des notifications SMS automatiques aux clients.',
@@ -687,7 +687,7 @@ const translations = {
     'download.description': 'استمتع بحجز سلس مع تطبيقنا المحمول. متاح لأندرويد و iOS.',
 
     // Authentication
-    'auth.welcome': 'مرحباً بك في BarberLink',
+    'auth.welcome': 'مرحباً بك في barberlinkshop',
     'auth.subtitle': 'تواصل مع حلاقين محترفين',
     'auth.signin': 'تسجيل الدخول',
     'auth.signup': 'إنشاء حساب',
@@ -705,7 +705,7 @@ const translations = {
     'auth.loading': 'جاري التحميل...',
     'auth.error': 'خطأ في المصادقة',
     'auth.signup.success': 'تم إنشاء الحساب بنجاح',
-    'auth.signup.success.desc': 'مرحباً بك في BarberLink!',
+    'auth.signup.success.desc': 'مرحباً بك في barberlinkshop!',
 
     // Barber Profile
     'barber.notfound': 'الحلاق غير موجود',
@@ -784,7 +784,7 @@ const translations = {
     // Testimonials
     'testi.title': 'ماذا يقول عملاؤنا عنا',
     'testi.sub': 'انضم إلى الآلاف من أصحاب الصالونات والمستخدمين الراضين.',
-    'testi.1.text': 'منصة باربر لينك غيرت طريقة عملي بالكامل! أداة الذكاء الاصطناعي جراف العديد من الزبونات لصالون التجميل الخاص بي، والتقارير الأسبوعية الآلية توفر علي الكثير من الوقت.',
+    'testi.1.text': 'منصة barberlinkshop غيرت طريقة عملي بالكامل! أداة الذكاء الاصطناعي جراف العديد من الزبونات لصالون التجميل الخاص بي، والتقارير الأسبوعية الآلية توفر علي الكثير من الوقت.',
     'testi.1.name': 'سارة ل.',
     'testi.1.role': 'مالكة صالون تجميل',
     'testi.2.text': 'أدير صالوناً بـ 4 كراسي. المنصة تنظم الحجوزات بشكل مذهل، وتجعل الزبون يختار مقاله المفضل، وتقوم بإرسال رسائل التنبيه تلقائياً للزبائن دون تدخلي.',
@@ -888,7 +888,7 @@ const translations = {
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('ar'); // Default to Arabic
+  const [language, setLanguage] = useState<Language>('en'); // Default to English
 
   useEffect(() => {
     const savedLang = localStorage.getItem('language') as Language;
