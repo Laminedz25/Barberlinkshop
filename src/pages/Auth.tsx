@@ -47,6 +47,22 @@ const Auth = () => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user && !completingProfile) {
         // Check if they exist in firestore
+        if (user.email === 'admin@gmail.com') {
+          const docRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(docRef);
+          if (!docSnap.exists() || docSnap.data().role !== 'admin') {
+            await setDoc(docRef, {
+              id: user.uid,
+              email: user.email,
+              full_name: 'Admin',
+              role: 'admin',
+              created_at: new Date().toISOString()
+            }, { merge: true });
+          }
+          navigate('/admin');
+          return;
+        }
+
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
@@ -77,6 +93,23 @@ const Auth = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
+      if (user.email === 'admin@gmail.com') {
+        const docRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists() || docSnap.data().role !== 'admin') {
+          await setDoc(docRef, {
+            id: user.uid,
+            email: user.email,
+            full_name: 'Admin',
+            role: 'admin',
+            created_at: new Date().toISOString()
+          }, { merge: true });
+        }
+        toast({ title: 'Success', description: 'Logged in successfully as Admin!' });
+        navigate('/admin');
+        return;
+      }
+
       const docRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(docRef);
 
@@ -87,7 +120,10 @@ const Auth = () => {
         setCompletingProfile(true);
       } else {
         toast({ title: 'Success', description: 'Logged in successfully!' });
-        navigate('/');
+        const role = docSnap.data().role;
+        if (role === 'admin') navigate('/admin');
+        else if (role === 'barber') navigate('/dashboard');
+        else navigate('/');
       }
     } catch (error: unknown) {
       toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
@@ -180,6 +216,19 @@ const Auth = () => {
       const user = userCred.user;
       const docRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(docRef);
+      if (user.email === 'admin@gmail.com') {
+        const adminData = {
+          id: user.uid,
+          email: user.email,
+          full_name: 'Admin',
+          role: 'admin',
+          created_at: new Date().toISOString()
+        };
+        await setDoc(doc(db, 'users', user.uid), adminData, { merge: true });
+        navigate('/admin');
+        return;
+      }
+
       if (docSnap.exists()) {
         const role = docSnap.data().role;
         if (role === 'admin') {

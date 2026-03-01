@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ChatMessage {
     id: string;
@@ -32,10 +33,40 @@ const AIAssistant = () => {
     const [fileAttachment, setFileAttachment] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [aiContext, setAiContext] = useState("");
+    const [userRole, setUserRole] = useState("guest");
+    const { user } = useAuth();
     const scrollRef = useRef<HTMLDivElement>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const recognitionRef = useRef<any>(null);
     const { isRTL } = useLanguage();
+
+    useEffect(() => {
+        const fetchRole = async () => {
+            if (!user) {
+                setUserRole("guest");
+                return;
+            }
+            const docRef = doc(db, 'users', user.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.role === 'admin') {
+                    setUserRole('admin');
+                } else if (data.role === 'customer') {
+                    setUserRole('customer');
+                } else if (data.role === 'barber') {
+                    const bRef = doc(db, 'barbers', user.uid);
+                    const bSnap = await getDoc(bRef);
+                    if (bSnap.exists()) {
+                        setUserRole(bSnap.data().type || 'barber');
+                    } else {
+                        setUserRole('barber');
+                    }
+                }
+            }
+        };
+        fetchRole();
+    }, [user]);
 
     useEffect(() => {
         const fetchAiContext = async () => {
@@ -123,19 +154,57 @@ const AIAssistant = () => {
     const getMockResponse = (query: string): string => {
         const q = query.toLowerCase();
 
-        // Integrate AI Context Rules into the mock response
+        // 1. Security and Privacy Boundaries
+        const protectedKeywords = ["سر", "معلومات شخصية", "بيانات", "secret", "ارباح", "أرباح", "profit", "revenue", "دخل"];
+        if (protectedKeywords.some(keyword => q.includes(keyword))) {
+            return "عذراً، بصفتي مساعداً ذكياً ومبنياً على مبادئ الشفافية والخصوصية، لا يسعني الإفصاح عن معلومات سرية أو تفاصيل خاصة ببيانات أو أرباح الأفراد أو المنصة.";
+        }
+
+        // 2. Investor Support & Escalation
+        const containsEmail = q.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+        if (q.includes("استثمار") || q.includes("invest") || q.includes("مستثمر") || containsEmail) {
+            return "أهلاً بك. يبدو أنك تبحث عن تواصل مهني أو استثماري. المنصة تفتح أبوابها للمستثمرين بشفافية كاملة. لقد قمت برفع رسالتك إلى الإدارة وسيتم الرد عليك في أقرب وقت عبر بريدك الإلكتروني الاحترافي.";
+        }
+
+        // 3. User Role Based Context boundaries
+        if (userRole === 'admin') {
+            if (q.includes("احصائيات") || q.includes("stats") || q.includes("مستخدمين")) {
+                return "أهلاً بك أيها المدير. يمكنك مشاهدة جميع إحصائيات المنصة، عدد الصالونات والزبائن مفصلة في تبويبة 'الإحصائيات' داخل لوحة التحكم الخاصة بك.";
+            } else {
+                return "أهلاً بالإدارة. أنا هنا لتقديم دعم سريع. لتغيير الإعدادات المركزية للمنصة، يُرجى التوجه لتبويبة الإعدادات.";
+            }
+        }
+
+        if (userRole === 'salon_owner') {
+            if (q.includes("احجز") || q.includes("موعد")) {
+                return "أهلاً بك صاحب الصالون. لإضافة موعد زبون حضر مباشرة (Offline)، يُرجى التوجه إلى قسم الاستقبال (Walk-ins) في لوحة التحكم وتأكيد حجزه لتحديث قائمة الانتظار الذكية.";
+            }
+            return "أهلاً بك صاحب الصالون. يمكنك الاعتماد عليّ للإجابة عن أسئلتك التقنية المتعلقة بالمنصة، مثل كيفية إدارة طاقم الحلاقين وإعداد نقاط الولاء لمتجرك.";
+        }
+
+        if (userRole === 'mobile_barber' || userRole === 'salon_barber') {
+            if (q.includes("موعد") || q.includes("طلب")) {
+                return "أهلاً صديقي الحلاق. لمراجعة وجدولة طلباتك، يُرجى التحقق من تبويبة الطلبات (Bookings) داخل لوحة التحكم للموافقة أو تقديم وقت بديل.";
+            }
+            return "أهلاً بك! يمكنني مساعدتك في توضيح كيفية تفعيل خدماتك، تعديل أوقات دوامك، والتواصل مع زبائنك لضمان تقديم تجربة ممتازة.";
+        }
+
+        // 4. Default Mock AI Context (For Guests and Customers)
         const baseContext = aiContext ? `[AI System Rule: ${aiContext}] ` : "";
 
         if (q.includes("احجز") || q.includes("حجز") || q.includes("book")) {
-            return baseContext + "تم مبدئياً البحث عن موعد متاح لك! هناك موعد فارغ غداً الساعة 4:00 مساءً. يمكنك تأكيده من خلال زيارة صفحة الحلاق والضغط على زر الحجز المباشر.";
+            return baseContext + "تم مبدئياً البحث عن مواعيد قريبة لك! يمكنك الضغط على 'استكشف' واختيار الحلاق ثم الضغط على زر الحجز المباشر واختيار التوقيت المناسب.";
         }
         if (q.includes("سعر") || q.includes("اسعار") || q.includes("price")) {
             return baseContext + "الأسعار تختلف حسب كل صالون والخدمة المقدمة. يمكنك رؤية تفاصيل الأسعار لكل خدمة داخل الصفحة الشخصية للحلاق الذي تختاره.";
         }
         if (q.includes("دفع") || q.includes("pay") || q.includes("نقاط") || q.includes("points")) {
-            return baseContext + "نحن نوفر الدفع الإلكتروني المسبق الدفع، ويمكنك استخدام 'نقاط الولاء' الخاصة بك للحصول على خصومات حصرية أو حلاقة مجانية!";
+            return baseContext + "نحن نوفر الدفع الإلكتروني بالإضافة إلى الدفع داخل الصالون، ويمكنك استخدام 'نقاط الولاء' الخاصة بك للحصول على خصومات حصرية أو حلاقة مجانية!";
         }
-        return baseContext + "هذا سؤال ممتاز! بصفتي المساعد الذكي لمنصة barberlinkshop، أنا هنا لتسهيل تجربتك. يمكنك إرسال صورتك لأقترح لك تسريحة، أو سؤالي عن حجز موعد.";
+
+        return baseContext + (userRole === 'customer'
+            ? "بصفتي المساعد الذكي، أنا هنا لتسهيل تجربتك. يمكنك إرسال صورتك لأقترح لك تسريحة، أو البحث لك عن أوقات شاغرة."
+            : "هذا سؤال رائع. هل ترغب في مساعدة للبحث عن صالون معين أو معرفة المزيد حول كيفية عمل المنصة؟");
     };
 
     if (!isOpen) {
