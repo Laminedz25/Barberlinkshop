@@ -38,7 +38,7 @@ const AdminDashboard = () => {
     const [prices, setPrices] = useState({ basic: 1000, pro: 1500, premium: 2000 });
 
     // Tab: API Keys
-    const [apiKeys, setApiKeys] = useState({ openai: '', stripe: '', other: '' });
+    const [apiKeys, setApiKeys] = useState({ openai: '', stripe: '', telegramToken: '', weatherKey: '', nominatimUrl: '', other: '' });
 
     // Tab: Socials
     const [socials, setSocials] = useState({ facebook: '', instagram: '', tiktok: '', snapchat: '', youtube: '' });
@@ -384,16 +384,28 @@ const AdminDashboard = () => {
                                 <p className="text-sm text-muted-foreground mb-4">Modify API keys dynamically without rebuilding.</p>
                                 <div className="space-y-4">
                                     <div>
-                                        <Label>OpenAI API Key</Label>
-                                        <Input type="password" value={apiKeys.openai} onChange={e => setApiKeys({ ...apiKeys, openai: e.target.value })} placeholder="sk-..." />
+                                        <Label>OpenAI API Key (AI Broker & Agents)</Label>
+                                        <Input type="password" value={apiKeys.openai || ''} onChange={e => setApiKeys({ ...apiKeys, openai: e.target.value })} placeholder="sk-..." />
                                     </div>
                                     <div>
-                                        <Label>Stripe Secret Key</Label>
-                                        <Input type="password" value={apiKeys.stripe} onChange={e => setApiKeys({ ...apiKeys, stripe: e.target.value })} placeholder="sk_test_..." />
+                                        <Label>Stripe Secret Key (Payments)</Label>
+                                        <Input type="password" value={apiKeys.stripe || ''} onChange={e => setApiKeys({ ...apiKeys, stripe: e.target.value })} placeholder="sk_test_..." />
                                     </div>
                                     <div>
-                                        <Label>Other Integrations</Label>
-                                        <Input type="password" value={apiKeys.other} onChange={e => setApiKeys({ ...apiKeys, other: e.target.value })} />
+                                        <Label>Telegram Bot Token (Notifications & Messaging)</Label>
+                                        <Input type="password" value={apiKeys.telegramToken || ''} onChange={e => setApiKeys({ ...apiKeys, telegramToken: e.target.value })} placeholder="123456789:ABCdefGHIjkl..." />
+                                    </div>
+                                    <div>
+                                        <Label>Weather API Route (Open-Meteo / WeatherAPI)</Label>
+                                        <Input type="text" value={apiKeys.weatherKey || ''} onChange={e => setApiKeys({ ...apiKeys, weatherKey: e.target.value })} placeholder="Free proxy: Use Open-Meteo directly or set key here" />
+                                    </div>
+                                    <div>
+                                        <Label>Nominatim (Geocoding) Instance URL</Label>
+                                        <Input type="text" value={apiKeys.nominatimUrl || ''} onChange={e => setApiKeys({ ...apiKeys, nominatimUrl: e.target.value })} placeholder="https://nominatim.openstreetmap.org" />
+                                    </div>
+                                    <div>
+                                        <Label>Other Integrations (e.g. Numverify)</Label>
+                                        <Input type="password" value={apiKeys.other || ''} onChange={e => setApiKeys({ ...apiKeys, other: e.target.value })} />
                                     </div>
                                     <Button onClick={saveSettings} className="w-full rounded-full mt-4">Securely Update Keys</Button>
                                 </div>

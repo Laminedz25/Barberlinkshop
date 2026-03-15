@@ -21,6 +21,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FcGoogle } from 'react-icons/fc';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+import LocationPicker from '@/components/LocationPicker';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -32,12 +35,16 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState<string | undefined>('');
   const [userType, setUserType] = useState<'customer' | 'salon_owner' | 'salon_barber' | 'mobile_barber'>('customer');
   const [country, setCountry] = useState('Algeria');
   const [stateProv, setStateProv] = useState('');
   const [municipality, setMunicipality] = useState('');
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+
+  // Coordinates for Barbers
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
 
   // For social login complete profile step
   const [completingProfile, setCompletingProfile] = useState(false);
@@ -134,7 +141,7 @@ const Auth = () => {
 
   const createFirestoreUser = async (userAcc: User) => {
     let role = userType === 'customer' ? 'customer' : 'barber';
-    if (email === 'admin@gmail.com') {
+    if (email === 'admin@gmail.com' || userAcc.email === 'admin@gmail.com') {
       role = 'admin';
     }
 
@@ -161,6 +168,7 @@ const Auth = () => {
         country,
         state: stateProv,
         city: municipality,
+        coordinates: lat && lng ? { lat, lng } : null,
         is_active: true,
         salon_type: salonType,
         rating: 5,
@@ -173,6 +181,11 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (phone && !isValidPhoneNumber(phone)) {
+      return toast({ title: isRTL ? 'رقم الهاتف غير صالح' : 'Invalid Phone Number', description: isRTL ? 'يرجى إدخال رقم هاتف دولي صحيح.' : 'Please enter a valid international phone number.', variant: 'destructive' });
+    }
+
     if (!privacyAccepted) {
       return toast({ title: 'Error', description: 'You must accept the privacy policy.', variant: 'destructive' });
     }
@@ -191,7 +204,11 @@ const Auth = () => {
         await updateProfile(userAcc, { displayName: fullName });
       }
 
-      await createFirestoreUser(userAcc);
+      if (userAcc) {
+        await createFirestoreUser(userAcc);
+      } else {
+        throw new Error("User account could not be created or fetched.");
+      }
 
       toast({ title: t('auth.signup.success'), description: t('auth.signup.success.desc') });
       if (email === 'admin@gmail.com') {
@@ -263,9 +280,18 @@ const Auth = () => {
                   <Label>{isRTL ? 'الاسم الكامل / اسم المستخدم' : 'Full Name / Username'}</Label>
                   <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
                 </div>
-                <div className="space-y-2">
-                  <Label>{isRTL ? 'رقم الهاتف' : 'Phone Number'}</Label>
-                  <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                <div className="space-y-2 relative" dir="ltr">
+                  <Label className={isRTL ? "text-right block w-full" : ""}>{isRTL ? 'رقم الهاتف' : 'Phone Number'}</Label>
+                  <div className="flex items-center w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+                    <PhoneInput
+                      international
+                      countryCallingCodeEditable={false}
+                      defaultCountry="DZ"
+                      value={phone}
+                      onChange={setPhone}
+                      className="w-full bg-transparent outline-none flex border-none focus:outline-none"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label>{isRTL ? 'البلد' : 'Country'}</Label>
@@ -302,6 +328,20 @@ const Auth = () => {
                   </div>
                 </RadioGroup>
               </div>
+
+              {userType !== 'customer' && (
+                <div className="pt-4 border-t space-y-3">
+                  <Label className="text-lg font-semibold">{isRTL ? 'موقع الصالون (الخريطة)' : 'Salon Location (Map)'}</Label>
+                  <LocationPicker
+                    defaultLat={36.7525}
+                    defaultLng={3.04197}
+                    onLocationSelect={(lt, lg) => {
+                      setLat(lt);
+                      setLng(lg);
+                    }}
+                  />
+                </div>
+              )}
 
               {!socialUser && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">

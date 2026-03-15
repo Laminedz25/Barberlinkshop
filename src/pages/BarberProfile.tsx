@@ -41,6 +41,9 @@ interface Service {
   name_ar: string;
   name_en: string;
   name_fr: string;
+  description_ar?: string;
+  description_en?: string;
+  description_fr?: string;
   price: number;
   duration_minutes: number;
 }
@@ -299,7 +302,14 @@ const BarberProfile = () => {
     if (language === 'ar' && service.name_ar) return service.name_ar;
     if (language === 'fr' && service.name_fr) return service.name_fr;
     if (language === 'en' && service.name_en) return service.name_en;
-    return service.name_ar || service.name_en || service.name_fr;
+    return service.name_ar || service.name_en || service.name_fr || 'Unnamed Service';
+  };
+
+  const getServiceDesc = (service: Service) => {
+    if (language === 'ar' && service.description_ar) return service.description_ar;
+    if (language === 'fr' && service.description_fr) return service.description_fr;
+    if (language === 'en' && service.description_en) return service.description_en;
+    return service.description_ar || service.description_en || service.description_fr || '';
   };
 
   return (
@@ -441,9 +451,12 @@ const BarberProfile = () => {
                 ) : (
                   <div className="grid md:grid-cols-2 gap-4">
                     {services.map((service) => (
-                      <div key={service.id} className="group bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 p-6 rounded-[2rem] border border-white/50 dark:border-slate-700/50 shadow-sm hover:shadow-xl transition-all flex justify-between items-center cursor-default">
-                        <div>
+                      <div key={service.id} className="group bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 p-6 rounded-[2rem] border border-white/50 dark:border-slate-700/50 shadow-sm hover:shadow-xl transition-all flex justify-between items-start cursor-default">
+                        <div className="flex-1 min-w-0 pr-4">
                           <h3 className="font-extrabold text-xl mb-1 text-slate-800 dark:text-slate-200 group-hover:text-primary transition-colors">{getServiceName(service)}</h3>
+                          {getServiceDesc(service) && (
+                            <p className="text-sm text-muted-foreground font-medium mb-3 leading-relaxed break-words">{getServiceDesc(service)}</p>
+                          )}
                           <p className="text-sm text-muted-foreground font-semibold flex items-center gap-1"><Calendar className="h-3 w-3" /> {service.duration_minutes} {t('barber.minutes')}</p>
                         </div>
                         <div className="bg-primary/10 dark:bg-primary/5 px-4 py-2 rounded-2xl">

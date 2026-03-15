@@ -24,6 +24,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { AutomationService } from '@/services/AutomationService';
+import WeatherWidget from '@/components/WeatherWidget';
 
 interface Expense {
   id: string;
@@ -517,6 +518,10 @@ const BarberDashboard = () => {
                 {t('dashboard.services.management')}
               </h1>
               <p className="text-muted-foreground text-lg">{t('dashboard.services.desc')}</p>
+            </div>
+
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <WeatherWidget />
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

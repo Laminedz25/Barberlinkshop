@@ -129,7 +129,8 @@ const Footer = () => {
             <div className="space-y-3">
               <a
                 href="#"
-                className="block bg-background hover:bg-accent border border-border rounded-lg p-3 transition-colors"
+                onClick={(e) => { e.preventDefault(); alert("تطبيق الأندرويد سيكون متاحاً قريباً! Android App coming soon!"); }}
+                className="block bg-background hover:bg-accent border border-border rounded-lg p-3 transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
@@ -143,7 +144,8 @@ const Footer = () => {
               </a>
               <a
                 href="#"
-                className="block bg-background hover:bg-accent border border-border rounded-lg p-3 transition-colors"
+                onClick={(e) => { e.preventDefault(); alert("تطبيق iOS سيكون متاحاً قريباً! iOS App coming soon!"); }}
+                className="block bg-background hover:bg-accent border border-border rounded-lg p-3 transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
