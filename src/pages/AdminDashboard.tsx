@@ -150,35 +150,32 @@ const AdminDashboard = () => {
     const createDemoProfiles = async () => {
         try {
             const demoBarbers = [
-                {
-                    id: 'demo-barber-1',
-                    email: 'demo1@barberlinkshop.com',
-                    full_name: 'Elite Barbershop (Demo)',
-                    role: 'barber',
-                    barber_type: 'salon_owner',
-                    is_banned: false,
-                },
-                {
-                    id: 'demo-barber-2',
-                    email: 'demo2@barberlinkshop.com',
-                    full_name: 'Glamour Beauty Studio (Demo)',
-                    role: 'barber',
-                    barber_type: 'salon_owner',
-                    is_banned: false,
-                }
+                { id: '1', name: 'Elite Barbershop', email: 'elite@barberlinkshop.com', type: 'salon_owner', rating: 4.8, reviewCount: 124, phone: '0555000001', address: 'Rue Didouche Mourad, Algiers Center' },
+                { id: '2', name: 'Glamour Beauty Studio', email: 'glamour@barberlinkshop.com', type: 'salon_owner', rating: 4.9, reviewCount: 89, phone: '0555000002', address: 'Boulevard Mohamed V, Oran' },
+                { id: '3', name: 'Style Hub Unisex', email: 'stylehub@barberlinkshop.com', type: 'salon_owner', rating: 4.7, reviewCount: 156, phone: '0555000003', address: 'Avenue de l\'Independence, Constantine' },
+                { id: '4', name: 'Royal Men\'s Lounge', email: 'royal@barberlinkshop.com', type: 'salon_owner', rating: 4.6, reviewCount: 98, phone: '0555000004', address: 'Rue Larbi Ben M\'hidi, Tlemcen' },
+                { id: '5', name: 'Bella Vista Salon', email: 'bella@barberlinkshop.com', type: 'salon_owner', rating: 4.8, reviewCount: 203, phone: '0555000005', address: 'Place 1er Novembre, Annaba' },
+                { id: '6', name: 'Modern Look Studio', email: 'modern@barberlinkshop.com', type: 'salon_owner', rating: 4.5, reviewCount: 67, phone: '0555000006', address: 'Boulevard Emir Abdelkader, Sétif' }
             ];
 
             for (const b of demoBarbers) {
-                await setDoc(doc(db, 'users', b.id), b, { merge: true });
+                await setDoc(doc(db, 'users', b.id), {
+                    id: b.id,
+                    email: b.email,
+                    full_name: b.name,
+                    role: 'barber',
+                    barber_type: b.type,
+                    is_banned: false,
+                }, { merge: true });
                 await setDoc(doc(db, 'barbers', b.id), {
-                    store_name: b.full_name,
+                    store_name: b.name,
                     offers_home_visit: false,
-                    type: b.barber_type,
-                    rating: 4.8,
-                    reviewCount: 120,
+                    type: b.type,
+                    rating: b.rating,
+                    reviewCount: b.reviewCount,
                     about: 'This is a demo profile that barbers can see and edit after claiming.',
-                    phone: '0555555555',
-                    address: 'Center City, Algeria',
+                    phone: b.phone,
+                    address: b.address,
                     created_at: new Date().toISOString()
                 }, { merge: true });
             }
