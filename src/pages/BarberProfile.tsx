@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, MapPin, Phone, Calendar, Heart, Share2, Instagram, Facebook, MessageCircle, ShoppingBag } from 'lucide-react';
+import { Star, MapPin, Phone, Calendar, Heart, Share2, Instagram, Facebook, MessageCircle, ShoppingBag, Globe, Video, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
 import Navigation from '@/components/Navigation';
@@ -28,6 +28,9 @@ interface BarberProfile {
   phone: string;
   instagram: string;
   facebook: string;
+  tiktok?: string;
+  website?: string;
+  socials_public?: boolean;
   is_vip: boolean;
   offers_home_visit: boolean;
   rating: number;
@@ -312,6 +315,9 @@ const BarberProfile = () => {
     return service.description_ar || service.description_en || service.description_fr || '';
   };
 
+  const hasSocials = barber.instagram || barber.facebook || barber.tiktok || barber.website;
+  const canViewSocials = barber.socials_public !== false || isFavorite;
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <Navigation />
@@ -366,19 +372,44 @@ const BarberProfile = () => {
                     </div>
                   </div>
                   <div className="flex gap-2 justify-center">
-                    {barber.instagram && (
-                      <a href={barber.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram Profile" title="Instagram Profile">
-                        <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-[#E4405F] hover:text-white hover:border-[#E4405F] transition-all shadow-sm">
-                          <Instagram className="h-5 w-5" />
-                        </Button>
-                      </a>
-                    )}
-                    {barber.facebook && (
-                      <a href={barber.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook Profile" title="Facebook Profile">
-                        <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] transition-all shadow-sm">
-                          <Facebook className="h-5 w-5" />
-                        </Button>
-                      </a>
+                    {hasSocials && (
+                      canViewSocials ? (
+                        <>
+                          {barber.instagram && (
+                            <a href={barber.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram Profile" title="Instagram Profile">
+                              <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-[#E4405F] hover:text-white hover:border-[#E4405F] transition-all shadow-sm">
+                                <Instagram className="h-5 w-5" />
+                              </Button>
+                            </a>
+                          )}
+                          {barber.facebook && (
+                            <a href={barber.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook Profile" title="Facebook Profile">
+                              <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] transition-all shadow-sm">
+                                <Facebook className="h-5 w-5" />
+                              </Button>
+                            </a>
+                          )}
+                          {barber.tiktok && (
+                            <a href={barber.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok Profile" title="TikTok Profile">
+                              <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black hover:border-black dark:hover:border-white transition-all shadow-sm">
+                                <Video className="h-5 w-5" />
+                              </Button>
+                            </a>
+                          )}
+                          {barber.website && (
+                            <a href={barber.website} target="_blank" rel="noopener noreferrer" aria-label="Website" title="Website">
+                              <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
+                                <Globe className="h-5 w-5" />
+                              </Button>
+                            </a>
+                          )}
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center gap-1 text-sm text-slate-500 bg-slate-100/50 dark:bg-slate-800/50 px-4 py-1.5 rounded-2xl border border-slate-200/50 dark:border-slate-700/50">
+                          <Lock className="w-4 h-4 ml-1 mb-0.5" />
+                          <span className="font-semibold text-xs">{t('Private links')}</span>
+                        </div>
+                      )
                     )}
                     <Button
                       variant="outline"

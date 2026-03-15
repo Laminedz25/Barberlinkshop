@@ -136,8 +136,10 @@ const Book = () => {
     };
 
     const getServiceName = (service: Service) => {
-        // Enforce Arabic names as primary choice per user request
-        return service.name_ar || service.name_fr || service.name_en;
+        if (language === 'ar' && service.name_ar) return service.name_ar;
+        if (language === 'fr' && service.name_fr) return service.name_fr;
+        if (language === 'en' && service.name_en) return service.name_en;
+        return service.name_ar || service.name_en || service.name_fr || 'Unnamed Service';
     };
 
     const toggleService = (serviceId: string) => {

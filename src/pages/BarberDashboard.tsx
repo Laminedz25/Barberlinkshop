@@ -11,7 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { Plus, Edit, Trash2, DollarSign, Clock, QrCode, ImagePlus, UserPlus, Link as LinkIcon, CheckCircle2, XCircle, Check, TrendingUp, TrendingDown, ShoppingBag, AlertTriangle, ListOrdered, Gift } from 'lucide-react';
+import { Plus, Edit, Trash2, DollarSign, Clock, QrCode, ImagePlus, UserPlus, Link as LinkIcon, CheckCircle2, XCircle, Check, TrendingUp, TrendingDown, ShoppingBag, AlertTriangle, ListOrdered, Gift, Instagram, Facebook, Globe, Video, Save } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -112,6 +113,15 @@ const BarberDashboard = () => {
   const [walkinDate, setWalkinDate] = useState(new Date().toISOString().split('T')[0]);
   const [walkinTime, setWalkinTime] = useState('14:00');
 
+  const [socials, setSocials] = useState({
+    instagram: '',
+    facebook: '',
+    tiktok: '',
+    website: '',
+    socials_public: true
+  });
+  const [isSavingSocials, setIsSavingSocials] = useState(false);
+
   useEffect(() => {
     if (!user) {
       navigate('/auth');
@@ -148,7 +158,15 @@ const BarberDashboard = () => {
         return;
       }
 
+      const data = querySnapshot.docs[0].data();
       setBarberId(querySnapshot.docs[0].id);
+      setSocials({
+        instagram: data.instagram || '',
+        facebook: data.facebook || '',
+        tiktok: data.tiktok || '',
+        website: data.website || '',
+        socials_public: data.socials_public !== false
+      });
     } catch (error: unknown) {
       const err = error as Error;
       toast({
@@ -483,6 +501,25 @@ const BarberDashboard = () => {
     } catch (error: unknown) {
       const err = error as Error;
       toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleSaveSocials = async () => {
+    if (!barberId) return;
+    setIsSavingSocials(true);
+    try {
+      await updateDoc(doc(db, 'barbers', barberId), {
+        instagram: socials.instagram,
+        facebook: socials.facebook,
+        tiktok: socials.tiktok,
+        website: socials.website,
+        socials_public: socials.socials_public
+      });
+      toast({ title: 'Success', description: 'Social links updated successfully!' });
+    } catch (error) {
+      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+    } finally {
+      setIsSavingSocials(false);
     }
   };
 
@@ -901,6 +938,53 @@ const BarberDashboard = () => {
                     <Button variant="outline" size="lg" className="rounded-full shadow-sm" onClick={() => toast({ title: "Coming soon", description: "Gallery upload will be available in the next update." })}>
                       <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                       {t('dashboard.gallery.upload')}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl flex flex-col col-span-1 md:col-span-2 mt-4">
+                  <h2 className="text-2xl font-bold flex items-center gap-3 mb-2 text-primary">
+                    <Globe className="h-6 w-6" /> Social Links & External Store
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-6">Manage your external profiles. Set privacy to hide them from non-followers.</p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="flex items-center gap-2 mb-2"><Instagram className="w-4 h-4 text-pink-600" /> Instagram Link</Label>
+                        <Input value={socials.instagram} onChange={e => setSocials({ ...socials, instagram: e.target.value })} placeholder="https://instagram.com/..." className="rounded-xl bg-slate-50/50 dark:bg-slate-800/50" />
+                      </div>
+                      <div>
+                        <Label className="flex items-center gap-2 mb-2"><Facebook className="w-4 h-4 text-blue-600" /> Facebook Link</Label>
+                        <Input value={socials.facebook} onChange={e => setSocials({ ...socials, facebook: e.target.value })} placeholder="https://facebook.com/..." className="rounded-xl bg-slate-50/50 dark:bg-slate-800/50" />
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="flex items-center gap-2 mb-2"><Video className="w-4 h-4" /> TikTok Link</Label>
+                        <Input value={socials.tiktok} onChange={e => setSocials({ ...socials, tiktok: e.target.value })} placeholder="https://tiktok.com/@..." className="rounded-xl bg-slate-50/50 dark:bg-slate-800/50" />
+                      </div>
+                      <div>
+                        <Label className="flex items-center gap-2 mb-2"><Globe className="w-4 h-4 text-green-600" /> External Store / Website</Label>
+                        <Input value={socials.website} onChange={e => setSocials({ ...socials, website: e.target.value })} placeholder="https://your-store.com" className="rounded-xl bg-slate-50/50 dark:bg-slate-800/50" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-6 gap-6 p-4 bg-slate-100/50 dark:bg-slate-800/50 rounded-[2rem] border border-slate-200/50 dark:border-slate-700/50">
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id="socials_public"
+                        checked={socials.socials_public}
+                        onCheckedChange={(checked) => setSocials({ ...socials, socials_public: checked as boolean })}
+                        className="mt-1 w-5 h-5 flex-shrink-0"
+                      />
+                      <div>
+                        <Label htmlFor="socials_public" className="font-bold text-base cursor-pointer hover:text-primary transition-colors">Make Social Links & Stores Public</Label>
+                        <p className="text-sm text-muted-foreground mt-1">If unchecked, only clients who added you to Favorites (Followers) can see these external links.</p>
+                      </div>
+                    </div>
+                    <Button onClick={handleSaveSocials} disabled={isSavingSocials} className="rounded-full shadow-lg shadow-primary/20 shrink-0 w-full md:w-auto h-12 px-8">
+                      <Save className="w-4 h-4 mr-2 text-white dark:text-black" /> {isSavingSocials ? 'Saving...' : 'Save Social Settings'}
                     </Button>
                   </div>
                 </div>
