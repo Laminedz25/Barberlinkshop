@@ -1049,8 +1049,11 @@ const BarberDashboard = () => {
 
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Chart */}
-                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl">
-                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><TrendingUp className="text-primary h-6 w-6" /> {t('dashboard.finance.weekly')}</h2>
+                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl relative overflow-hidden">
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none">
+                    <img src="/logo.png" alt="Watermark" className="w-64 h-64 object-contain mix-blend-difference" />
+                  </div>
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 relative"><TrendingUp className="text-primary h-6 w-6" /> {t('dashboard.finance.weekly')}</h2>
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={chartData}>

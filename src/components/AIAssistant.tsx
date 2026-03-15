@@ -213,7 +213,7 @@ const AIAssistant = () => {
                 onClick={() => setIsOpen(true)}
                 className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-[#007BFF] transition-transform hover:scale-105 z-50 p-0 flex items-center justify-center"
             >
-                <Bot className="h-7 w-7 text-white" />
+                <img src="/logo.png" alt="barberlinkshop Logo" className="h-8 w-8 object-contain mix-blend-plus-lighter" />
             </Button>
         );
     }
@@ -222,7 +222,7 @@ const AIAssistant = () => {
         <Card className="fixed bottom-6 right-6 w-80 sm:w-96 h-[500px] flex flex-col shadow-2xl z-50 border-primary/20 overflow-hidden animate-in fade-in slide-in-from-bottom-5">
             <CardHeader className="bg-primary text-primary-foreground flex flex-row items-center justify-between p-4 rounded-t-xl">
                 <div className="flex items-center gap-2">
-                    <Bot className="h-6 w-6" />
+                    <img src="/logo.png" alt="barberlinkshop Logo" className="h-8 w-8 object-contain mix-blend-plus-lighter" />
                     <CardTitle className="text-lg">barberlinkshop AI</CardTitle>
                 </div>
                 <div className="flex items-center">
@@ -241,8 +241,8 @@ const AIAssistant = () => {
                         {messages.map((msg) => (
                             <div key={msg.id} className={`flex ${msg.isBot ? "justify-start" : "justify-end"} ${isRTL ? "flex-row-reverse" : ""}`}>
                                 <div className={`flex gap-2 max-w-[85%] ${isRTL ? "flex-row-reverse" : ""}`}>
-                                    <div className={`shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${msg.isBot ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                                        {msg.isBot ? <Bot className="h-5 w-5" /> : <User className="h-5 w-5" />}
+                                    <div className={`shrink-0 h-8 w-8 rounded-full flex items-center justify-center overflow-hidden ${msg.isBot ? 'bg-primary/20 p-1' : 'bg-muted text-muted-foreground'}`}>
+                                        {msg.isBot ? <img src="/logo.png" alt="Bot" className="h-full w-full object-contain mix-blend-multiply dark:mix-blend-plus-lighter" /> : <User className="h-5 w-5" />}
                                     </div>
                                     <div className={`p-3 rounded-2xl ${msg.isBot ? 'bg-muted text-foreground rounded-tl-sm' : 'bg-primary text-primary-foreground rounded-tr-sm'}`}>
                                         <p className="text-sm leading-relaxed">{msg.text}</p>
@@ -253,8 +253,8 @@ const AIAssistant = () => {
                         {isTyping && (
                             <div className={`flex justify-start ${isRTL ? "flex-row-reverse" : ""}`}>
                                 <div className={`flex gap-2 max-w-[85%] ${isRTL ? "flex-row-reverse" : ""}`}>
-                                    <div className="shrink-0 h-8 w-8 rounded-full flex items-center justify-center bg-primary/20 text-primary">
-                                        <Bot className="h-5 w-5" />
+                                    <div className="shrink-0 h-8 w-8 rounded-full flex items-center justify-center bg-primary/20 p-1 overflow-hidden">
+                                        <img src="/logo.png" alt="Bot" className="h-full w-full object-contain mix-blend-multiply dark:mix-blend-plus-lighter" />
                                     </div>
                                     <div className="p-4 rounded-2xl bg-muted rounded-tl-sm flex gap-1 items-center">
                                         <div className="w-2 h-2 bg-primary/50 text-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></div>

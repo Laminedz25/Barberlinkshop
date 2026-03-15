@@ -152,15 +152,18 @@ const Chat = () => {
             <main className="container mx-auto px-4 py-8 mt-20 flex-1 flex flex-col max-w-4xl">
                 <Card className="flex-1 flex flex-col shadow-lg border-primary/10 h-[70vh]">
                     <CardHeader className="border-b bg-muted/40">
-                        <CardTitle className="flex items-center gap-3">
-                            <div className="bg-primary/10 p-2 rounded-full">
-                                <UserIcon className="h-6 w-6 text-primary" />
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold">{otherUser?.full_name || 'Loading...'}</h3>
-                                <p className="text-sm text-muted-foreground capitalize">{otherUser?.role || 'User'}</p>
-                            </div>
-                        </CardTitle>
+                        <div className="flex justify-between items-center w-full">
+                            <CardTitle className="flex items-center gap-3">
+                                <div className="bg-primary/10 p-2 rounded-full">
+                                    <UserIcon className="h-6 w-6 text-primary" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-semibold">{otherUser?.full_name || 'Loading...'}</h3>
+                                    <p className="text-sm text-muted-foreground capitalize">{otherUser?.role || 'User'}</p>
+                                </div>
+                            </CardTitle>
+                            <img src="/logo.png" alt="barberlinkshop Logo" className="h-8 w-auto mix-blend-plus-lighter opacity-50 dark:mix-blend-plus-lighter hidden sm:block" />
+                        </div>
                     </CardHeader>
 
                     <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">

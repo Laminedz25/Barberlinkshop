@@ -147,6 +147,49 @@ const AdminDashboard = () => {
         });
     };
 
+    const createDemoProfiles = async () => {
+        try {
+            const demoBarbers = [
+                {
+                    id: 'demo-barber-1',
+                    email: 'demo1@barberlinkshop.com',
+                    full_name: 'Elite Barbershop (Demo)',
+                    role: 'barber',
+                    barber_type: 'salon_owner',
+                    is_banned: false,
+                },
+                {
+                    id: 'demo-barber-2',
+                    email: 'demo2@barberlinkshop.com',
+                    full_name: 'Glamour Beauty Studio (Demo)',
+                    role: 'barber',
+                    barber_type: 'salon_owner',
+                    is_banned: false,
+                }
+            ];
+
+            for (const b of demoBarbers) {
+                await setDoc(doc(db, 'users', b.id), b, { merge: true });
+                await setDoc(doc(db, 'barbers', b.id), {
+                    store_name: b.full_name,
+                    offers_home_visit: false,
+                    type: b.barber_type,
+                    rating: 4.8,
+                    reviewCount: 120,
+                    about: 'This is a demo profile that barbers can see and edit after claiming.',
+                    phone: '0555555555',
+                    address: 'Center City, Algeria',
+                    created_at: new Date().toISOString()
+                }, { merge: true });
+            }
+
+            toast({ title: 'Success', description: 'Demo profiles created successfully. Barbers can now view and edit them.' });
+            fetchUsers();
+        } catch (error) {
+            toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+        }
+    };
+
     if (loading) return null;
     if (!isAdmin) return null;
 
@@ -242,7 +285,13 @@ const AdminDashboard = () => {
 
                         <TabsContent value="users" className="space-y-4">
                             <div className="bg-white/60 dark:bg-slate-900/60 p-6 rounded-3xl border shadow-xl">
-                                <h2 className="text-2xl font-bold mb-4">Manage Users</h2>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-2xl font-bold">Manage Users</h2>
+                                    <Button onClick={createDemoProfiles} className="rounded-full shadow-lg gap-2" variant="outline">
+                                        <Users className="w-4 h-4" />
+                                        Create Demo Profiles
+                                    </Button>
+                                </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
                                         <thead>
