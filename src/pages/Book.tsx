@@ -219,6 +219,28 @@ const Book = () => {
                 `${date.toDateString()} at ${time}`
             );
 
+            // Email Confirmation via BillionMail
+            try {
+                const barberSnap = await getDoc(doc(db, 'barbers', id!));
+                const barberName = barberSnap.exists() ? barberSnap.data().store_name : 'Barber';
+                const firstService = services.find(s => s.id === selectedServices[0]);
+                const serviceLabel = firstService
+                    ? (language === 'ar' ? firstService.name_ar : language === 'fr' ? firstService.name_fr : firstService.name_en)
+                    : 'Service';
+                if (user.email) {
+                    await AutomationService.sendBookingConfirmationEmail(
+                        user.email,
+                        user.displayName || 'Valued Customer',
+                        `${serviceLabel}${selectedServices.length > 1 ? ` (+${selectedServices.length - 1})` : ''}`,
+                        date.toDateString(),
+                        time,
+                        barberName
+                    );
+                }
+            } catch (emailErr) {
+                console.warn('Email send failed (non-blocking):', emailErr);
+            }
+
             toast({
                 title: 'Success',
                 description: 'Your appointment has been booked and a reminder has been scheduled automatically!',

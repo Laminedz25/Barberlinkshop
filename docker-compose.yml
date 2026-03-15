@@ -1,0 +1,73 @@
+version: '3.9'
+
+services:
+  # ─── BarberLink Frontend (React/Vite) ────────────────────
+  barberlinkshop:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: barberlinkshop_app
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - barberlink_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.barberlinkshop.rule=Host(`barberlinkshop.com`)"
+      - "traefik.http.routers.barberlinkshop.entrypoints=websecure"
+      - "traefik.http.routers.barberlinkshop.tls.certresolver=letsencrypt"
+
+  # ─── BillionMail (Self-Hosted Email Server) ───────────────
+  # Installation handled separately via BillionMail's own installer.
+  # After running: cd /opt && git clone https://github.com/Billionmail/BillionMail && cd BillionMail && bash install.sh
+  # BillionMail runs on port 8080 by default.
+  # Expose it separately at: https://mail.barberlinkshop.com
+  #
+  # billionmail:
+  #   image: billionmail/billionmail:latest
+  #   container_name: billionmail
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:8080"  # Admin dashboard
+  #     - "25:25"      # SMTP
+  #     - "587:587"    # SMTP submission
+  #     - "993:993"    # IMAPS
+  #   volumes:
+  #     - billionmail_data:/data
+  #   networks:
+  #     - barberlink_net
+
+  # ─── Traefik Reverse Proxy + SSL ─────────────────────────
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@barberlinkshop.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "letsencrypt_data:/letsencrypt"
+    networks:
+      - barberlink_net
+
+networks:
+  barberlink_net:
+    driver: bridge
+
+volumes:
+  letsencrypt_data:
+  billionmail_data:

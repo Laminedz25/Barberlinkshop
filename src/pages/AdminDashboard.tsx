@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Users, Key, Bell, BarChart2, Share2, TrendingUp, DollarSign, Store, Bot } from 'lucide-react';
+import { AutomationService } from '@/services/AutomationService';
 
 interface UserData {
     id: string;
@@ -38,7 +39,11 @@ const AdminDashboard = () => {
     const [prices, setPrices] = useState({ basic: 1000, pro: 1500, premium: 2000 });
 
     // Tab: API Keys
-    const [apiKeys, setApiKeys] = useState({ openai: '', stripe: '', telegramToken: '', weatherKey: '', nominatimUrl: '', other: '' });
+    const [apiKeys, setApiKeys] = useState({
+        openai: '', stripe: '', telegramToken: '', weatherKey: '',
+        nominatimUrl: '', other: '',
+        billionmailEndpoint: '', billionmailApiKey: '', billionmailFrom: 'noreply@barberlinkshop.com'
+    });
 
     // Tab: Socials
     const [socials, setSocials] = useState({ facebook: '', instagram: '', tiktok: '', snapchat: '', youtube: '' });
@@ -137,13 +142,26 @@ const AdminDashboard = () => {
         }
     };
 
-    const sendExpiryNotifications = () => {
-        // In a real application, this would trigger a backend queue.
-        // Here we simulate checking dates and notifying users.
+    const sendExpiryNotifications = async () => {
+        toast({ title: 'Running Expiry Check...', description: 'Scanning subscriptions and sending warning emails.' });
+        let sent = 0;
+        for (const u of usersList) {
+            if (u.role === 'barber' && u.subscription_expires_at && u.email) {
+                const expiresAt = new Date(u.subscription_expires_at);
+                const now = new Date();
+                const diffHours = (expiresAt.getTime() - now.getTime()) / 1000 / 3600;
+                if (diffHours > 0 && diffHours <= 48) {
+                    const daysLeft = diffHours <= 24 ? 1 : 2;
+                    await AutomationService.sendSubscriptionExpiryEmail(
+                        u.email, u.full_name, u.full_name, daysLeft
+                    );
+                    sent++;
+                }
+            }
+        }
         toast({
-            title: 'Notifications Triggered',
-            description: 'System is scanning subscriptions and sending 48h/24h warning notifications to owners.',
-            variant: 'default'
+            title: `✅ Done — ${sent} email(s) sent`,
+            description: sent === 0 ? 'No expiring subscriptions found in the next 48h.' : `Expiry warning emails sent to ${sent} salon owner(s).`,
         });
     };
 
@@ -453,7 +471,28 @@ const AdminDashboard = () => {
                                         <Label>Other Integrations (e.g. Numverify)</Label>
                                         <Input type="password" value={apiKeys.other || ''} onChange={e => setApiKeys({ ...apiKeys, other: e.target.value })} />
                                     </div>
+
+                                    {/* BillionMail Integration */}
+                                    <div className="pt-4 border-t">
+                                        <h3 className="font-bold mb-3 flex items-center gap-2">📧 BillionMail (Self-Hosted Email Server)</h3>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <Label>BillionMail API Endpoint</Label>
+                                                <Input type="text" value={apiKeys.billionmailEndpoint || ''} onChange={e => setApiKeys({ ...apiKeys, billionmailEndpoint: e.target.value })} placeholder="https://mail.yourdomain.com" />
+                                            </div>
+                                            <div>
+                                                <Label>BillionMail API Key</Label>
+                                                <Input type="password" value={apiKeys.billionmailApiKey || ''} onChange={e => setApiKeys({ ...apiKeys, billionmailApiKey: e.target.value })} placeholder="Your BillionMail API key" />
+                                            </div>
+                                            <div>
+                                                <Label>From Email Address</Label>
+                                                <Input type="email" value={apiKeys.billionmailFrom || ''} onChange={e => setApiKeys({ ...apiKeys, billionmailFrom: e.target.value })} placeholder="noreply@barberlinkshop.com" />
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <Button onClick={saveSettings} className="w-full rounded-full mt-4">Securely Update Keys</Button>
+
                                 </div>
                             </div>
                         </TabsContent>
