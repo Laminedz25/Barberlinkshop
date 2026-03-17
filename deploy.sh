@@ -9,8 +9,8 @@ set -e
 
 REPO_URL="https://github.com/Laminedz25/Barberlinkshop.git"
 APP_DIR="/opt/barberlinkshop"
-DOMAIN="barberlinkshop.com"
-MAIL_DOMAIN="mail.barberlinkshop.com"
+DOMAIN="barberlink.cloud"
+MAIL_DOMAIN="mail.barberlink.cloud"
 
 echo ""
 echo "╔══════════════════════════════════════════════╗"

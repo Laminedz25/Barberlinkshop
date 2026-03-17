@@ -42,7 +42,7 @@ const AdminDashboard = () => {
     const [apiKeys, setApiKeys] = useState({
         openai: '', stripe: '', telegramToken: '', weatherKey: '',
         nominatimUrl: '', other: '',
-        billionmailEndpoint: '', billionmailApiKey: '', billionmailFrom: 'noreply@barberlinkshop.com'
+        billionmailEndpoint: '', billionmailApiKey: '', billionmailFrom: 'noreply@barberlink.cloud'
     });
 
     // Tab: Socials
@@ -168,12 +168,12 @@ const AdminDashboard = () => {
     const createDemoProfiles = async () => {
         try {
             const demoBarbers = [
-                { id: '1', name: 'Elite Barbershop', email: 'elite@barberlinkshop.com', type: 'salon_owner', rating: 4.8, reviewCount: 124, phone: '0555000001', address: 'Rue Didouche Mourad, Algiers Center' },
-                { id: '2', name: 'Glamour Beauty Studio', email: 'glamour@barberlinkshop.com', type: 'salon_owner', rating: 4.9, reviewCount: 89, phone: '0555000002', address: 'Boulevard Mohamed V, Oran' },
-                { id: '3', name: 'Style Hub Unisex', email: 'stylehub@barberlinkshop.com', type: 'salon_owner', rating: 4.7, reviewCount: 156, phone: '0555000003', address: 'Avenue de l\'Independence, Constantine' },
-                { id: '4', name: 'Royal Men\'s Lounge', email: 'royal@barberlinkshop.com', type: 'salon_owner', rating: 4.6, reviewCount: 98, phone: '0555000004', address: 'Rue Larbi Ben M\'hidi, Tlemcen' },
-                { id: '5', name: 'Bella Vista Salon', email: 'bella@barberlinkshop.com', type: 'salon_owner', rating: 4.8, reviewCount: 203, phone: '0555000005', address: 'Place 1er Novembre, Annaba' },
-                { id: '6', name: 'Modern Look Studio', email: 'modern@barberlinkshop.com', type: 'salon_owner', rating: 4.5, reviewCount: 67, phone: '0555000006', address: 'Boulevard Emir Abdelkader, Sétif' }
+                { id: '1', name: 'Elite Barbershop', email: 'elite@barberlink.cloud', type: 'salon_owner', rating: 4.8, reviewCount: 124, phone: '0555000001', address: 'Rue Didouche Mourad, Algiers Center' },
+                { id: '2', name: 'Glamour Beauty Studio', email: 'glamour@barberlink.cloud', type: 'salon_owner', rating: 4.9, reviewCount: 89, phone: '0555000002', address: 'Boulevard Mohamed V, Oran' },
+                { id: '3', name: 'Style Hub Unisex', email: 'stylehub@barberlink.cloud', type: 'salon_owner', rating: 4.7, reviewCount: 156, phone: '0555000003', address: 'Avenue de l\'Independence, Constantine' },
+                { id: '4', name: 'Royal Men\'s Lounge', email: 'royal@barberlink.cloud', type: 'salon_owner', rating: 4.6, reviewCount: 98, phone: '0555000004', address: 'Rue Larbi Ben M\'hidi, Tlemcen' },
+                { id: '5', name: 'Bella Vista Salon', email: 'bella@barberlink.cloud', type: 'salon_owner', rating: 4.8, reviewCount: 203, phone: '0555000005', address: 'Place 1er Novembre, Annaba' },
+                { id: '6', name: 'Modern Look Studio', email: 'modern@barberlink.cloud', type: 'salon_owner', rating: 4.5, reviewCount: 67, phone: '0555000006', address: 'Boulevard Emir Abdelkader, Sétif' }
             ];
 
             for (const b of demoBarbers) {
@@ -486,7 +486,7 @@ const AdminDashboard = () => {
                                             </div>
                                             <div>
                                                 <Label>From Email Address</Label>
-                                                <Input type="email" value={apiKeys.billionmailFrom || ''} onChange={e => setApiKeys({ ...apiKeys, billionmailFrom: e.target.value })} placeholder="noreply@barberlinkshop.com" />
+                                                <Input type="email" value={apiKeys.billionmailFrom || ''} onChange={e => setApiKeys({ ...apiKeys, billionmailFrom: e.target.value })} placeholder="noreply@barberlink.cloud" />
                                             </div>
                                         </div>
                                     </div>

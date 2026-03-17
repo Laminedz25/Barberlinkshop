@@ -16,7 +16,7 @@ const auth = getAuth();
 // STEP 1: ADMIN USER SETUP
 // =============================================
 async function setupAdminUser() {
-    const adminEmail = 'admin@barberlinkshop.com';
+    const adminEmail = 'admin@barberlink.cloud';
     let adminUid = '';
     try {
         const userRecord = await auth.getUserByEmail(adminEmail);
@@ -228,12 +228,12 @@ service cloud.firestore {
 // =============================================
 async function setupDemoProfiles() {
     const demoBarbers = [
-        { id: '1', name: 'Elite Barbershop', email: 'elite@barberlinkshop.com', type: 'salon_owner', rating: 4.8, reviewCount: 124, phone: '0555000001', address: 'Rue Didouche Mourad, Algiers Center', gender: 'men' },
-        { id: '2', name: 'Glamour Beauty Studio', email: 'glamour@barberlinkshop.com', type: 'salon_owner', rating: 4.9, reviewCount: 89, phone: '0555000002', address: 'Boulevard Mohamed V, Oran', gender: 'women' },
-        { id: '3', name: 'Style Hub Unisex', email: 'stylehub@barberlinkshop.com', type: 'salon_owner', rating: 4.7, reviewCount: 156, phone: '0555000003', address: "Avenue de l'Independence, Constantine", gender: 'unisex' },
-        { id: '4', name: "Royal Men's Lounge", email: 'royal@barberlinkshop.com', type: 'salon_owner', rating: 4.6, reviewCount: 98, phone: '0555000004', address: "Rue Larbi Ben M'hidi, Tlemcen", gender: 'men' },
-        { id: '5', name: 'Bella Vista Salon', email: 'bella@barberlinkshop.com', type: 'salon_owner', rating: 4.8, reviewCount: 203, phone: '0555000005', address: 'Place 1er Novembre, Annaba', gender: 'women' },
-        { id: '6', name: 'Modern Look Studio', email: 'modern@barberlinkshop.com', type: 'salon_owner', rating: 4.5, reviewCount: 67, phone: '0555000006', address: 'Boulevard Emir Abdelkader, Sétif', gender: 'unisex' }
+        { id: '1', name: 'Elite Barbershop', email: 'elite@barberlink.cloud', type: 'salon_owner', rating: 4.8, reviewCount: 124, phone: '0555000001', address: 'Rue Didouche Mourad, Algiers Center', gender: 'men' },
+        { id: '2', name: 'Glamour Beauty Studio', email: 'glamour@barberlink.cloud', type: 'salon_owner', rating: 4.9, reviewCount: 89, phone: '0555000002', address: 'Boulevard Mohamed V, Oran', gender: 'women' },
+        { id: '3', name: 'Style Hub Unisex', email: 'stylehub@barberlink.cloud', type: 'salon_owner', rating: 4.7, reviewCount: 156, phone: '0555000003', address: "Avenue de l'Independence, Constantine", gender: 'unisex' },
+        { id: '4', name: "Royal Men's Lounge", email: 'royal@barberlink.cloud', type: 'salon_owner', rating: 4.6, reviewCount: 98, phone: '0555000004', address: "Rue Larbi Ben M'hidi, Tlemcen", gender: 'men' },
+        { id: '5', name: 'Bella Vista Salon', email: 'bella@barberlink.cloud', type: 'salon_owner', rating: 4.8, reviewCount: 203, phone: '0555000005', address: 'Place 1er Novembre, Annaba', gender: 'women' },
+        { id: '6', name: 'Modern Look Studio', email: 'modern@barberlink.cloud', type: 'salon_owner', rating: 4.5, reviewCount: 67, phone: '0555000006', address: 'Boulevard Emir Abdelkader, Sétif', gender: 'unisex' }
     ];
 
     for (const b of demoBarbers) {
@@ -273,7 +273,7 @@ async function runAllSetup() {
     console.log('='.repeat(50));
     console.log('🎉 Setup Complete!\n');
     console.log('Admin Login:');
-    console.log('  Email: admin@barberlinkshop.com');
+    console.log('  Email: admin@barberlink.cloud');
     console.log('  Password: BarberLink@Admin2026!\n');
     console.log('⚡ Next: Apply the Firestore Security Rules in Firebase Console.');
     console.log('='.repeat(50) + '\n');

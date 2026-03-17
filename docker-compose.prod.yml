@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   # ─── BarberLink Frontend (React/Vite) ────────────────────
   barberlinkshop:
@@ -8,39 +6,18 @@ services:
       dockerfile: Dockerfile
     container_name: barberlinkshop_app
     restart: unless-stopped
-    ports:
-      - "80:80"
     networks:
       - barberlink_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.barberlinkshop.rule=Host(`barberlink.cloud`)"
+      - "traefik.http.routers.barberlinkshop.rule=Host(`barberlink.cloud`) || Host(`www.barberlink.cloud`)"
       - "traefik.http.routers.barberlinkshop.entrypoints=websecure"
       - "traefik.http.routers.barberlinkshop.tls.certresolver=letsencrypt"
-
-  # ─── BillionMail (Self-Hosted Email Server) ───────────────
-  # Installation handled separately via BillionMail's own installer.
-  # After running: cd /opt && git clone https://github.com/Billionmail/BillionMail && cd BillionMail && bash install.sh
-  # BillionMail runs on port 8080 by default.
-  # Expose it separately at: https://mail.barberlink.cloud
-  #
-  # billionmail:
-  #   image: billionmail/billionmail:latest
-  #   container_name: billionmail
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8080:8080"  # Admin dashboard
-  #     - "25:25"      # SMTP
-  #     - "587:587"    # SMTP submission
-  #     - "993:993"    # IMAPS
-  #   volumes:
-  #     - billionmail_data:/data
-  #   networks:
-  #     - barberlink_net
+      - "traefik.http.services.barberlinkshop.loadbalancer.server.port=80"
 
   # ─── Traefik Reverse Proxy + SSL ─────────────────────────
   traefik:
-    image: traefik:v3.0
+    image: traefik:v3.3
     container_name: traefik
     restart: unless-stopped
     command:
@@ -58,6 +35,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      DOCKER_API_VERSION: "1.41"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "letsencrypt_data:/letsencrypt"
@@ -70,4 +49,3 @@ networks:
 
 volumes:
   letsencrypt_data:
-  billionmail_data:

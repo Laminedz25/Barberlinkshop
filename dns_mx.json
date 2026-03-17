@@ -1,0 +1,15 @@
+{
+  "overwrite": true,
+  "zone": [
+    {
+      "name": "@",
+      "type": "MX",
+      "ttl": 14400,
+      "records": [
+        {
+          "content": "10 mail.barberlink.cloud."
+        }
+      ]
+    }
+  ]
+}

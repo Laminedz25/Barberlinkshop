@@ -54,7 +54,7 @@ const Auth = () => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user && !completingProfile) {
         // Check if they exist in firestore
-        if (user.email === 'admin@gmail.com' || user.email === 'admin@barberlinkshop.com') {
+        if (user.email === 'admin@gmail.com' || user.email === 'admin@barberlink.cloud') {
           const docRef = doc(db, 'users', user.uid);
           const docSnap = await getDoc(docRef);
           if (!docSnap.exists() || docSnap.data().role !== 'admin') {

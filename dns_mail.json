@@ -1,0 +1,15 @@
+{
+  "overwrite": false,
+  "zone": [
+    {
+      "name": "mail",
+      "type": "A",
+      "ttl": 14400,
+      "records": [
+        {
+          "content": "72.61.71.63"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "overwrite": false,
+  "zone": [
+    {
+      "name": "@",
+      "type": "A",
+      "ttl": 14400,
+      "records": [
+        {
+          "content": "72.61.71.63"
+        }
+      ]
+    },
+    {
+      "name": "mail",
+      "type": "A",
+      "ttl": 14400,
+      "records": [
+        {
+          "content": "72.61.71.63"
+        }
+      ]
+    },
+    {
+      "name": "www",
+      "type": "CNAME",
+      "ttl": 300,
+      "records": [
+        {
+          "content": "barberlink.cloud."
+        }
+      ]
+    },
+    {
+      "name": "@",
+      "type": "MX",
+      "ttl": 14400,
+      "records": [
+        {
+          "content": "10 mail.barberlink.cloud."
+        }
+      ]
+    }
+  ]
+}
