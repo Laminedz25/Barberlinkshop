@@ -19,6 +19,14 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /opt/barberlinkshop
-            git pull origin main
+            echo "Starting deployment..."
+            mkdir -p /opt/Barberlinkshop
+            cd /opt/Barberlinkshop
+            if [ -d ".git" ]; then
+              git pull origin main
+            else
+              git clone https://github.com/${{ github.repository }} .
+            fi
+            docker compose down || true
             docker compose up -d --build
+            echo "Deployment successful!"
