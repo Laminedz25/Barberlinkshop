@@ -23,11 +23,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Settings, Users, Key, Bell, BarChart2, Share2, TrendingUp, 
-  DollarSign, Store, Bot, CreditCard, Smartphone, Globe, 
-  ShieldCheck, Server, User 
-} from 'lucide-react';
+import { Layout, Users, Settings, Database, Server, BarChart2, TrendingUp, Store, Shield, Key, Bot, CreditCard, Share2, DollarSign } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { AutomationService } from '@/services/AutomationService';
 
 interface UserData {
@@ -42,6 +39,7 @@ interface UserData {
 
 const AdminDashboard = () => {
     const { user } = useAuth();
+    const { t } = useLanguage();
     const navigate = useNavigate();
     const { toast } = useToast();
 
@@ -306,7 +304,7 @@ const AdminDashboard = () => {
     );
 };
 
-const StatCard = ({ label, value, icon, color }: any) => (
+const StatCard = ({ label, value, icon, color }: { label: string; value: string | number; icon: React.ReactNode; color: string }) => (
     <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-xl border flex items-center justify-between">
         <div>
             <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">{label}</p>
@@ -316,7 +314,7 @@ const StatCard = ({ label, value, icon, color }: any) => (
     </div>
 );
 
-const HealthRow = ({ label, status, color }: any) => (
+const HealthRow = ({ label, status, color }: { label: string; status: string; color: string }) => (
     <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
         <span className="font-bold opacity-70">{label}</span>
         <div className="flex items-center gap-2">
@@ -326,14 +324,14 @@ const HealthRow = ({ label, status, color }: any) => (
     </div>
 );
 
-const AIPromptField = ({ label, value, onChange }: any) => (
+const AIPromptField = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
     <div className="space-y-2">
         <Label className="font-bold">{label} Agent</Label>
         <Textarea className="h-32 rounded-2xl" value={value} onChange={e => onChange(e.target.value)} />
     </div>
 );
 
-const KeyField = ({ label, value, onChange }: any) => (
+const KeyField = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
     <div className="space-y-2">
         <Label className="font-bold">{label}</Label>
         <Input type="password" className="rounded-xl" value={value} onChange={e => onChange(e.target.value)} />
