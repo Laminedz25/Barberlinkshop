@@ -15,9 +15,9 @@ jobs:
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: "72.61.71.63"
-          username: "deploy"
-          password: "9:cEum68fY9AAUo6@q?5"
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
           script: |
             echo "Starting deployment..."
             mkdir -p /opt/Barberlinkshop
