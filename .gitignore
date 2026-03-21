@@ -22,4 +22,25 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-# serviceAccountKey.json Removed from ignore to allow deployment
+
+# Security
+serviceAccountKey.json
+.ssh/
+.env
+*.cjs
+*.log
+logs/
+check_action.*
+fetch_logs.*
+VPS_INSTALL.*
+logs.txt
+*.diff
+*.sh
+*.sql
+*.py
+*.js
+!eslint.config.js
+!fix-tech-ids.cjs
+!rename-brand.cjs
+!replace-domain.cjs
+!deploy-rules.cjs

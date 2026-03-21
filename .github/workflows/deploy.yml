@@ -15,18 +15,18 @@ jobs:
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          host: ${{ secrets['VPS_HOST'] }}
+          username: ${{ secrets['VPS_USERNAME'] }}
+          key: ${{ secrets['VPS_PRIVATE_KEY'] }}
           script: |
             echo "Starting deployment..."
             mkdir -p /opt/Barberlinkshop
             cd /opt/Barberlinkshop
             if [ -d ".git" ]; then
-              git remote set-url origin https://${{ secrets.GH_PAT }}@github.com/Laminedz25/Barberlinkshop.git
+              git remote set-url origin https://${{ secrets['GH_PAT'] }}@github.com/Laminedz25/Barberlinkshop.git
               git pull origin main
             else
-              git clone https://${{ secrets.GH_PAT }}@github.com/Laminedz25/Barberlinkshop.git .
+              git clone https://${{ secrets['GH_PAT'] }}@github.com/Laminedz25/Barberlinkshop.git .
             fi
             docker compose down || true
             docker compose up -d --build
