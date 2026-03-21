@@ -4,7 +4,7 @@ import { initializeFirestore, CACHE_SIZE_UNLIMITED } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDuz9012n769uSrrL20y7JsRYvc_dvG_lE",
-  authDomain: "barberlink.cloud",
+  authDomain: "barberlinkshop.firebaseapp.com",
   projectId: "barberlinkshop",
   storageBucket: "barberlinkshop.firebasestorage.app",
   messagingSenderId: "829508519099",
