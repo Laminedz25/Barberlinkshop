@@ -1,0 +1,1 @@
+UPDATE api_templates SET api_key = 'bl_api_88888888888888888888888888888888' WHERE id = 1;

@@ -7,7 +7,7 @@ import {
 
 const server = new Server(
     {
-        name: "barberlinkshop-mcp-server",
+        name: "barberlink-mcp-server",
         version: "1.0.0",
     },
     {
@@ -61,7 +61,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function run() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    console.error("barberlinkshop MCP Server running on stdio");
+    console.error("barberlink MCP Server running on stdio");
 }
 
 run().catch((error) => {

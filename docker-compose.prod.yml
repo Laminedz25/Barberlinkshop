@@ -1,19 +1,19 @@
 services:
   # ─── BarberLink Frontend (React/Vite) ────────────────────
-  barberlinkshop:
+  barberlink:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: barberlinkshop_app
+    container_name: barberlink_app
     restart: unless-stopped
     networks:
       - barberlink_net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.barberlinkshop.rule=Host(`barberlink.cloud`) || Host(`www.barberlink.cloud`)"
-      - "traefik.http.routers.barberlinkshop.entrypoints=websecure"
-      - "traefik.http.routers.barberlinkshop.tls.certresolver=letsencrypt"
-      - "traefik.http.services.barberlinkshop.loadbalancer.server.port=80"
+      - "traefik.http.routers.barberlink.rule=Host(`barberlink.cloud`) || Host(`www.barberlink.cloud`)"
+      - "traefik.http.routers.barberlink.entrypoints=websecure"
+      - "traefik.http.routers.barberlink.tls.certresolver=letsencrypt"
+      - "traefik.http.services.barberlink.loadbalancer.server.port=80"
 
   # ─── Traefik Reverse Proxy + SSL ─────────────────────────
   traefik:

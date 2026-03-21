@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Rules for USERS collection
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Rules for SALONS/BARBERS collection
+    match /barbers/{barberId} {
+      allow read: if true; // Public profiles are readable
+      allow write: if request.auth != null && (request.auth.uid == resource.data.user_id || isAdmin());
+      allow create: if request.auth != null;
+    }
+
+    // Rules for BOOKINGS
+    match /bookings/{bookingId} {
+      allow read: if request.auth != null && 
+                  (request.auth.uid == resource.data.customer_id || 
+                   request.auth.uid == resource.data.barber_user_id || 
+                   isAdmin());
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && 
+                    (request.auth.uid == resource.data.barber_user_id || isAdmin());
+    }
+
+    // Rules for SYSTEM settings
+    match /system/{document=**} {
+      allow read: if true; // Some settings need to be read by client
+      allow write: if isAdmin();
+    }
+  }
+}
