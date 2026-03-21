@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, MapPin, Phone, Calendar, Heart, Share2, Instagram, Facebook, MessageCircle, ShoppingBag, Globe, Video, Lock } from 'lucide-react';
+import { Star, MapPin, Phone, Calendar, Heart, Share2, Instagram, Facebook, MessageCircle, ShoppingBag, Globe, Video, Lock, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
 import Navigation from '@/components/Navigation';
@@ -434,6 +434,21 @@ const BarberProfile = () => {
                       <span>{barber.city}</span>
                     </div>
                   )}
+                  <div className="flex items-center gap-1.5 text-blue-600 bg-blue-50 dark:bg-blue-500/10 px-4 py-1.5 rounded-2xl font-bold border border-blue-200 dark:border-blue-900/50">
+                    <Shield className="w-4 h-4 ml-0.5" />
+                    <span>{isRTL ? 'حساب موثق' : 'Verified Identity'}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-4 py-1.5 rounded-2xl font-bold border border-emerald-200 dark:border-emerald-900/50">
+                    <MapPin className="w-4 h-4 ml-0.5" />
+                    <span>{isRTL ? '+5 سنوات خبرة' : '5+ Years Exp.'}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-6">
+                    <span className="text-xs font-black uppercase tracking-widest text-muted-foreground mr-2">{isRTL ? 'نقاط التميز:' : 'Specialties:'}</span>
+                    {['Fade', 'Keratin', 'Beard Trim'].map((tag, idx) => (
+                        <span key={idx} className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700">{tag}</span>
+                    ))}
                 </div>
 
                 <p className="text-muted-foreground text-lg leading-relaxed mb-8 max-w-2xl mx-auto md:mx-0 font-medium">
