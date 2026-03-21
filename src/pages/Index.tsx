@@ -13,12 +13,13 @@ import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, limit } from "firebase/firestore";
 import { User, Users, Car, Scissors, ChevronRight, Star, ShieldCheck, Zap, ArrowRight, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const { t, isRTL } = useLanguage();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<{
-    men: any[], women: any[], unisex: any[], mobile: any[]
+    men: unknown[], women: unknown[], unisex: unknown[], mobile: unknown[]
   }>({ men: [], women: [], unisex: [], mobile: [] });
   const [loading, setLoading] = useState(true);
 
@@ -62,7 +63,7 @@ const Index = () => {
     fetchBarbers();
   }, []);
 
-  const CategorySection = ({ title, icon: Icon, items, type, color }: any) => (
+  const CategorySection = ({ title, icon: Icon, items, type, color }: { title: string, icon: any, items: any[], type: string, color: string }) => (
     <section className="py-20 border-b border-slate-100 dark:border-slate-800 last:border-0 relative overflow-hidden">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
         <div className="flex items-center gap-5">
@@ -117,10 +118,10 @@ const Index = () => {
         <div className="container mx-auto px-4">
            {/* Trust Stats Bar */}
            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 -mt-10 mb-20 relative z-20">
-              <StatItem icon={<Star className="text-yellow-500" />} label="Avg. Rating" value="4.9/5" />
-              <StatItem icon={<Users className="text-blue-500" />} label="Happy Clients" value="10k+" />
-              <StatItem icon={<Zap className="text-orange-500" />} label="Bookings Today" value="850+" />
-              <StatItem icon={<ShieldCheck className="text-green-500" />} label="Verified Barbers" value="500+" />
+              <StatItem icon={<Star className="text-yellow-500" />} label={t('index.stats.rating')} value="4.9/5" />
+              <StatItem icon={<Users className="text-blue-500" />} label={t('index.stats.clients')} value="10k+" />
+              <StatItem icon={<Zap className="text-orange-500" />} label={t('index.stats.bookings')} value="850+" />
+              <StatItem icon={<ShieldCheck className="text-green-500" />} label={t('index.stats.verified')} value="500+" />
            </div>
 
            <CategorySection 
@@ -142,13 +143,13 @@ const Index = () => {
            <div className="py-20 bg-white dark:bg-slate-900 rounded-[4rem] shadow-2xl relative overflow-hidden my-10 px-10 border border-slate-100 dark:border-slate-800">
               <div className="grid lg:grid-cols-2 gap-16 items-center">
                   <div className="space-y-8">
-                      <h2 className="text-5xl lg:text-7xl font-black leading-tight italic decoration-primary underline decoration-8">How it <span className="text-primary not-italic">Works?</span></h2>
+                      <h2 className="text-5xl lg:text-7xl font-black leading-tight italic decoration-primary underline decoration-8">{t('index.how.title')} <span className="text-primary not-italic">{t('index.how.works')}</span></h2>
                       <div className="space-y-6">
-                          <Step number="01" title="Discover" desc="Search by city, service, or barber name near you." />
-                          <Step number="02" title="Choose" desc="View real expert work portfolio and read client reviews." />
-                          <Step number="03" title="Book" desc="Pick your time and pay securely or at the salon." />
+                          <Step number="01" title={t('index.how.step1.title')} desc={t('index.how.step1.desc')} />
+                          <Step number="02" title={t('index.how.step2.title')} desc={t('index.how.step2.desc')} />
+                          <Step number="03" title={t('index.how.step3.title')} desc={t('index.how.step3.desc')} />
                       </div>
-                      <Button size="lg" className="rounded-2xl h-16 px-12 text-lg font-black" onClick={() => navigate('/auth')}>Get Started Now</Button>
+                      <Button size="lg" className="rounded-2xl h-16 px-12 text-lg font-black" onClick={() => navigate('/auth')}>{t('index.how.button')}</Button>
                   </div>
                   <div className="relative group">
                       <div className="absolute inset-0 bg-primary/20 rounded-[3rem] blur-3xl group-hover:bg-primary/30 transition-all" />
@@ -170,7 +171,7 @@ const Index = () => {
            />
 
            <CategorySection 
-              title="Mobile Barbers" 
+              title={t('index.mobile.title')} 
               icon={Car} 
               items={categories.mobile}
               type="mobile"
