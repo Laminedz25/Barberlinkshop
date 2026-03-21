@@ -47,7 +47,7 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
 
     const [usersList, setUsersList] = useState<UserData[]>([]);
-    const [prices, setPrices] = useState({ basic: 1000, pro: 1500, premium: 2000 });
+    const [prices, setPrices] = useState({ basic: 0, pro: 2500, premium: 5000 });
     const [apiKeys, setApiKeys] = useState({
         openai: '', stripe: '', telegramToken: '', weatherKey: '',
         nominatimUrl: '', other: '',
@@ -59,7 +59,7 @@ const AdminDashboard = () => {
         baridiMob: '',
         fullName: '',
         rib: '',
-        fixedDzdPrice: 1000,
+        fixedDzdPrice: 2500,
         fixedUsdPrice: 20
     });
 
@@ -248,29 +248,63 @@ const AdminDashboard = () => {
                         </TabsContent>
 
                         <TabsContent value="users">
-                            <Card className="rounded-[3rem] overflow-hidden">
-                                <table className="w-full">
-                                    <thead className="bg-slate-100 dark:bg-slate-800">
-                                        <tr>
-                                            <th className="p-6 text-left">User</th>
-                                            <th className="p-6 text-left">Role</th>
-                                            <th className="p-6 text-left">Status</th>
-                                            <th className="p-6 text-right">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {usersList.map(u => (
-                                            <tr key={u.id} className="border-b">
-                                                <td className="p-6 font-bold">{u.full_name}<br/><span className="text-xs font-normal opacity-50">{u.email}</span></td>
-                                                <td className="p-6 uppercase text-xs font-black text-primary">{u.role}</td>
-                                                <td className="p-6">{u.is_banned ? 'Banned' : 'Active'}</td>
-                                                <td className="p-6 text-right">
-                                                    <Button variant="outline" size="sm" className="rounded-xl" onClick={() => toggleBanUser(u)}>{u.is_banned ? 'Unban' : 'Ban'}</Button>
-                                                </td>
+                            <Card className="rounded-[3rem] overflow-hidden border-2 border-slate-100 dark:border-slate-800 shadow-2xl">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-slate-50 dark:bg-slate-900 border-b">
+                                            <tr>
+                                                <th className="p-8 text-left font-black uppercase tracking-widest text-xs opacity-50">{t('admin.users.user')}</th>
+                                                <th className="p-8 text-left font-black uppercase tracking-widest text-xs opacity-50">{t('admin.users.role')}</th>
+                                                <th className="p-8 text-left font-black uppercase tracking-widest text-xs opacity-50">Type</th>
+                                                <th className="p-8 text-left font-black uppercase tracking-widest text-xs opacity-50">{t('admin.users.status')}</th>
+                                                <th className="p-8 text-right font-black uppercase tracking-widest text-xs opacity-50">{t('admin.users.action')}</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                            {usersList.map(u => (
+                                                <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                                                    <td className="p-8">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center font-black text-primary text-xl uppercase">
+                                                                {u.full_name.charAt(0)}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-black text-lg tracking-tight group-hover:text-primary transition-colors">{u.full_name}</p>
+                                                                <p className="text-sm font-medium opacity-50">{u.email}</p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-8">
+                                                        <span className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest ${u.role === 'admin' ? 'bg-red-500/10 text-red-500' : 'bg-primary/10 text-primary'}`}>
+                                                            {u.role}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-8 text-sm font-bold opacity-70 italic uppercase">
+                                                        {u.barber_type || 'Customer'}
+                                                    </td>
+                                                    <td className="p-8">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className={`w-2.5 h-2.5 rounded-full ${u.is_banned ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
+                                                            <span className={`text-sm font-black uppercase tracking-tighter ${u.is_banned ? 'text-red-500' : 'text-green-500'}`}>
+                                                                {u.is_banned ? 'Banned' : 'Active'}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-8 text-right">
+                                                        <Button 
+                                                            variant={u.is_banned ? "default" : "outline"} 
+                                                            size="lg" 
+                                                            className={`rounded-2xl font-black h-12 px-8 shadow-xl ${u.is_banned ? 'bg-green-500 hover:bg-green-600 border-none' : 'border-2 hover:bg-red-50 text-red-500 border-red-100'}`}
+                                                            onClick={() => toggleBanUser(u)}
+                                                        >
+                                                            {u.is_banned ? 'Unban' : 'Ban Access'}
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </Card>
                         </TabsContent>
 

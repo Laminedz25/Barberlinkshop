@@ -63,47 +63,46 @@ const Index = () => {
     fetchBarbers();
   }, []);
 
-  const CategorySection = ({ title, icon: Icon, items, type, color }: { title: string, icon: any, items: any[], type: string, color: string }) => (
-    <section className="py-20 border-b border-slate-100 dark:border-slate-800 last:border-0 relative overflow-hidden">
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-        <div className="flex items-center gap-5">
-           <div className={`p-5 rounded-[2rem] bg-gradient-to-br ${color} text-white shadow-xl shadow-slate-200 dark:shadow-none`}>
-              <Icon className="w-8 h-8" />
+  const CategorySection = ({ title, icon: Icon, items, color, desc }: { title: string, icon: any, items: any[], color: string, desc: string }) => (
+    <section className="py-16 group relative">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+        <div className="flex items-center gap-6">
+           <div className={`p-6 rounded-[2.5rem] bg-gradient-to-br ${color} text-white shadow-2xl transform group-hover:rotate-6 transition-transform duration-500`}>
+              <Icon className="w-10 h-10" />
            </div>
            <div>
-              <h2 className="text-4xl font-black tracking-tight">{title}</h2>
-              <p className="text-lg text-muted-foreground font-medium opacity-70 italic">Explore the best rated {title.toLowerCase()} near you</p>
+              <h2 className="text-4xl lg:text-5xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">{title}</h2>
+              <p className="text-lg text-slate-400 font-bold opacity-80 uppercase tracking-widest">{desc}</p>
            </div>
         </div>
         <button 
            onClick={() => navigate('/explore')}
-           className="flex items-center gap-2 px-8 py-3 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-full font-black text-sm uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm"
+           className="hidden md:flex items-center gap-3 px-10 py-4 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-full font-black text-sm uppercase tracking-widest hover:bg-slate-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all shadow-xl hover:scale-105 active:scale-95"
         >
-           {t('grid.load')} <ArrowRight className="w-4 h-4 ml-2" />
+           {t('grid.load')} <ArrowRight className="w-5 h-5" />
         </button>
       </div>
       
-      <div className="relative group">
-        <div className="flex gap-8 overflow-x-auto pb-10 scrollbar-hide snap-x snap-mandatory px-2">
+      <div className="relative -mx-4 px-4 overflow-hidden">
+        <div className="flex gap-8 overflow-x-auto pb-12 scrollbar-hide snap-x snap-mandatory">
           {loading ? (
-             Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="min-w-[320px] h-[400px] bg-slate-100 dark:bg-slate-800 rounded-[3rem] animate-pulse" />
+             Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="min-w-[340px] md:min-w-[420px] h-[450px] bg-slate-200/50 dark:bg-slate-800/50 rounded-[4rem] animate-pulse" />
              ))
           ) : items.length === 0 ? (
-            <div className="w-full text-center py-20 bg-slate-50 dark:bg-slate-900/40 rounded-[3rem] border border-dashed">
-                <p className="text-muted-foreground italic">No salons found in this category yet. Be the first!</p>
+            <div className="w-full text-center py-20 bg-slate-100/50 dark:bg-slate-900/50 rounded-[4rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+                <div className="mb-4 flex justify-center"><Scissors className="w-12 h-12 text-slate-300" /></div>
+                <p className="text-xl font-bold text-slate-400 uppercase tracking-widest">No active salons in {title} yet</p>
+                <Button className="mt-6 rounded-2xl" onClick={() => navigate('/auth')}>Be the first barber!</Button>
             </div>
           ) : (
             items.map((item: any) => (
-              <div key={item.id} className="min-w-[320px] md:min-w-[400px] snap-start">
+              <div key={item.id} className="min-w-[340px] md:min-w-[420px] snap-start hover:-translate-y-4 transition-transform duration-500">
                 <SalonCard salon={item} />
               </div>
             ))
           )}
         </div>
-        {!loading && items.length > 0 && (
-            <div className="absolute top-0 right-0 h-full w-40 pointer-events-none bg-gradient-to-l from-slate-50 dark:from-slate-950 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        )}
       </div>
     </section>
   );
@@ -128,7 +127,7 @@ const Index = () => {
               title={t('salon.type.men')} 
               icon={User} 
               items={categories.men}
-              type="men"
+              desc="Premium Barber Shops"
               color="from-blue-600 to-indigo-700"
            />
 
@@ -136,7 +135,7 @@ const Index = () => {
               title={t('salon.type.women')} 
               icon={Users} 
               items={categories.women}
-              type="women"
+              desc="Luxury Beauty Salons"
               color="from-pink-500 to-rose-600"
            />
 
@@ -166,7 +165,7 @@ const Index = () => {
               title={t('salon.type.unisex')} 
               icon={Scissors} 
               items={categories.unisex}
-              type="unisex"
+              desc="Modern Style Hubs"
               color="from-purple-600 to-fuchsia-700"
            />
 
@@ -174,7 +173,7 @@ const Index = () => {
               title={t('index.mobile.title')} 
               icon={Car} 
               items={categories.mobile}
-              type="mobile"
+              desc="Barbers to Your Door"
               color="from-emerald-500 to-teal-700"
            />
         </div>
@@ -190,7 +189,7 @@ const Index = () => {
   );
 };
 
-const StatItem = ({ icon, label, value }: any) => (
+const StatItem = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) => (
     <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-[2.5rem] shadow-2xl flex items-center justify-center gap-4 transition-transform hover:-translate-y-2">
         <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl">{icon}</div>
         <div>
@@ -200,7 +199,7 @@ const StatItem = ({ icon, label, value }: any) => (
     </div>
 );
 
-const Step = ({ number, title, desc }: any) => (
+const Step = ({ number, title, desc }: { number: string, title: string, desc: string }) => (
     <div className="flex gap-6 group">
         <div className="text-4xl font-black text-primary/20 group-hover:text-primary transition-colors">{number}</div>
         <div>
