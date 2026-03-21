@@ -7,6 +7,8 @@ interface LanguageContextType {
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
   isRTL: boolean;
+  isInternational: boolean;
+  currencyLabel: string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -1165,11 +1167,20 @@ const translations = {
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('ar'); // Default to Arabic
+  const [isInternational, setIsInternational] = useState(false);
 
   useEffect(() => {
+    // Geo Detection Mock
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const outOfAlgeria = tz !== 'Africa/Algiers' && !tz.includes('Algeria');
+    
+    setIsInternational(outOfAlgeria);
+
     const savedLang = localStorage.getItem('language') as Language;
     if (savedLang && ['en', 'fr', 'ar'].includes(savedLang)) {
       setLanguage(savedLang);
+    } else if (outOfAlgeria) {
+      setLanguage('en'); // Default to EN for international users
     }
   }, []);
 
@@ -1179,14 +1190,21 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
   }, [language]);
 
+  const currencyLabel = isInternational ? 'USD' : 'DZD';
+
   const t = (key: string): string => {
-    return translations[language][key] || key;
+    if (key === 'currency') return currencyLabel;
+    
+    // Fallback translation handling
+    const group = translations[language] as Record<string, string>;
+    if (group && group[key]) return group[key];
+    return key;
   };
 
   const isRTL = language === 'ar';
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, isRTL }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, isRTL, isInternational, currencyLabel }}>
       {children}
     </LanguageContext.Provider>
   );
