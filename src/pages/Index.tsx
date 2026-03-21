@@ -113,6 +113,9 @@ const Index = () => {
 
       <main>
         <HeroSection />
+        <div className="container mx-auto px-4 -mt-6 mb-16 relative z-30 flex justify-center">
+            <SearchFilters />
+        </div>
 
         <div className="container mx-auto px-4">
            {/* Trust Stats Bar */}

@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
+import { motion } from "framer-motion";
 
 const Navigation = () => {
   const { t, isRTL } = useLanguage();
@@ -24,18 +25,23 @@ const Navigation = () => {
         <div className="flex h-16 items-center justify-between">
 
           {/* Right Side - Logo (Branded) */}
-          <Link to="/" className="flex items-center gap-2 group transition-all">
-            <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-blue-600 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-              <div className="relative bg-white dark:bg-slate-900 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center">
-                 <img src="/logo.png" alt="BarberLink" className="h-7 w-auto transition-transform group-hover:scale-110" />
+          <Link to="/" className="flex items-center gap-3 group transition-all shrink-0">
+            <motion.div 
+               initial={{ rotateY: -180, scale: 0.5, opacity: 0 }}
+               animate={{ rotateY: 0, scale: 1, opacity: 1 }}
+               transition={{ type: 'spring', stiffness: 100, damping: 10 }}
+               className="relative flex items-center justify-center p-2"
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary via-indigo-500 to-blue-500 rounded-2xl blur-md opacity-30 group-hover:opacity-100 transition duration-700"></div>
+              <div className="relative bg-white dark:bg-slate-950 p-2 rounded-2xl border-2 border-slate-100 dark:border-slate-800 shadow-xl flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300">
+                 <img src="/logo.png" alt="BarberLink Logo" className="h-8 w-auto md:h-10 drop-shadow-md" />
               </div>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+            </motion.div>
+            <div className="hidden sm:flex flex-col">
+              <span className="text-2xl md:text-3xl font-black tracking-tighter uppercase leading-none bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300">
                 BARBER<span className="text-primary italic">LINK</span>
               </span>
-              <span className="text-[10px] font-bold text-muted-foreground -mt-1 tracking-widest uppercase opacity-70">Professional Network</span>
+              <span className="text-[10px] md:text-xs font-black text-muted-foreground tracking-[0.2em] uppercase opacity-70">Premium Solution</span>
             </div>
           </Link>
 

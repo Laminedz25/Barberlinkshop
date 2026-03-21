@@ -49,7 +49,7 @@ const AdminDashboard = () => {
     const [usersList, setUsersList] = useState<UserData[]>([]);
     const [prices, setPrices] = useState({ basic: 0, pro: 2500, premium: 5000 });
     const [apiKeys, setApiKeys] = useState({
-        openai: '', stripe: '', telegramToken: '', weatherKey: '',
+        openai: '', stripeSecret: '', stripePublishable: '', stripeWebhook: '', telegramToken: '', weatherKey: '',
         nominatimUrl: '', other: '',
         billionmailEndpoint: '', billionmailApiKey: '', billionmailFrom: 'noreply@barberlink.cloud'
     });
@@ -57,10 +57,19 @@ const AdminDashboard = () => {
     const [paymentInfo, setPaymentInfo] = useState({
         ccp: '',
         baridiMob: '',
+        cib: '',
+        postalAccount: '',
         fullName: '',
         rib: '',
         fixedDzdPrice: 2500,
         fixedUsdPrice: 20
+    });
+
+    const [subscriptionConfig, setSubscriptionConfig] = useState({
+        discount3Months: 10,
+        discount6Months: 15,
+        discount12Months: 25,
+        isActive: true
     });
 
     const [globalSettings, setGlobalSettings] = useState({
@@ -138,7 +147,7 @@ const AdminDashboard = () => {
     const saveSettings = async () => {
         try {
             await setDoc(doc(db, 'system', 'settings'), { 
-                prices, apiKeys, socials, aiPrompts, paymentInfo, globalSettings 
+                prices, apiKeys, socials, aiPrompts, paymentInfo, globalSettings, subscriptionConfig
             }, { merge: true });
             toast({ title: 'Success', description: 'Settings saved.' });
         } catch (e: any) {
@@ -209,7 +218,7 @@ const AdminDashboard = () => {
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label className="font-bold">Full Name</Label>
+                                                <Label className="font-bold">Full Name (الاسم الكامل)</Label>
                                                 <Input className="rounded-xl" value={paymentInfo.fullName} onChange={e => setPaymentInfo({...paymentInfo, fullName: e.target.value})} />
                                             </div>
                                             <div className="space-y-2">
@@ -221,8 +230,12 @@ const AdminDashboard = () => {
                                                 <Input className="rounded-xl" value={paymentInfo.baridiMob} onChange={e => setPaymentInfo({...paymentInfo, baridiMob: e.target.value})} />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label className="font-bold">Fixed DZD</Label>
-                                                <Input type="number" className="rounded-xl" value={paymentInfo.fixedDzdPrice} onChange={e => setPaymentInfo({...paymentInfo, fixedDzdPrice: Number(e.target.value)})} />
+                                                <Label className="font-bold">CIB / البطاقة الذهبية</Label>
+                                                <Input className="rounded-xl" value={paymentInfo.cib} onChange={e => setPaymentInfo({...paymentInfo, cib: e.target.value})} />
+                                            </div>
+                                            <div className="space-y-2 md:col-span-2">
+                                                <Label className="font-bold">Postal Account (حساب بريدي جاري)</Label>
+                                                <Input className="rounded-xl" value={paymentInfo.postalAccount} onChange={e => setPaymentInfo({...paymentInfo, postalAccount: e.target.value})} />
                                             </div>
                                         </div>
                                     </div>
@@ -242,6 +255,42 @@ const AdminDashboard = () => {
                                             <Textarea className="rounded-2xl" value={globalSettings.seoDescription} onChange={e => setGlobalSettings({...globalSettings, seoDescription: e.target.value})} />
                                         </div>
                                     </div>
+                                </Card>
+                                <Card className="p-8 rounded-[3rem] shadow-2xl xl:col-span-2">
+                                    <h3 className="text-3xl font-black mb-8 flex items-center gap-3">
+                                        <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500"><CreditCard className="w-6 h-6" /></div>
+                                        Subscription Pricing Config
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div className="space-y-2 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border">
+                                            <Label className="font-bold text-lg text-slate-500">Basic Tier (Free/Starter)</Label>
+                                            <Input type="number" className="rounded-xl h-14 text-xl font-black" value={prices.basic} onChange={e => setPrices({...prices, basic: Number(e.target.value)})} />
+                                        </div>
+                                        <div className="space-y-2 p-6 bg-blue-50 dark:bg-slate-800/50 rounded-3xl border border-blue-100 dark:border-blue-900">
+                                            <Label className="font-bold text-lg text-blue-500">Pro Tier</Label>
+                                            <Input type="number" className="rounded-xl h-14 text-xl font-black text-blue-600" value={prices.pro} onChange={e => setPrices({...prices, pro: Number(e.target.value)})} />
+                                        </div>
+                                        <div className="space-y-2 p-6 bg-yellow-50 dark:bg-slate-800/50 rounded-3xl border border-yellow-200 dark:border-yellow-900">
+                                            <Label className="font-bold text-lg text-yellow-600">Premium Tier</Label>
+                                            <Input type="number" className="rounded-xl h-14 text-xl font-black text-yellow-600" value={prices.premium} onChange={e => setPrices({...prices, premium: Number(e.target.value)})} />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                                        <div className="space-y-2">
+                                            <Label className="font-bold">3 Months Discount (%)</Label>
+                                            <Input type="number" className="rounded-xl" value={subscriptionConfig.discount3Months} onChange={e => setSubscriptionConfig({...subscriptionConfig, discount3Months: Number(e.target.value)})} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="font-bold">6 Months Discount (%)</Label>
+                                            <Input type="number" className="rounded-xl" value={subscriptionConfig.discount6Months} onChange={e => setSubscriptionConfig({...subscriptionConfig, discount6Months: Number(e.target.value)})} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="font-bold">12 Months Discount (%)</Label>
+                                            <Input type="number" className="rounded-xl" value={subscriptionConfig.discount12Months} onChange={e => setSubscriptionConfig({...subscriptionConfig, discount12Months: Number(e.target.value)})} />
+                                        </div>
+                                    </div>
+                                    <p className="mt-6 text-muted-foreground font-medium text-center">Update these values to instantly reflect pricing changes across the main landing page and subscription modals.</p>
                                 </Card>
                             </div>
                             <Button size="lg" className="w-full h-16 rounded-2xl text-xl font-black" onClick={saveSettings}>{t('admin.save.system')}</Button>
@@ -324,7 +373,11 @@ const AdminDashboard = () => {
                                 <h2 className="text-2xl font-black mb-6">Environment Variable Keys</h2>
                                 <div className="space-y-4">
                                     <KeyField label="OpenAI API Key" value={apiKeys.openai} onChange={v => setApiKeys({...apiKeys, openai: v})} />
-                                    <KeyField label="Stripe Secret" value={apiKeys.stripe} onChange={v => setApiKeys({...apiKeys, stripe: v})} />
+                                    <div className="grid md:grid-cols-3 gap-6 border-y py-6 my-6 border-slate-100 dark:border-slate-800">
+                                        <KeyField label="Stripe Publishable Key" value={apiKeys.stripePublishable} onChange={v => setApiKeys({...apiKeys, stripePublishable: v})} />
+                                        <KeyField label="Stripe Secret Key" value={apiKeys.stripeSecret} onChange={v => setApiKeys({...apiKeys, stripeSecret: v})} />
+                                        <KeyField label="Stripe Webhook Secret" value={apiKeys.stripeWebhook} onChange={v => setApiKeys({...apiKeys, stripeWebhook: v})} />
+                                    </div>
                                     <KeyField label="BillionMail API" value={apiKeys.billionmailApiKey} onChange={v => setApiKeys({...apiKeys, billionmailApiKey: v})} />
                                     <Button onClick={saveSettings} className="w-full rounded-2xl h-12">Securely Update Vault</Button>
                                 </div>

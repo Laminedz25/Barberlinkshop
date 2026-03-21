@@ -10,22 +10,27 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const Support = () => {
     const { t, isRTL } = useLanguage();
     const [activeVideo, setActiveVideo] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const tutorials = [
-        { id: '1', title: isRTL ? 'كيفية التسجيل كحلاق جديد' : 'How to Register as a Barber', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { id: '2', title: isRTL ? 'تنظيم وترتيب بروفايل الصالون' : 'Managing your Salon Profile', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { id: '3', title: isRTL ? 'إضافة الخدمات ومعرض الأعمال' : 'Adding Services & Gallery', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { id: '4', title: isRTL ? 'دليل الحلاقة المنزلية (Mobile)' : 'Mobile Barbering Guide', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { id: '5', title: isRTL ? 'استخدام مساعد الذكاء الاصطناعي' : 'Using the AI Stylist Assistant', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        { id: '1', title: isRTL ? 'كيفية التسجيل כحلاق وإعداد صالونك الأساسي' : 'How to Register and Set Up Your Salon', desc: isRTL ? 'خطوات سريعة لإطلاق صالونك الرقمي واستقبال العملاء وتأمين حسابك عبر Google.' : 'Quick steps to launch your digital salon securely via Google.', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        { id: '2', title: isRTL ? 'إضافة الخدمات، الأسعار، ومعرض الأعمال' : 'Adding Services & Showcasing Your Portfolio', desc: isRTL ? 'كيف تجذب الزبائن من خلال صور أعمالك وعروض اشتراكات الـ VIP.' : 'Attract clients with HD photos and VIP subscriptions.', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        { id: '3', title: isRTL ? 'إدارة المواعيد المباشرة والحجوزات العادية' : 'Managing Walk-ins & Standard Bookings', desc: isRTL ? 'تنظيم وقتك بدقة وتجنب التداخل عبر أداة الحجز المباشر (Offline Bookings).' : 'Organize your time and avoid overlap using Walk-in tools.', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        { id: '4', title: isRTL ? 'ميزة الكرسي الشاغر وحلاقين المنازل' : 'Vacant Chair & Mobile Barbering Guide', desc: isRTL ? 'لأصحاب الصالونات: كيفية عرض كراسي للإيجار، وللحلاق المتنقل: كيفية تفعيل خدمة VIP.' : 'How to rent a chair or offer luxury home visits.', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        { id: '5', title: isRTL ? 'استخدام مساعد الذكاء الاصطناعي لمضاعفة الأرباح' : 'Using AI Stylist to Double Your Revenue', desc: isRTL ? 'كيف تستخدم أداة الـ AI لاقتراح التسريحات وإجبار الزبائن على اختيار خدمات أعلى سعراً.' : 'Use AI to up-sell services and recommend premium styles.', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
     ];
 
     const faqs = [
         { q: t('support.faq.q1'), a: t('support.faq.a1') },
         { q: t('support.faq.q2'), a: t('support.faq.a2') },
-        { q: t('support.faq.q3'), a: t('support.faq.a3') },
+        { q: isRTL ? 'هل يمكن لأي شخص رؤية بياناتي وإحصائياتي المالية؟' : 'Can anyone see my financial data and private information?', a: isRTL ? 'مستحيل! نحن نستخدم حماية (Firestore Security Rules) والمصادقة المباشرة عبر اتصال (Google Auth)، مما يعني أنه لا يمكن لأي حلاق آخر أو مستخدم رؤية إحصائياتك أو زملائك أو أرباحك. كل شيء يُحفظ في خزائن مشفرة لا تفتح إلا لصاحب الحساب الشرعي.' : 'Impossible! We use Firestore Security Rules and strict Google Auth. Nobody can access your financial data, reports, or private staff information except you.' },
+        { q: isRTL ? 'ما هي فائدة الاشتراكات (Starter, Pro, Premium) للصالون؟' : 'What is the benefit of the Subscriptions (Starter, Pro, Premium)?', a: isRTL ? 'الاشتراكات صُممت بعناية لتناسب حجم صالونك. الباقة الأساسية تبدأ بها كحلاق جديد، بينما (Pro) تعطيك ميزة إرسال رسائل WhatsApp الذكية وزيادة الظهور. أما باقة (Premium) فهي تجعلك تستحوذ على منطقتك بالكامل مع "شارة الـ VIP" وأدوات تسويق حصرية تضاعف عدد عملائك.' : 'Subscriptions scale with you. Basic is for new barbers. Pro gives WhatsApp automation and analytics. Premium dominates your local area with VIP badges and SEO boosts to double your clientele.' },
         { q: t('support.faq.q4'), a: t('support.faq.a4') },
+        { q: t('support.faq.q3'), a: t('support.faq.a3') },
         { q: t('support.faq.q5'), a: t('support.faq.a5') },
     ];
+
+    const filteredFaqs = faqs.filter(f => f.q.toLowerCase().includes(searchQuery.toLowerCase()) || f.a.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -49,17 +54,22 @@ const Support = () => {
                         <h2 className="text-3xl font-black mb-4 flex items-center gap-3">
                             <PlayCircle className="text-primary w-8 h-8" /> {t('support.tutorials.title')}
                         </h2>
-                        <p className="text-muted-foreground mb-8">{t('support.tutorials.desc')}</p>
+                        <p className="text-muted-foreground mb-8 font-medium">{t('support.tutorials.desc')}</p>
                         
                         <div className="space-y-4">
                             {tutorials.map((video) => (
                                 <button 
                                     key={video.id}
                                     onClick={() => setActiveVideo(video.url)}
-                                    className="w-full flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-2xl hover:bg-primary hover:text-white transition-all group/btn shadow-sm"
+                                    className="w-full flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 border-2 border-transparent hover:border-primary/50 transition-all group/btn shadow-sm text-left"
                                 >
-                                    <span className="font-bold">{video.title}</span>
-                                    <PlayCircle className="w-5 h-5 opacity-50 group-hover/btn:opacity-100" />
+                                    <div className="flex-1 pr-4">
+                                        <span className="font-extrabold text-lg block mb-1 group-hover/btn:text-primary transition-colors">{video.title}</span>
+                                        <span className="text-xs text-muted-foreground font-medium leading-relaxed block">{video.desc}</span>
+                                    </div>
+                                    <div className="bg-primary/10 p-3 rounded-full group-hover/btn:bg-primary transition-colors">
+                                        <PlayCircle className="w-6 h-6 text-primary group-hover/btn:text-white" />
+                                    </div>
                                 </button>
                             ))}
                         </div>
@@ -69,21 +79,37 @@ const Support = () => {
                         <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
                             <HelpCircle className="w-32 h-32 text-indigo-500" />
                         </div>
-                        <h2 className="text-3xl font-black mb-6 flex items-center gap-3">
-                            <HelpCircle className="text-indigo-500 w-8 h-8" /> {t('support.faq.title')}
-                        </h2>
-                        <Accordion type="single" collapsible className="w-full">
-                            {faqs.map((faq, i) => (
-                                <AccordionItem key={i} value={`item-${i}`} className="border-b border-slate-100 dark:border-slate-800">
-                                    <AccordionTrigger className="text-left font-bold text-lg hover:text-primary decoration-none">{faq.q}</AccordionTrigger>
-                                    <AccordionContent className="text-muted-foreground leading-relaxed text-md">
-                                        {faq.a}
-                                    </AccordionContent>
-                                </AccordionItem>
-                            ))}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 relative z-10">
+                            <h2 className="text-3xl font-black flex items-center gap-3">
+                                <HelpCircle className="text-indigo-500 w-8 h-8" /> {t('support.faq.title')}
+                            </h2>
+                        </div>
+                        <div className="relative mb-6 z-10">
+                            <input 
+                                type="text" 
+                                placeholder="Search questions..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl px-6 py-4 font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500 transition-colors shadow-sm"
+                            />
+                        </div>
+                        <Accordion type="single" collapsible className="w-full relative z-10">
+                            {filteredFaqs.length === 0 ? (
+                                <p className="text-center text-muted-foreground py-8 font-medium">No questions found matching your search.</p>
+                            ) : (
+                                filteredFaqs.map((faq, i) => (
+                                    <AccordionItem key={i} value={`item-${i}`} className="border-b border-slate-100 dark:border-slate-800">
+                                        <AccordionTrigger className="text-left font-black text-lg hover:text-indigo-500 decoration-none py-6">{faq.q}</AccordionTrigger>
+                                        <AccordionContent className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed text-base pb-6">
+                                            {faq.a}
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                ))
+                            )}
                         </Accordion>
                     </Card>
                 </div>
+
 
                 {activeVideo && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
