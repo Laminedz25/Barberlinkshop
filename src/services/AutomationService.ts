@@ -231,17 +231,27 @@ export class AutomationService {
 
     /**
      * Process payment via local gateways (CIB, BaridiMob) or Stripe
+     * ROOT CAUSE AUDIT: Added real check for Admin configuration
      */
     static async processPayment(gateway: string, amount: number, currency: string) {
         try {
-            console.log(`[Automation - Payment] Processing ${amount} ${currency} via ${gateway}`);
+            console.log(`[Security Audit] Processing ${amount} ${currency} via ${gateway}`);
+            
+            // Check if admin has configured payment info before allowing "Online" selection
+            const settingsRef = doc(db, 'system', 'settings');
+            const settingsSnap = await getDoc(settingsRef);
+            const paymentInfo = settingsSnap.exists() ? settingsSnap.data().paymentInfo : null;
+
+            if (gateway !== 'cash' && (!paymentInfo?.ccp && !paymentInfo?.baridiMob)) {
+                throw new Error("Online payment details not configured by administrator. Please pay at salon.");
+            }
+
             await new Promise(resolve => setTimeout(resolve, 2000));
             const transactionId = `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-            console.log(`[Success] Payment approved: ${transactionId}`);
             return { success: true, transactionId };
         } catch (error) {
-            console.error("[Automation] Payment Failed", error);
-            return { success: false, transactionId: null, message: "Transaction declined." };
+            console.error("[Security Audit] Payment Guard Blocked Transaction:", error);
+            return { success: false, transactionId: null, message: (error as Error).message };
         }
     }
 
