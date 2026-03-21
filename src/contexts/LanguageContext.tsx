@@ -367,6 +367,23 @@ const translations = {
     'admin.users.role': 'Role',
     'admin.users.status': 'Status',
     'admin.users.action': 'Action',
+
+    // Home Page Features
+    'index.stats.rating': 'Avg. Rating',
+    'index.stats.clients': 'Happy Clients',
+    'index.stats.bookings': 'Bookings Today',
+    'index.stats.verified': 'Verified Barbers',
+    'index.how.title': 'How it',
+    'index.how.works': 'Works?',
+    'index.how.step1.title': 'Discover',
+    'index.how.step1.desc': 'Search by city, service, or barber name near you.',
+    'index.how.step2.title': 'Choose',
+    'index.how.step2.desc': 'View real expert work portfolio and read client reviews.',
+    'index.how.step3.title': 'Book',
+    'index.how.step3.desc': 'Pick your time and pay securely or at the salon.',
+    'index.how.button': 'Get Started Now',
+    'index.mobile.title': 'Mobile Barbers',
+    'index.mobile.explore': 'Explore the best rated mobile barbers near you',
   },
   fr: {
     // Navigation
@@ -723,6 +740,23 @@ const translations = {
     'admin.users.role': 'Rôle',
     'admin.users.status': 'Statut',
     'admin.users.action': 'Action',
+
+    // Home Page Features
+    'index.stats.rating': 'Note Moyenne',
+    'index.stats.clients': 'Clients Satisfaits',
+    'index.stats.bookings': 'Réservations Aujourd\'hui',
+    'index.stats.verified': 'Coiffeurs Vérifiés',
+    'index.how.title': 'Comment Ça',
+    'index.how.works': 'Marche ?',
+    'index.how.step1.title': 'Découvrir',
+    'index.how.step1.desc': 'Recherchez par ville, service ou nom de coiffeur près de chez vous.',
+    'index.how.step2.title': 'Choisir',
+    'index.how.step2.desc': 'Consultez les portfolios réels et lisez les avis des clients.',
+    'index.how.step3.title': 'Réserver',
+    'index.how.step3.desc': 'Choisissez votre heure et payez en toute sécurité ou au salon.',
+    'index.how.button': 'Commencez Maintenant',
+    'index.mobile.title': 'Coiffeurs à Domicile',
+    'index.mobile.explore': 'Explorez les meilleurs coiffeurs à domicile près de chez vous',
   },
   ar: {
     // Navigation
@@ -1054,7 +1088,49 @@ const translations = {
     'support.tutorials.title': 'شروحات الفيديو',
     'support.tutorials.desc': 'فيديوهات قصيرة لمساعدتك في احتراف استخدام منصة باربر لينك.',
     'support.contact.us': 'ما زال لديك استفسار؟ تواصل مع فريقنا مباشرة عبر واتساب.',
-  }
+
+    // Admin Dashboard
+    'admin.title': 'مركز المنصة',
+    'admin.subtitle': 'لوحة التحكم',
+    'admin.tab.analytics': 'الإحصائيات',
+    'admin.tab.settings': 'الإعدادات العامة',
+    'admin.tab.users': 'المستخدمين',
+    'admin.tab.ai': 'تدريب الذكاء الاصطناعي',
+    'admin.tab.keys': 'مفاتيح API',
+    'admin.health.title': 'أداء المنصة',
+    'admin.health.server': 'حالة السيرفر',
+    'admin.health.db': 'قاعدة البيانات (Firestore)',
+    'admin.health.auth': 'خدمة المصادقة',
+    'admin.payments.title': 'المدفوعات الجزائرية',
+    'admin.payments.fullname': 'الاسم الكامل',
+    'admin.payments.ccp': 'حساب CCP',
+    'admin.payments.baridimob': 'بريدي موب',
+    'admin.payments.fixed': 'السعر الثابت بالدينار',
+    'admin.seo.title': 'عنوان الـ SEO',
+    'admin.seo.desc': 'وصف الـ SEO',
+    'admin.save.system': 'حفظ تغييرات النظام',
+    'admin.users.user': 'المستخدم',
+    'admin.users.role': 'الدور',
+    'admin.users.status': 'الحالة',
+    'admin.users.action': 'الإجراء',
+
+    // Home Page Features
+    'index.stats.rating': 'متوسط التقييم',
+    'index.stats.clients': 'زبون سعيد',
+    'index.stats.bookings': 'حجز اليوم',
+    'index.stats.verified': 'حلاق موثق',
+    'index.how.title': 'كيفية',
+    'index.how.works': 'العمل؟',
+    'index.how.step1.title': 'اكتشف',
+    'index.how.step1.desc': 'ابحث عن صالونك حسب المدينة أو الخدمة أو الاسم.',
+    'index.how.step2.title': 'اختر',
+    'index.how.step2.desc': 'شاهد معرض الأعمال الحقيقي واطلع على آراء الزبائن.',
+    'index.how.step3.title': 'احجز',
+    'index.how.step3.desc': 'حدد موعدك وادفع بأمان عبر التطبيق أو في الصالون.',
+    'index.how.button': 'ابدأ الآن',
+    'index.mobile.title': 'حلاقين منزليين',
+    'index.mobile.explore': 'اكتشف أفضل الحلاقين الذين يقدمون خدمات منزلية بالقرب منك',
+  },
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
