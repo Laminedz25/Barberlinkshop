@@ -1,10 +1,10 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { initializeFirestore, CACHE_SIZE_UNLIMITED } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDuz9012n769uSrrL20y7JsRYvc_dvG_lE",
-  authDomain: "barberlink.cloud",
+  authDomain: "barberlinkshop.firebaseapp.com",
   projectId: "barberlinkshop",
   storageBucket: "barberlinkshop.firebasestorage.app",
   messagingSenderId: "829508519099",
@@ -14,8 +14,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
-const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-});
+const db = getFirestore(app);
 
 export { app, auth, db };
