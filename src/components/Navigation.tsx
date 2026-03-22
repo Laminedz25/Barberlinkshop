@@ -23,41 +23,73 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
 
-          {/* Right Side - Logo (Branded) */}
-          <Link to="/" className="flex items-center gap-2 group transition-all">
-            <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-blue-600 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-              <div className="relative bg-white dark:bg-slate-900 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center">
-                 <img src="/logo.png" alt="BarberLink" className="h-7 w-auto transition-transform group-hover:scale-110" />
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
-                BARBER<span className="text-primary italic">LINK</span>
-              </span>
-              <span className="text-[10px] font-bold text-muted-foreground -mt-1 tracking-widest uppercase opacity-70">Professional Network</span>
-            </div>
-          </Link>
+          {/* Left Side - Auth Actions */}
+          <div className="flex items-center gap-3">
+            {user ? (
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={signOut}
+                  className="hidden sm:flex hover:bg-[#007BFF] hover:text-white"
+                >
+                  {t('nav.signout')}
+                </Button>
+                <Button variant="ghost" className="hidden sm:flex items-center gap-2 hover:bg-[#007BFF] hover:text-white">
+                  <User className="h-4 w-4" />
+                  {t('nav.profile')}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate('/auth')}
+                  className="hidden sm:flex hover:bg-[#007BFF] hover:text-white"
+                >
+                  {t('nav.signin')}
+                </Button>
+                <Button
+                  className="hidden sm:flex bg-primary hover:bg-[#007BFF] text-white"
+                  onClick={() => navigate('/auth')}
+                >
+                  {t('nav.signup')}
+                </Button>
+              </>
+            )}
 
-          {/* Center - Navigation Links (High-end) */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-100/50 dark:bg-slate-800/50 p-1 rounded-full border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-sm">
-            <Button variant="ghost" className="rounded-full flex items-center gap-2 hover:bg-white dark:hover:bg-slate-900 hover:shadow-sm transition-all text-sm font-bold" asChild>
+            <ThemeToggle />
+            <LanguageSwitcher />
+
+            {/* Mobile Menu Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden hover:bg-[#007BFF] hover:text-white"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
+
+          {/* Center - Navigation Links */}
+          <nav className="hidden md:flex items-center gap-6">
+            <Button variant="ghost" className="flex items-center gap-2 hover:bg-[#007BFF] hover:text-white" asChild>
               <Link to="/">
-                <MapPin className="h-4 w-4 text-primary" />
+                <MapPin className="h-4 w-4" />
                 {t('nav.explore')}
               </Link>
             </Button>
             {user && (
               <>
-                <Button variant="ghost" className="rounded-full flex items-center gap-2 hover:bg-white dark:hover:bg-slate-900 hover:shadow-sm transition-all text-sm font-bold" asChild>
+                <Button variant="ghost" className="flex items-center gap-2 hover:bg-[#007BFF] hover:text-white" asChild>
                   <Link to="/bookings">
-                    <Calendar className="h-4 w-4 text-primary" />
+                    <Calendar className="h-4 w-4" />
                     {t('nav.bookings')}
                   </Link>
                 </Button>
-                <Button variant="ghost" className="rounded-full flex items-center gap-2 hover:bg-white dark:hover:bg-slate-900 hover:shadow-sm transition-all text-sm font-bold" asChild>
+                <Button variant="ghost" className="flex items-center gap-2 hover:bg-[#007BFF] hover:text-white" asChild>
                   <Link to="/dashboard">
-                    <User className="h-4 w-4 text-primary" />
+                    <User className="h-4 w-4" />
                     {t('nav.account')}
                   </Link>
                 </Button>
@@ -65,59 +97,13 @@ const Navigation = () => {
             )}
           </nav>
 
-          {/* Left Side - Auth Actions (Premium Styling) */}
-          <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center border-l pl-3 border-slate-200 dark:border-slate-800 gap-2">
-               <ThemeToggle />
-               <LanguageSwitcher />
-            </div>
-
-            {user ? (
-               <div className="flex items-center gap-2">
-                 <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={signOut}
-                    className="rounded-full font-bold text-xs hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600"
-                  >
-                    {t('nav.signout')}
-                  </Button>
-                  <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-primary to-blue-400 p-[2px] cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate('/dashboard')}>
-                    <div className="w-full h-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden">
-                       <User className="h-5 w-5 text-primary" />
-                    </div>
-                  </div>
-               </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/auth')}
-                  className="rounded-full font-bold text-sm hidden sm:flex"
-                >
-                  {t('nav.signin')}
-                </Button>
-                <Button
-                  className="bg-primary hover:bg-primary/90 text-white rounded-full px-6 font-bold shadow-lg shadow-primary/25 h-10 text-sm"
-                  onClick={() => navigate('/auth')}
-                >
-                  {t('nav.signup')}
-                </Button>
-              </div>
-            )}
-
-            <div className="lg:hidden flex items-center gap-1">
-               <ThemeToggle />
-               <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
+          {/* Right Side - Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/logo.png" alt="BarberLink Logo" className="h-8 w-auto mix-blend-difference" />
+            <h1 className="text-xl font-bold">
+              BarberLink
+            </h1>
+          </Link>
         </div>
 
         {/* Mobile Navigation */}

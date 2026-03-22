@@ -105,7 +105,7 @@ const translations = {
     'download.description': 'Experience seamless booking with our mobile app. Available for Android and iOS.',
 
     // Authentication
-    'auth.welcome': 'Welcome to barberlink',
+    'auth.welcome': 'Welcome to BarberLink',
     'auth.subtitle': 'Connect with professional barbers',
     'auth.signin': 'Sign In',
     'auth.signup': 'Sign Up',
@@ -123,7 +123,7 @@ const translations = {
     'auth.loading': 'Loading...',
     'auth.error': 'Authentication Error',
     'auth.signup.success': 'Account created successfully',
-    'auth.signup.success.desc': 'Welcome to barberlink!',
+    'auth.signup.success.desc': 'Welcome to BarberLink!',
 
     // Barber Profile
     'barber.notfound': 'Barber not found',
@@ -155,21 +155,6 @@ const translations = {
     'service.facial': 'Facial Treatment',
     'service.massage': 'Head Massage',
     'service.home': 'VIP Home Service',
-    'service.classic_cut': 'Classic Cut',
-    'service.beard_styling': 'Beard Styling',
-    'service.hot_towel': 'Hot Towel',
-    'service.hair_styling': 'Hair Styling',
-    'service.manicure': 'Manicure',
-    'service.modern_cut': 'Modern Cut',
-    'service.hair_treatment': 'Hair Treatment',
-    'service.premium_cut': 'Premium Cut',
-    'service.grooming': 'Grooming',
-    'service.bridal_hair': 'Bridal Hair',
-    'service.extensions': 'Extensions',
-    'service.makeup': 'Makeup',
-    'service.trendy_cut': 'Trendy Cut',
-    'service.color_correction': 'Color Correction',
-    'service.perm': 'Perm',
 
     // Salon Types
     'salon.type.men': 'Men',
@@ -200,14 +185,14 @@ const translations = {
     'pricing.basic.f4': 'Appointment Notifications',
     'pricing.pro.name': 'Pro Plan',
     'pricing.pro.desc': 'For growing salons.',
-    'pricing.pro.price': '1500',
+    'pricing.pro.price': '2500',
     'pricing.pro.f1': 'Everything in Basic',
     'pricing.pro.f2': 'Integrated Digital Store',
     'pricing.pro.f3': 'AI Style & Makeup Assistant',
     'pricing.pro.f4': 'Weekly Financial Reports',
     'pricing.premium.name': 'Premium Plan',
     'pricing.premium.desc': 'Advanced tools for full automation.',
-    'pricing.premium.price': '2000',
+    'pricing.premium.price': '5000',
     'pricing.premium.f1': 'Everything in Pro',
     'pricing.premium.f2': 'VIP Search Placement',
     'pricing.premium.f3': 'Staff & Chairs Management',
@@ -217,7 +202,7 @@ const translations = {
     // Testimonials
     'testi.title': 'What Our Users Say',
     'testi.sub': 'Join thousands of satisfied salon owners and clients.',
-    'testi.1.text': 'barberlink transformed my business! The AI stylist brings so many new female clients, and the automated weekly reports save me hours of accounting.',
+    'testi.1.text': 'BarberLink transformed my business! The AI stylist brings so many new female clients, and the automated weekly reports save me hours of accounting.',
     'testi.1.name': 'Sarah L.',
     'testi.1.role': 'Salon Owner',
     'testi.2.text': 'I manage 4 chairs in my barber shop. The platform handles all bookings seamlessly and sends SMS notifications to clients automatically.',
@@ -317,31 +302,6 @@ const translations = {
     'notification.upcoming.30m': 'Appointment in 30 minutes!',
     'notification.upcoming.15m': 'Appointment in 15 minutes!',
     'notification.upcoming.msg': 'You have an appointment scheduled with',
-
-    // New Features
-    'barber.vacant_chair': 'Vacant Chair for Rent',
-    'barber.staff': 'Salon Barbers',
-    'barber.offline_booking': 'Add Walk-in (Offline)',
-    'barber.offline_desc': 'Book an appointment for a returning customer who came without using the app.',
-    'barber.customer_name': 'Customer Name',
-    'barber.customer_phone': 'Customer Phone',
-    'barber.select_services': 'Select Services',
-    'barber.select_date': 'Select Date',
-    'barber.select_time': 'Select Time',
-    'barber.book_offline': 'Add Walk-in Appointment',
-    'barber.vacant_chair_desc': 'There is a vacant chair available in this salon. Apply to rent it!',
-    
-    // Support & Help
-    'support.title': 'Support Center',
-    'support.subtitle': 'Need help? We are here for you 24/7.',
-    'support.faq.title': 'Frequently Asked Questions',
-    'support.faq.q1': 'How do I book an appointment?',
-    'support.faq.a1': 'Simply browse our curated list of barbers, select the services you need, pick a convenient date and time, and confirm your booking instantly.',
-    'support.faq.q2': 'What payment methods do you accept?',
-    'support.faq.a2': 'We support Baridi Mob, Visa/Mastercard, and Cash payments directly at the salon.',
-    'support.tutorials.title': 'Video Tutorials',
-    'support.tutorials.desc': 'Short video guides to help you get the most out of BarberLink.',
-    'support.contact.us': 'Still have questions? Contact our team directly via WhatsApp or Chat.',
   },
   fr: {
     // Navigation
@@ -436,7 +396,7 @@ const translations = {
     'download.description': 'Profitez d\'une réservation fluide avec notre application mobile. Disponible pour Android et iOS.',
 
     // Authentication
-    'auth.welcome': 'Bienvenue sur barberlink',
+    'auth.welcome': 'Bienvenue sur BarberLink',
     'auth.subtitle': 'Connectez-vous avec des coiffeurs professionnels',
     'auth.signin': 'Se Connecter',
     'auth.signup': 'S\'inscrire',
@@ -454,7 +414,7 @@ const translations = {
     'auth.loading': 'Chargement...',
     'auth.error': 'Erreur d\'authentification',
     'auth.signup.success': 'Compte créé avec succès',
-    'auth.signup.success.desc': 'Bienvenue sur barberlink!',
+    'auth.signup.success.desc': 'Bienvenue sur BarberLink!',
 
     // Barber Profile
     'barber.notfound': 'Coiffeur introuvable',
@@ -486,21 +446,6 @@ const translations = {
     'service.facial': 'Soin du Visage',
     'service.massage': 'Massage Crânien',
     'service.home': 'Service VIP à Domicile',
-    'service.classic_cut': 'Coupe Classique',
-    'service.beard_styling': 'Taille de Barbe',
-    'service.hot_towel': 'Serviette Chaude',
-    'service.hair_styling': 'Coiffage',
-    'service.manicure': 'Manucure',
-    'service.modern_cut': 'Coupe Moderne',
-    'service.hair_treatment': 'Soin Capillaire',
-    'service.premium_cut': 'Coupe Premium',
-    'service.grooming': 'Toilettage',
-    'service.bridal_hair': 'Coiffure de Mariée',
-    'service.extensions': 'Extensions',
-    'service.makeup': 'Maquillage',
-    'service.trendy_cut': 'Coupe Tendance',
-    'service.color_correction': 'Correction de Couleur',
-    'service.perm': 'Permanente',
 
     // Salon Types
     'salon.type.men': 'Hommes',
@@ -531,7 +476,7 @@ const translations = {
     'pricing.basic.f4': 'Notifications de Rendez-vous',
     'pricing.pro.name': 'Forfait Pro',
     'pricing.pro.desc': 'Pour les salons en croissance.',
-    'pricing.pro.price': '1500',
+    'pricing.pro.price': '2500',
     'pricing.pro.f1': 'Tout dans Basique',
     'pricing.pro.f2': 'Boutique Numérique Intégrée',
     'pricing.pro.f3': 'Assistant IA Style & Maquillage',
@@ -548,7 +493,7 @@ const translations = {
     // Testimonials
     'testi.title': 'Ce que disent nos utilisateurs',
     'testi.sub': 'Rejoignez des milliers de propriétaires de salons et de clients satisfaits.',
-    'testi.1.text': 'barberlink a transformé mon entreprise ! L\'IA m\'apporte beaucoup de nouvelles clientes et les rapports hebdomadaires automatisés me font gagner des heures de comptabilité.',
+    'testi.1.text': 'BarberLink a transformé mon entreprise ! L\'IA m\'apporte beaucoup de nouvelles clientes et les rapports hebdomadaires automatisés me font gagner des heures de comptabilité.',
     'testi.1.name': 'Sarah L.',
     'testi.1.role': 'Propriétaire de Salon',
     'testi.2.text': 'Je gère 4 chaises dans mon salon. La plateforme gère parfaitement toutes les réservations et envoie des notifications SMS automatiques aux clients.',
@@ -648,31 +593,6 @@ const translations = {
     'notification.upcoming.30m': 'Rendez-vous dans 30 minutes!',
     'notification.upcoming.15m': 'Rendez-vous dans 15 minutes!',
     'notification.upcoming.msg': 'Vous avez un rendez-vous prévu avec',
-
-    // New Features
-    'barber.vacant_chair': 'Siège Vacant à Louer',
-    'barber.staff': 'Coiffeurs du Salon',
-    'barber.offline_booking': 'Ajouter Client sans RDV (Hors ligne)',
-    'barber.offline_desc': 'Prendre rendez-vous pour un client fidèle venu sans utiliser l\'application.',
-    'barber.customer_name': 'Nom du Client',
-    'barber.customer_phone': 'Téléphone du Client',
-    'barber.select_services': 'Sélectionner des Services',
-    'barber.select_date': 'Sélectionner la Date',
-    'barber.select_time': 'Sélectionner l\'Heure',
-    'barber.book_offline': 'Ajouter Rendez-vous Hors ligne',
-    'barber.vacant_chair_desc': 'Il y a un siège vacant disponible dans ce salon. Postulez pour le louer !',
-
-    // Support & Help
-    'support.title': 'Centre d\'Assistance',
-    'support.subtitle': 'Besoin d\'aide ? Nous sommes là 24/7.',
-    'support.faq.title': 'Questions Fréquemment Posées',
-    'support.faq.q1': 'Comment réserver un rendez-vous ?',
-    'support.faq.a1': 'Parcourez simplement notre liste, sélectionnez les services, choisissez une date et confirmez instantanément.',
-    'support.faq.q2': 'Quelles sont les méthodes de paiement ?',
-    'support.faq.a2': 'Nous acceptons Baridi Mob, Visa/Mastercard et le paiement en espèces au salon.',
-    'support.tutorials.title': 'Tutoriels Vidéo',
-    'support.tutorials.desc': 'Courts guides vidéo pour maîtriser la plateforme.',
-    'support.contact.us': 'D\'autres questions ? Contactez-nous via WhatsApp.',
   },
   ar: {
     // Navigation
@@ -767,7 +687,7 @@ const translations = {
     'download.description': 'استمتع بحجز سلس مع تطبيقنا المحمول. متاح لأندرويد و iOS.',
 
     // Authentication
-    'auth.welcome': 'مرحباً بك في barberlink',
+    'auth.welcome': 'مرحباً بك في BarberLink',
     'auth.subtitle': 'تواصل مع حلاقين محترفين',
     'auth.signin': 'تسجيل الدخول',
     'auth.signup': 'إنشاء حساب',
@@ -785,7 +705,7 @@ const translations = {
     'auth.loading': 'جاري التحميل...',
     'auth.error': 'خطأ في المصادقة',
     'auth.signup.success': 'تم إنشاء الحساب بنجاح',
-    'auth.signup.success.desc': 'مرحباً بك في barberlink!',
+    'auth.signup.success.desc': 'مرحباً بك في BarberLink!',
 
     // Barber Profile
     'barber.notfound': 'الحلاق غير موجود',
@@ -817,21 +737,6 @@ const translations = {
     'service.facial': 'علاج الوجه',
     'service.massage': 'تدليك الرأس',
     'service.home': 'خدمة كبار الشخصيات',
-    'service.classic_cut': 'حلاقة كلاسيكية',
-    'service.beard_styling': 'تحديد اللحية',
-    'service.hot_towel': 'فوطة ساخنة',
-    'service.hair_styling': 'تصفيف الشعر',
-    'service.manicure': 'مانيكير',
-    'service.modern_cut': 'قصة عصرية',
-    'service.hair_treatment': 'علاج الشعر',
-    'service.premium_cut': 'حلاقة VIP',
-    'service.grooming': 'عناية متكاملة',
-    'service.bridal_hair': 'تسريحة عروس',
-    'service.extensions': 'تركيب شعر',
-    'service.makeup': 'مكياج',
-    'service.trendy_cut': 'قصة جديدة',
-    'service.color_correction': 'تصحيح اللون',
-    'service.perm': 'تجعيد الشعر',
 
     // Salon Types
     'salon.type.men': 'رجالي',
@@ -879,7 +784,7 @@ const translations = {
     // Testimonials
     'testi.title': 'ماذا يقول عملاؤنا عنا',
     'testi.sub': 'انضم إلى الآلاف من أصحاب الصالونات والمستخدمين الراضين.',
-    'testi.1.text': 'منصة barberlink غيرت طريقة عملي بالكامل! أداة الذكاء الاصطناعي جراف العديد من الزبونات لصالون التجميل الخاص بي، والتقارير الأسبوعية الآلية توفر علي الكثير من الوقت.',
+    'testi.1.text': 'منصة باربر لينك غيرت طريقة عملي بالكامل! أداة الذكاء الاصطناعي جراف العديد من الزبونات لصالون التجميل الخاص بي، والتقارير الأسبوعية الآلية توفر علي الكثير من الوقت.',
     'testi.1.name': 'سارة ل.',
     'testi.1.role': 'مالكة صالون تجميل',
     'testi.2.text': 'أدير صالوناً بـ 4 كراسي. المنصة تنظم الحجوزات بشكل مذهل، وتجعل الزبون يختار مقاله المفضل، وتقوم بإرسال رسائل التنبيه تلقائياً للزبائن دون تدخلي.',
@@ -979,31 +884,6 @@ const translations = {
     'notification.upcoming.30m': 'موعدك بعد 30 دقيقة!',
     'notification.upcoming.15m': 'موعدك بعد 15 دقيقة!',
     'notification.upcoming.msg': 'لديك موعد مقرر مع',
-
-    // New Features
-    'barber.vacant_chair': 'كرسي شاغر للإيجار',
-    'barber.staff': 'حلاقين الصالون',
-    'barber.offline_booking': 'إضافة زبون مباشر (بدون منصة)',
-    'barber.offline_desc': 'إضافة حجز لزبون أتى للصالون دون حجز في المنصة مسبقاً للحصول على تقارير مبيعات دقيقة ولملئ جدول الأوقات.',
-    'barber.customer_name': 'اسم الزبون',
-    'barber.customer_phone': 'رقم هاتف الزبون (اختياري)',
-    'barber.select_services': 'اختر الخدمات',
-    'barber.select_date': 'تاريخ الحجز',
-    'barber.select_time': 'وقت الحجز',
-    'barber.book_offline': 'تأكيد الحجز المباشر',
-    'barber.vacant_chair_desc': 'يوجد كرسي شاغر للإيجار داخل هذا الصالون، يمكنك التقديم للعمل هنا!',
-
-    // Support & Help
-    'support.title': 'مركز الدعم والمساعدة',
-    'support.subtitle': 'هل تحتاج للمساعدة؟ نحن هنا من أجلك على مدار الساعة.',
-    'support.faq.title': 'الأسئلة الشائعة',
-    'support.faq.q1': 'كيف يمكنني حجز موعد؟',
-    'support.faq.a1': 'ببساطة تصفح قائمة الحلاقين، اختر الخدمات التي ترغب بها، ثم حدد الموعد المناسب وأكد حجزك فوراً.',
-    'support.faq.q2': 'ما هي وسائل الدفع المتاحة؟',
-    'support.faq.a2': 'ندعم الدفع عبر بريدي موب، البطاقات البنكية، والدفع نقداً في الصالون.',
-    'support.tutorials.title': 'شروحات الفيديو',
-    'support.tutorials.desc': 'فيديوهات قصيرة لمساعدتك في احتراف استخدام منصة باربر لينك.',
-    'support.contact.us': 'ما زال لديك استفسار؟ تواصل مع فريقنا مباشرة عبر واتساب.',
   }
 };
 
@@ -1036,7 +916,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 };
 
- 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {

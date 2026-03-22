@@ -19,9 +19,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ExploreMap from '@/components/ExploreMap';
-import { MapPin } from 'lucide-react';
 
 interface Appointment {
     id: string;
@@ -131,113 +128,96 @@ const CustomerDashboard = () => {
                     </h1>
                 </div>
 
-                <Tabs defaultValue="map" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-8 bg-slate-200/50 dark:bg-slate-800/50 p-1.5 rounded-2xl">
-                        <TabsTrigger value="map" className="rounded-xl py-3 font-bold transition-all flex gap-2">
-                            <MapPin className="w-4 h-4" /> {isRTL ? 'خريطة الصالونات' : 'Salons Map'}
-                        </TabsTrigger>
-                        <TabsTrigger value="bookings" className="rounded-xl py-3 font-bold transition-all flex gap-2">
-                            <Calendar className="w-4 h-4" /> {t('dashboard.tabs.bookings')}
-                        </TabsTrigger>
-                    </TabsList>
+                {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                    </div>
+                ) : appointments.length === 0 ? (
+                    <div className="group relative overflow-hidden rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-12 text-center shadow-2xl transition-all hover:shadow-primary/5">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <h2 className="text-2xl font-bold mb-4">{t('dashboard.customer.empty')}</h2>
+                        <Button size="lg" className="rounded-full shadow-xl shadow-primary/20" onClick={() => navigate('/')}>
+                            {t('dashboard.explore')}
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {appointments.map(appt => (
+                            <div key={appt.id} className="group relative bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-6 shadow-xl transition-all hover:shadow-2xl hover:scale-[1.01] overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="flex flex-col md:flex-row justify-between gap-6">
+                                    <div className="flex-1">
+                                        <div className="flex flex-wrap items-center gap-3 mb-4">
+                                            <Badge className={`px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider ${getStatusColor(appt.status)}`}>
+                                                {t(`dashboard.requests.${appt.status === 'pending' ? 'online' : appt.status}`) || appt.status}
+                                            </Badge>
+                                            <h3 className="text-2xl font-bold truncate">{appt.barber_name || 'Barber'}</h3>
+                                        </div>
 
-                    <TabsContent value="map">
-                        <ExploreMap />
-                    </TabsContent>
-
-                    <TabsContent value="bookings">
-                        {loading ? (
-                            <div className="flex justify-center items-center py-20">
-                                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-                            </div>
-                        ) : appointments.length === 0 ? (
-                            <div className="group relative overflow-hidden rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 p-12 text-center shadow-2xl transition-all hover:shadow-primary/5">
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <h2 className="text-2xl font-bold mb-4">{t('dashboard.customer.empty')}</h2>
-                                <Button size="lg" className="rounded-full shadow-xl shadow-primary/20" onClick={() => navigate('/')}>
-                                    {t('dashboard.explore')}
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="space-y-6">
-                                {appointments.map(appt => (
-                                    <div key={appt.id} className="group relative bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-6 shadow-xl transition-all hover:shadow-2xl hover:scale-[1.01] overflow-hidden">
-                                        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <div className="flex flex-col md:flex-row justify-between gap-6">
-                                            <div className="flex-1">
-                                                <div className="flex flex-wrap items-center gap-3 mb-4">
-                                                    <Badge className={`px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider ${getStatusColor(appt.status)}`}>
-                                                        {t(`dashboard.requests.${appt.status === 'pending' ? 'online' : appt.status}`) || appt.status}
-                                                    </Badge>
-                                                    <h3 className="text-2xl font-bold truncate">{appt.barber_name || 'Barber'}</h3>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-slate-600 dark:text-slate-300">
-                                                    <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-800/50 p-3 rounded-2xl">
-                                                        <Calendar className="h-5 w-5 text-primary" />
-                                                        <span className="font-medium">{new Date(appt.appointment_date).toLocaleDateString()} at {appt.appointment_time}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-800/50 p-3 rounded-2xl">
-                                                        <Clock className="h-5 w-5 text-primary" />
-                                                        <span className="font-medium">{appt.total_duration} {t('dashboard.service.duration').replace('(minutes)', '')}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-800/50 p-3 rounded-2xl sm:col-span-2">
-                                                        <span className="font-bold text-lg text-foreground">
-                                                            {t('booking.total')}: {appt.total_price} {t('currency')}
-                                                        </span>
-                                                    </div>
-                                                </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-slate-600 dark:text-slate-300">
+                                            <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-800/50 p-3 rounded-2xl">
+                                                <Calendar className="h-5 w-5 text-primary" />
+                                                <span className="font-medium">{new Date(appt.appointment_date).toLocaleDateString()} at {appt.appointment_time}</span>
                                             </div>
-
-                                            <div className="flex flex-col justify-end gap-3 min-w-[200px]">
-                                                {appt.status === 'completed' && (
-                                                    <Dialog open={isReviewOpen && selectedAppt?.id === appt.id} onOpenChange={(open) => {
-                                                        setIsReviewOpen(open);
-                                                        if (open) setSelectedAppt(appt);
-                                                    }}>
-                                                        <DialogTrigger asChild>
-                                                            <Button variant="outline" className="rounded-full border-primary/50 text-primary hover:bg-primary shadow-lg hover:shadow-primary/25 hover:text-white transition-all">
-                                                                <Star className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'} drop-shadow-sm`} /> {t('dashboard.review.write')}
-                                                            </Button>
-                                                        </DialogTrigger>
-                                                        <DialogContent className="rounded-[2rem] p-6 sm:p-8 bg-white/90 dark:bg-slate-900/90 backdrop-blur-3xl border-white/20">
-                                                            <DialogHeader>
-                                                                <DialogTitle className="text-2xl font-bold text-center mb-2">{t('dashboard.review.rate')}</DialogTitle>
-                                                            </DialogHeader>
-                                                            <div className="space-y-6 py-4">
-                                                                <div className="flex justify-center gap-3">
-                                                                    {[1, 2, 3, 4, 5].map(star => (
-                                                                        <Star
-                                                                            key={star}
-                                                                            className={`h-10 w-10 cursor-pointer transition-all hover:scale-110 ${star <= rating ? 'fill-yellow-400 text-yellow-400 drop-shadow-md' : 'text-slate-200 dark:text-slate-700'}`}
-                                                                            onClick={() => setRating(star)}
-                                                                        />
-                                                                    ))}
-                                                                </div>
-                                                                <Textarea
-                                                                    placeholder="..."
-                                                                    className="min-h-[120px] rounded-2xl resize-none bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800"
-                                                                    value={reviewText}
-                                                                    onChange={(e) => setReviewText(e.target.value)}
-                                                                />
-                                                                <Button onClick={handleReviewSubmit} size="lg" className="w-full rounded-full text-lg shadow-xl shadow-primary/20">
-                                                                    {t('dashboard.review.submit')}
-                                                                </Button>
-                                                            </div>
-                                                        </DialogContent>
-                                                    </Dialog>
-                                                )}
-                                                <Button variant="ghost" className="rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50" onClick={() => navigate(`/barber/${appt.barber_id}`)}>
-                                                    {t('dashboard.view.profile')}
-                                                </Button>
+                                            <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-800/50 p-3 rounded-2xl">
+                                                <Clock className="h-5 w-5 text-primary" />
+                                                <span className="font-medium">{appt.total_duration} {t('dashboard.service.duration').replace('(minutes)', '')}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-800/50 p-3 rounded-2xl sm:col-span-2">
+                                                <span className="font-bold text-lg text-foreground">
+                                                    {t('booking.total')}: {appt.total_price} {t('currency')}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                ))}
+
+                                    <div className="flex flex-col justify-end gap-3 min-w-[200px]">
+                                        {appt.status === 'completed' && (
+                                            <Dialog open={isReviewOpen && selectedAppt?.id === appt.id} onOpenChange={(open) => {
+                                                setIsReviewOpen(open);
+                                                if (open) setSelectedAppt(appt);
+                                            }}>
+                                                <DialogTrigger asChild>
+                                                    <Button variant="outline" className="rounded-full border-primary/50 text-primary hover:bg-primary shadow-lg hover:shadow-primary/25 hover:text-white transition-all">
+                                                        <Star className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'} drop-shadow-sm`} /> {t('dashboard.review.write')}
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent className="rounded-[2rem] p-6 sm:p-8 bg-white/90 dark:bg-slate-900/90 backdrop-blur-3xl border-white/20">
+                                                    <DialogHeader>
+                                                        <DialogTitle className="text-2xl font-bold text-center mb-2">{t('dashboard.review.rate')}</DialogTitle>
+                                                    </DialogHeader>
+                                                    <div className="space-y-6 py-4">
+                                                        <div className="flex justify-center gap-3">
+                                                            {[1, 2, 3, 4, 5].map(star => (
+                                                                <Star
+                                                                    key={star}
+                                                                    className={`h-10 w-10 cursor-pointer transition-all hover:scale-110 ${star <= rating ? 'fill-yellow-400 text-yellow-400 drop-shadow-md' : 'text-slate-200 dark:text-slate-700'}`}
+                                                                    onClick={() => setRating(star)}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                        <Textarea
+                                                            placeholder="..."
+                                                            className="min-h-[120px] rounded-2xl resize-none bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800"
+                                                            value={reviewText}
+                                                            onChange={(e) => setReviewText(e.target.value)}
+                                                        />
+                                                        <Button onClick={handleReviewSubmit} size="lg" className="w-full rounded-full text-lg shadow-xl shadow-primary/20">
+                                                            {t('dashboard.review.submit')}
+                                                        </Button>
+                                                    </div>
+                                                </DialogContent>
+                                            </Dialog>
+                                        )}
+                                        <Button variant="ghost" className="rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50" onClick={() => navigate(`/barber/${appt.barber_id}`)}>
+                                            {t('dashboard.view.profile')}
+                                        </Button>
+                                    </div>
+                                </div>
                             </div>
-                        )}
-                    </TabsContent>
-                </Tabs>
+                        ))}
+                    </div>
+                )}
             </main>
             <Footer />
         </div>
