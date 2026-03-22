@@ -15,7 +15,6 @@ import NotFound from "./pages/NotFound";
 import Book from "./pages/Book";
 
 import AIAssistant from "./components/AIAssistant";
-import NotificationManager from "./components/NotificationManager";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +22,6 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
       <TooltipProvider>
-        <NotificationManager />
         <Toaster />
         <Sonner />
         <AIAssistant />
