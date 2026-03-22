@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, MapPin, Phone, Calendar, Heart, Share2, Instagram, Facebook, MessageCircle, ShoppingBag, Globe, Video, Lock } from 'lucide-react';
+import { Star, MapPin, Phone, Calendar, Heart, Share2, Instagram, Facebook, MessageCircle, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
 import Navigation from '@/components/Navigation';
@@ -28,9 +28,6 @@ interface BarberProfile {
   phone: string;
   instagram: string;
   facebook: string;
-  tiktok?: string;
-  website?: string;
-  socials_public?: boolean;
   is_vip: boolean;
   offers_home_visit: boolean;
   rating: number;
@@ -44,9 +41,6 @@ interface Service {
   name_ar: string;
   name_en: string;
   name_fr: string;
-  description_ar?: string;
-  description_en?: string;
-  description_fr?: string;
   price: number;
   duration_minutes: number;
 }
@@ -99,7 +93,11 @@ const BarberProfile = () => {
 
 
 
-  const [staffList, setStaffList] = useState<StaffMember[]>([]);
+  const mockStaff: StaffMember[] = [
+    { id: 's1', name: 'Ahmed', role: 'Senior Barber', avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&h=200&auto=format&fit=crop&q=80', rating: 4.8 },
+    { id: 's2', name: 'Karim', role: 'Fade Specialist', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&auto=format&fit=crop&q=80', rating: 4.9 },
+    { id: 's3', name: 'Youssef', role: 'Hair Stylist', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&auto=format&fit=crop&q=80', rating: 4.7 }
+  ];
 
   useEffect(() => {
     fetchBarberData();
@@ -132,29 +130,6 @@ const BarberProfile = () => {
         servicesList.push({ id: doc.id, ...doc.data() } as Service);
       });
       setServices(servicesList);
-
-      const staffQuery = query(collection(db, 'staff'), where('barber_id', '==', id));
-      const staffSnap = await getDocs(staffQuery);
-      const staffData: StaffMember[] = [];
-      staffSnap.forEach(doc => {
-        staffData.push({ id: doc.id, ...doc.data() } as StaffMember);
-      });
-
-      // Show Vacant chair dynamically for salon owners to allow rentals
-      if (barberData.type === 'salon_owner') {
-        const hasVacant = staffData.some(s => s.role === 'vacant_chair');
-        if (!hasVacant) {
-          staffData.push({
-            id: 'vacant-chair-' + Date.now(),
-            name: 'Vacant Chair',
-            role: 'vacant_chair',
-            avatar: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=200&h=200&auto=format&fit=crop',
-            rating: 0
-          });
-        }
-      }
-
-      setStaffList(staffData);
 
       const reviewsQuery = query(collection(db, 'reviews'), where('barber_id', '==', id));
       const reviewsSnap = await getDocs(reviewsQuery);
@@ -302,21 +277,12 @@ const BarberProfile = () => {
   }
 
   const getServiceName = (service: Service) => {
-    if (language === 'ar' && service.name_ar) return service.name_ar;
-    if (language === 'fr' && service.name_fr) return service.name_fr;
-    if (language === 'en' && service.name_en) return service.name_en;
-    return service.name_ar || service.name_en || service.name_fr || 'Unnamed Service';
+    switch (language) {
+      case 'ar': return service.name_ar;
+      case 'fr': return service.name_fr || service.name_en;
+      default: return service.name_en || service.name_ar;
+    }
   };
-
-  const getServiceDesc = (service: Service) => {
-    if (language === 'ar' && service.description_ar) return service.description_ar;
-    if (language === 'fr' && service.description_fr) return service.description_fr;
-    if (language === 'en' && service.description_en) return service.description_en;
-    return service.description_ar || service.description_en || service.description_fr || '';
-  };
-
-  const hasSocials = barber.instagram || barber.facebook || barber.tiktok || barber.website;
-  const canViewSocials = barber.socials_public !== false || isFavorite;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
@@ -372,44 +338,19 @@ const BarberProfile = () => {
                     </div>
                   </div>
                   <div className="flex gap-2 justify-center">
-                    {hasSocials && (
-                      canViewSocials ? (
-                        <>
-                          {barber.instagram && (
-                            <a href={barber.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram Profile" title="Instagram Profile">
-                              <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-[#E4405F] hover:text-white hover:border-[#E4405F] transition-all shadow-sm">
-                                <Instagram className="h-5 w-5" />
-                              </Button>
-                            </a>
-                          )}
-                          {barber.facebook && (
-                            <a href={barber.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook Profile" title="Facebook Profile">
-                              <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] transition-all shadow-sm">
-                                <Facebook className="h-5 w-5" />
-                              </Button>
-                            </a>
-                          )}
-                          {barber.tiktok && (
-                            <a href={barber.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok Profile" title="TikTok Profile">
-                              <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black hover:border-black dark:hover:border-white transition-all shadow-sm">
-                                <Video className="h-5 w-5" />
-                              </Button>
-                            </a>
-                          )}
-                          {barber.website && (
-                            <a href={barber.website} target="_blank" rel="noopener noreferrer" aria-label="Website" title="Website">
-                              <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
-                                <Globe className="h-5 w-5" />
-                              </Button>
-                            </a>
-                          )}
-                        </>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center gap-1 text-sm text-slate-500 bg-slate-100/50 dark:bg-slate-800/50 px-4 py-1.5 rounded-2xl border border-slate-200/50 dark:border-slate-700/50">
-                          <Lock className="w-4 h-4 ml-1 mb-0.5" />
-                          <span className="font-semibold text-xs">{t('Private links')}</span>
-                        </div>
-                      )
+                    {barber.instagram && (
+                      <a href={barber.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram Profile" title="Instagram Profile">
+                        <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-[#E4405F] hover:text-white hover:border-[#E4405F] transition-all shadow-sm">
+                          <Instagram className="h-5 w-5" />
+                        </Button>
+                      </a>
+                    )}
+                    {barber.facebook && (
+                      <a href={barber.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook Profile" title="Facebook Profile">
+                        <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] transition-all shadow-sm">
+                          <Facebook className="h-5 w-5" />
+                        </Button>
+                      </a>
                     )}
                     <Button
                       variant="outline"
@@ -482,12 +423,9 @@ const BarberProfile = () => {
                 ) : (
                   <div className="grid md:grid-cols-2 gap-4">
                     {services.map((service) => (
-                      <div key={service.id} className="group bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 p-6 rounded-[2rem] border border-white/50 dark:border-slate-700/50 shadow-sm hover:shadow-xl transition-all flex justify-between items-start cursor-default">
-                        <div className="flex-1 min-w-0 pr-4">
+                      <div key={service.id} className="group bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 p-6 rounded-[2rem] border border-white/50 dark:border-slate-700/50 shadow-sm hover:shadow-xl transition-all flex justify-between items-center cursor-default">
+                        <div>
                           <h3 className="font-extrabold text-xl mb-1 text-slate-800 dark:text-slate-200 group-hover:text-primary transition-colors">{getServiceName(service)}</h3>
-                          {getServiceDesc(service) && (
-                            <p className="text-sm text-muted-foreground font-medium mb-3 leading-relaxed break-words">{getServiceDesc(service)}</p>
-                          )}
                           <p className="text-sm text-muted-foreground font-semibold flex items-center gap-1"><Calendar className="h-3 w-3" /> {service.duration_minutes} {t('barber.minutes')}</p>
                         </div>
                         <div className="bg-primary/10 dark:bg-primary/5 px-4 py-2 rounded-2xl">
@@ -502,38 +440,22 @@ const BarberProfile = () => {
 
               <TabsContent value="staff">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {staffList.length === 0 ? (
-                    <div className="col-span-full text-center py-16 text-muted-foreground text-lg font-medium">No staff members found.</div>
-                  ) : (
-                    staffList.map((staff) => (
-                      <Card key={staff.id} className="bg-white/60 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/50 p-6 rounded-[2rem] shadow-md hover:shadow-xl transition-all text-center group flex flex-col items-center">
-                        <div className={`w-24 h-24 mb-4 rounded-full overflow-hidden border-4 transition-colors ${staff.role === 'vacant_chair' ? 'border-dashed border-primary/50 grayscale opacity-80' : 'border-primary/20 group-hover:border-primary'}`}>
-                          <img src={staff.avatar || "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&h=200&auto=format&fit=crop&q=80"} alt={staff.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
-                        </div>
-                        <h3 className="text-xl font-bold">{staff.role === 'vacant_chair' ? t('barber.vacant_chair') : staff.name}</h3>
-                        <p className="text-primary font-medium mb-2">{staff.role === 'vacant_chair' ? t('barber.vacant_chair_desc') : staff.role}</p>
-
-                        {staff.role !== 'vacant_chair' && (
-                          <div className="flex justify-center items-center gap-1 mb-6">
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                            <span className="font-bold">{staff.rating}</span>
-                          </div>
-                        )}
-
-                        <div className="mt-auto pt-4 w-full">
-                          {staff.role === 'vacant_chair' ? (
-                            <Button onClick={() => window.location.href = `mailto:support@barberlink.cloud?subject=Vacant Chair Request inside ${barber?.business_name}`} variant="outline" className="w-full rounded-full border-primary/50 text-primary">
-                              Apply to Rent
-                            </Button>
-                          ) : (
-                            <Button onClick={() => navigate(`/book/${id}?chair=${staff.id}`)} className="w-full rounded-full shadow-lg shadow-primary/20">
-                              {t('staff.book')} {staff.name}
-                            </Button>
-                          )}
-                        </div>
-                      </Card>
-                    ))
-                  )}
+                  {mockStaff.map((staff) => (
+                    <Card key={staff.id} className="bg-white/60 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/50 p-6 rounded-[2rem] shadow-md hover:shadow-xl transition-all text-center group">
+                      <div className="mx-auto w-24 h-24 mb-4 rounded-full overflow-hidden border-4 border-primary/20 group-hover:border-primary transition-colors">
+                        <img src={staff.avatar} alt={staff.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                      </div>
+                      <h3 className="text-xl font-bold">{staff.name}</h3>
+                      <p className="text-primary font-medium mb-2">{staff.role}</p>
+                      <div className="flex justify-center items-center gap-1 mb-6">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-bold">{staff.rating}</span>
+                      </div>
+                      <Button onClick={() => navigate(`/book/${id}?chair=${staff.id}`)} className="w-full rounded-full shadow-lg shadow-primary/20">
+                        {t('staff.book')} {staff.name}
+                      </Button>
+                    </Card>
+                  ))}
                 </div>
               </TabsContent>
 

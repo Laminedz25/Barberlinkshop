@@ -23,7 +23,7 @@ const SalonGrid = () => {
       address: 'Rue Didouche Mourad, Algiers Center',
       isOpen: true,
       openUntil: '22:00',
-      specialties: [t('service.classic_cut'), t('service.beard_styling'), t('service.hot_towel')],
+      specialties: ['Classic Cut', 'Beard Styling', 'Hot Towel'],
       priceRange: '1,500-3,000 DZD',
       nextAvailable: 'Today 3:30 PM',
       isVip: true,
@@ -55,7 +55,7 @@ const SalonGrid = () => {
       address: 'Boulevard Mohamed V, Oran',
       isOpen: true,
       openUntil: '20:00',
-      specialties: [t('service.hair_styling'), t('service.coloring'), t('service.manicure'), t('service.facial')],
+      specialties: ['Hair Styling', 'Coloring', 'Manicure', 'Facial'],
       priceRange: '2,000-5,000 DZD',
       nextAvailable: 'Tomorrow 10:00 AM',
       isVip: false,
@@ -86,7 +86,7 @@ const SalonGrid = () => {
       distance: '0.8 km',
       address: 'Avenue de l\'Independence, Constantine',
       isOpen: false,
-      specialties: [t('service.modern_cut'), t('service.hair_treatment'), t('service.styling')],
+      specialties: ['Modern Cut', 'Hair Treatment', 'Styling'],
       priceRange: '1,200-2,800 DZD',
       nextAvailable: 'Tomorrow 9:00 AM',
       isVip: false,
@@ -102,7 +102,7 @@ const SalonGrid = () => {
       address: 'Rue Larbi Ben M\'hidi, Tlemcen',
       isOpen: true,
       openUntil: '21:30',
-      specialties: [t('service.premium_cut'), t('service.massage'), t('service.grooming')],
+      specialties: ['Premium Cut', 'Massage', 'Grooming'],
       priceRange: '2,500-4,500 DZD',
       nextAvailable: 'Today 5:00 PM',
       isVip: true,
@@ -118,7 +118,7 @@ const SalonGrid = () => {
       address: 'Place 1er Novembre, Annaba',
       isOpen: true,
       openUntil: '19:00',
-      specialties: [t('service.bridal_hair'), t('service.extensions'), t('service.makeup')],
+      specialties: ['Bridal Hair', 'Extensions', 'Makeup'],
       priceRange: '3,000-8,000 DZD',
       nextAvailable: 'Today 4:15 PM',
       isVip: true,
@@ -134,7 +134,7 @@ const SalonGrid = () => {
       address: 'Boulevard Emir Abdelkader, Sétif',
       isOpen: true,
       openUntil: '22:30',
-      specialties: [t('service.trendy_cut'), t('service.color_correction'), t('service.perm')],
+      specialties: ['Trendy Cut', 'Color Correction', 'Perm'],
       priceRange: '1,800-3,500 DZD',
       nextAvailable: 'Tomorrow 11:30 AM',
       isVip: false,
@@ -185,7 +185,7 @@ const SalonGrid = () => {
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {salons.map((salon) => (
-              <SalonCard key={salon.id} salon={salon as unknown as React.ComponentProps<typeof SalonCard>['salon']} />
+              <SalonCard key={salon.id} salon={salon as any} />
             ))}
           </div>
         ) : (

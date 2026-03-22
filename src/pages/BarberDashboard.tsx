@@ -11,8 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { Plus, Edit, Trash2, DollarSign, Clock, QrCode, ImagePlus, UserPlus, Link as LinkIcon, CheckCircle2, XCircle, Check, TrendingUp, TrendingDown, ShoppingBag, AlertTriangle, ListOrdered, Gift, Instagram, Facebook, Globe, Video, Save } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Plus, Edit, Trash2, DollarSign, Clock, QrCode, ImagePlus, UserPlus, Link as LinkIcon, CheckCircle2, XCircle, Check, TrendingUp, TrendingDown, ShoppingBag } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -24,8 +23,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QRCodeSVG } from 'qrcode.react';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { AutomationService } from '@/services/AutomationService';
-import WeatherWidget from '@/components/WeatherWidget';
 
 interface Expense {
   id: string;
@@ -87,7 +84,6 @@ const BarberDashboard = () => {
     name_en: '',
     name_fr: '',
     description_ar: '',
-    description_en: '',
     description_fr: '',
     price: 0,
     duration_minutes: 30,
@@ -106,21 +102,6 @@ const BarberDashboard = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [expenseName, setExpenseName] = useState('');
   const [expenseAmount, setExpenseAmount] = useState('');
-
-  const [isWalkinDialogOpen, setIsWalkinDialogOpen] = useState(false);
-  const [walkinName, setWalkinName] = useState('');
-  const [walkinSelectedServices, setWalkinSelectedServices] = useState<string[]>([]);
-  const [walkinDate, setWalkinDate] = useState(new Date().toISOString().split('T')[0]);
-  const [walkinTime, setWalkinTime] = useState('14:00');
-
-  const [socials, setSocials] = useState({
-    instagram: '',
-    facebook: '',
-    tiktok: '',
-    website: '',
-    socials_public: true
-  });
-  const [isSavingSocials, setIsSavingSocials] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -158,15 +139,7 @@ const BarberDashboard = () => {
         return;
       }
 
-      const data = querySnapshot.docs[0].data();
       setBarberId(querySnapshot.docs[0].id);
-      setSocials({
-        instagram: data.instagram || '',
-        facebook: data.facebook || '',
-        tiktok: data.tiktok || '',
-        website: data.website || '',
-        socials_public: data.socials_public !== false
-      });
     } catch (error: unknown) {
       const err = error as Error;
       toast({
@@ -276,14 +249,6 @@ const BarberDashboard = () => {
       await updateDoc(appRef, { status: newStatus });
       toast({ title: 'Success', description: t(`dashboard.requests.${newStatus === 'completed' ? 'complete' : newStatus}`) || `Appointment marked as ${newStatus}` });
       fetchAppointments();
-
-      // Auto-trigger CRM WhatsApp/SMS reminder rule mapped by Subscription AI Bot
-      if (newStatus === 'accepted') {
-        const matchingApp = appointments.find(a => a.id === appId);
-        if (matchingApp && matchingApp.customer_name) {
-          AutomationService.scheduleAppointmentReminder("CustomerPhone", matchingApp.customer_name, matchingApp.appointment_date);
-        }
-      }
     } catch (error: unknown) {
       const err = error as Error;
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -362,10 +327,9 @@ const BarberDashboard = () => {
   };
 
   const getServiceName = (service: Service) => {
-    if (language === 'ar' && service.name_ar) return service.name_ar;
-    if (language === 'fr' && service.name_fr) return service.name_fr;
-    if (language === 'en' && service.name_en) return service.name_en;
-    return service.name_ar || service.name_en || service.name_fr;
+    if (language === 'ar') return service.name_ar;
+    if (language === 'fr') return service.name_fr;
+    return service.name_en;
   };
 
   const handleProductSubmit = async (e: React.FormEvent) => {
@@ -392,14 +356,6 @@ const BarberDashboard = () => {
         };
         await addDoc(collection(db, 'products'), newProduct);
         toast({ title: 'Success', description: 'Product added successfully ✓' });
-
-        // Trigger Automated MCP Action to post product to social media
-        await AutomationService.autoPostToSocialMedia(
-          barberId,
-          newProductData.image || "default-product.jpg",
-          `New Product Alert: ${newProductData.name} is now available in our store for ${newProductData.price} DZD!`
-        );
-        toast({ title: 'Automation', description: 'Product auto-posted to Social Media (MCP)' });
       }
 
       setIsProductDialogOpen(false);
@@ -439,52 +395,6 @@ const BarberDashboard = () => {
     }
   };
 
-  const handleWalkinSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!barberId || walkinSelectedServices.length === 0) return;
-
-    const totalPrice = walkinSelectedServices.reduce((sum, sId) => {
-      const s = services.find(x => x.id === sId);
-      return sum + (s?.price || 0);
-    }, 0);
-
-    const totalDuration = walkinSelectedServices.reduce((sum, sId) => {
-      const s = services.find(x => x.id === sId);
-      return sum + (s?.duration_minutes || 0);
-    }, 0);
-
-    try {
-      await addDoc(collection(db, 'appointments'), {
-        barber_id: barberId,
-        customer_id: 'walk-in',
-        customer_name: walkinName || t('barber.customer_name'),
-        services: walkinSelectedServices,
-        total_price: totalPrice,
-        total_duration: totalDuration,
-        appointment_date: walkinDate,
-        appointment_time: walkinTime,
-        payment_method: 'salon',
-        status: 'completed',
-        created_at: new Date().toISOString()
-      });
-      toast({ title: 'Success', description: 'Walk-in booking added' });
-      setIsWalkinDialogOpen(false);
-      setWalkinName('');
-      setWalkinSelectedServices([]);
-      fetchAppointments();
-    } catch (error: unknown) {
-      toast({ variant: 'destructive', description: (error as Error).message });
-    }
-  };
-
-  const toggleWalkinService = (serviceId: string) => {
-    if (walkinSelectedServices.includes(serviceId)) {
-      setWalkinSelectedServices(walkinSelectedServices.filter(id => id !== serviceId));
-    } else {
-      setWalkinSelectedServices([...walkinSelectedServices, serviceId]);
-    }
-  };
-
   const handleAddExpense = async () => {
     if (!expenseName || !expenseAmount || !barberId) return;
     try {
@@ -501,25 +411,6 @@ const BarberDashboard = () => {
     } catch (error: unknown) {
       const err = error as Error;
       toast({ title: "Error", description: err.message, variant: "destructive" });
-    }
-  };
-
-  const handleSaveSocials = async () => {
-    if (!barberId) return;
-    setIsSavingSocials(true);
-    try {
-      await updateDoc(doc(db, 'barbers', barberId), {
-        instagram: socials.instagram,
-        facebook: socials.facebook,
-        tiktok: socials.tiktok,
-        website: socials.website,
-        socials_public: socials.socials_public
-      });
-      toast({ title: 'Success', description: 'Social links updated successfully!' });
-    } catch (error) {
-      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
-    } finally {
-      setIsSavingSocials(false);
     }
   };
 
@@ -555,10 +446,6 @@ const BarberDashboard = () => {
                 {t('dashboard.services.management')}
               </h1>
               <p className="text-muted-foreground text-lg">{t('dashboard.services.desc')}</p>
-            </div>
-
-            <div className="flex items-center gap-4 w-full md:w-auto">
-              <WeatherWidget />
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -617,8 +504,8 @@ const BarberDashboard = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="price">{t('dashboard.service.price')} (د.ج)</Label>
-                        <Input id="price" type="number" className="mt-1" value={formData.price} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} required min="100" />
+                        <Label htmlFor="price">{t('dashboard.service.price')}</Label>
+                        <Input id="price" type="number" className="mt-1" value={formData.price} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} required min="0" />
                       </div>
                       <div>
                         <Label htmlFor="duration">{t('dashboard.service.duration')}</Label>
@@ -744,14 +631,8 @@ const BarberDashboard = () => {
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products.map((product) => (
-                    <div key={product.id} className="group relative overflow-hidden flex flex-col bg-white/60 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/50 rounded-[2rem] shadow-md hover:shadow-2xl transition-all">
-                      {product.price > 1000 && (
-                        <div className="absolute top-4 right-4 z-10 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg animate-pulse">
-                          <AlertTriangle className="w-3 h-3" />
-                          Low Stock
-                        </div>
-                      )}
-                      <div className="h-48 overflow-hidden bg-slate-100 dark:bg-slate-900 relative">
+                    <div key={product.id} className="group overflow-hidden flex flex-col bg-white/60 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/50 rounded-[2rem] shadow-md hover:shadow-2xl transition-all">
+                      <div className="h-48 overflow-hidden bg-slate-100 dark:bg-slate-900">
                         <img src={product.image || 'https://images.unsplash.com/photo-1599305090598-fe179d501227?w=500&auto=format&fit=crop'} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                       </div>
                       <div className="p-5 flex flex-col flex-1">
@@ -832,72 +713,16 @@ const BarberDashboard = () => {
                 )}
               </div>
 
-              <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-3xl p-6 shadow-xl mb-6">
-                <h2 className="text-2xl font-bold flex items-center gap-3 mb-2 text-primary">
-                  <ListOrdered className="h-6 w-6" /> Smart Waitlist (Auto-Queue)
-                </h2>
-                <p className="text-sm text-foreground/80 mb-6">Your schedule is full for today? Let clients join the waitlist and auto-fill any cancellations.</p>
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/80 dark:bg-slate-800/80 p-4 rounded-2xl shadow-sm border border-white/50 dark:border-slate-700/50">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold text-xl">3</div>
-                    <div>
-                      <h4 className="font-bold">Clients Waiting</h4>
-                      <p className="text-sm text-muted-foreground line-clamp-1">Notifications are active for the next available slot.</p>
-                    </div>
-                  </div>
-                  <Button variant="outline" className="rounded-xl border-primary hover:bg-primary hover:text-white shrink-0">View Queue</Button>
-                </div>
-              </div>
-
               <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-6 shadow-xl">
                 <h2 className="text-2xl font-bold flex items-center gap-3 mb-2">
                   <UserPlus className="h-6 w-6 text-primary" /> {t('dashboard.walkin.title')}
                 </h2>
                 <p className="text-sm text-muted-foreground mb-6">{t('dashboard.walkin.desc')}</p>
                 <div className="flex justify-center py-10 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl bg-slate-50/50 dark:bg-slate-800/50 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800">
-                  <Dialog open={isWalkinDialogOpen} onOpenChange={setIsWalkinDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="rounded-full shadow-sm" size="lg">
-                        <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                        {t('dashboard.walkin.add')}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-md w-full rounded-[2rem] p-6 sm:p-8 bg-white/95 dark:bg-slate-900/95 backdrop-blur-3xl border-white/20">
-                      <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold">{t('barber.offline_booking')}</DialogTitle>
-                      </DialogHeader>
-                      <form onSubmit={handleWalkinSubmit} className="space-y-4 mt-4">
-                        <div className="space-y-2">
-                          <Label>{t('barber.customer_name')}</Label>
-                          <Input value={walkinName} onChange={e => setWalkinName(e.target.value)} required />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>{t('dashboard.tabs.services')}</Label>
-                          <div className="max-h-40 overflow-y-auto space-y-2 p-2 border rounded-xl">
-                            {services.map(s => (
-                              <div key={s.id} onClick={() => toggleWalkinService(s.id)} className={`p-2 rounded-lg cursor-pointer flex justify-between items-center transition-colors ${walkinSelectedServices.includes(s.id) ? 'bg-primary text-primary-foreground' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
-                                <span>{getServiceName(s)}</span>
-                                <span>{s.price} {t('currency')}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label>{t('booking.date')}</Label>
-                            <Input type="date" value={walkinDate} onChange={e => setWalkinDate(e.target.value)} required />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>{t('booking.time')}</Label>
-                            <Input type="time" value={walkinTime} onChange={e => setWalkinTime(e.target.value)} required />
-                          </div>
-                        </div>
-                        <Button type="submit" className="w-full rounded-full mt-4 h-12 text-lg">
-                          {t('barber.book_offline')}
-                        </Button>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
+                  <Button variant="outline" className="rounded-full shadow-sm" size="lg">
+                    <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                    {t('dashboard.walkin.add')}
+                  </Button>
                 </div>
               </div>
             </TabsContent>
@@ -935,79 +760,10 @@ const BarberDashboard = () => {
                     <p className="text-sm text-muted-foreground mb-8">{t('dashboard.gallery.desc')}</p>
                   </div>
                   <div className="text-center py-20 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-[2rem] bg-slate-50/50 dark:bg-slate-800/50 flex-1 flex flex-col items-center justify-center transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800">
-                    <Button variant="outline" size="lg" className="rounded-full shadow-sm" onClick={() => toast({ title: "Coming soon", description: "Gallery upload will be available in the next update." })}>
+                    <Button variant="outline" size="lg" className="rounded-full shadow-sm">
                       <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                       {t('dashboard.gallery.upload')}
                     </Button>
-                  </div>
-                </div>
-
-                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl flex flex-col col-span-1 md:col-span-2 mt-4">
-                  <h2 className="text-2xl font-bold flex items-center gap-3 mb-2 text-primary">
-                    <Globe className="h-6 w-6" /> Social Links & External Store
-                  </h2>
-                  <p className="text-sm text-muted-foreground mb-6">Manage your external profiles. Set privacy to hide them from non-followers.</p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div>
-                        <Label className="flex items-center gap-2 mb-2"><Instagram className="w-4 h-4 text-pink-600" /> Instagram Link</Label>
-                        <Input value={socials.instagram} onChange={e => setSocials({ ...socials, instagram: e.target.value })} placeholder="https://instagram.com/..." className="rounded-xl bg-slate-50/50 dark:bg-slate-800/50" />
-                      </div>
-                      <div>
-                        <Label className="flex items-center gap-2 mb-2"><Facebook className="w-4 h-4 text-blue-600" /> Facebook Link</Label>
-                        <Input value={socials.facebook} onChange={e => setSocials({ ...socials, facebook: e.target.value })} placeholder="https://facebook.com/..." className="rounded-xl bg-slate-50/50 dark:bg-slate-800/50" />
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      <div>
-                        <Label className="flex items-center gap-2 mb-2"><Video className="w-4 h-4" /> TikTok Link</Label>
-                        <Input value={socials.tiktok} onChange={e => setSocials({ ...socials, tiktok: e.target.value })} placeholder="https://tiktok.com/@..." className="rounded-xl bg-slate-50/50 dark:bg-slate-800/50" />
-                      </div>
-                      <div>
-                        <Label className="flex items-center gap-2 mb-2"><Globe className="w-4 h-4 text-green-600" /> External Store / Website</Label>
-                        <Input value={socials.website} onChange={e => setSocials({ ...socials, website: e.target.value })} placeholder="https://your-store.com" className="rounded-xl bg-slate-50/50 dark:bg-slate-800/50" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-6 gap-6 p-4 bg-slate-100/50 dark:bg-slate-800/50 rounded-[2rem] border border-slate-200/50 dark:border-slate-700/50">
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        id="socials_public"
-                        checked={socials.socials_public}
-                        onCheckedChange={(checked) => setSocials({ ...socials, socials_public: checked as boolean })}
-                        className="mt-1 w-5 h-5 flex-shrink-0"
-                      />
-                      <div>
-                        <Label htmlFor="socials_public" className="font-bold text-base cursor-pointer hover:text-primary transition-colors">Make Social Links & Stores Public</Label>
-                        <p className="text-sm text-muted-foreground mt-1">If unchecked, only clients who added you to Favorites (Followers) can see these external links.</p>
-                      </div>
-                    </div>
-                    <Button onClick={handleSaveSocials} disabled={isSavingSocials} className="rounded-full shadow-lg shadow-primary/20 shrink-0 w-full md:w-auto h-12 px-8">
-                      <Save className="w-4 h-4 mr-2 text-white dark:text-black" /> {isSavingSocials ? 'Saving...' : 'Save Social Settings'}
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl flex flex-col col-span-1 md:col-span-2 mt-4 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/20 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-yellow-500/30 transition-colors" />
-                  <div>
-                    <h2 className="text-2xl font-bold flex items-center gap-3 mb-2 text-amber-600 dark:text-amber-500">
-                      <Gift className="h-6 w-6" /> Loyalty & Rewards Program
-                    </h2>
-                    <p className="text-sm text-muted-foreground mb-6">Engage your most loyal customers with custom points and rewards.</p>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-yellow-50 dark:bg-yellow-900/10 p-5 rounded-2xl border border-yellow-200 dark:border-yellow-900/30 flex items-center gap-4">
-                      <div className="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center text-white"><Gift className="w-6 h-6" /></div>
-                      <div>
-                        <h4 className="font-bold text-yellow-900 dark:text-yellow-400">10 Points = 1 DZD</h4>
-                        <p className="text-xs text-yellow-700 dark:text-yellow-600">Reward rate for successful bookings</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-start md:justify-end">
-                      <Button className="rounded-full shadow-lg bg-yellow-500 hover:bg-yellow-600 text-white px-8">Configure Options</Button>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1049,11 +805,8 @@ const BarberDashboard = () => {
 
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Chart */}
-                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl relative overflow-hidden">
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none">
-                    <img src="/logo.png" alt="Watermark" className="w-64 h-64 object-contain mix-blend-difference" />
-                  </div>
-                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 relative"><TrendingUp className="text-primary h-6 w-6" /> {t('dashboard.finance.weekly')}</h2>
+                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl">
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><TrendingUp className="text-primary h-6 w-6" /> {t('dashboard.finance.weekly')}</h2>
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={chartData}>

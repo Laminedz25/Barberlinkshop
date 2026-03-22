@@ -16,7 +16,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { Calendar, Clock, CreditCard, Users2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AutomationService } from '@/services/AutomationService';
 
 interface StaffMember {
     id: string;
@@ -54,7 +53,11 @@ const Book = () => {
     const initialChair = searchParams.get('chair') || 'any';
     const [selectedChair, setSelectedChair] = useState<string>(initialChair);
 
-    const [staffList, setStaffList] = useState<StaffMember[]>([]);
+    const mockStaff: StaffMember[] = [
+        { id: 's1', name: 'Ahmed (Senior Barber)', role: 'Senior Barber' },
+        { id: 's2', name: 'Karim (Fade Specialist)', role: 'Fade Specialist' },
+        { id: 's3', name: 'Youssef (Hair Stylist)', role: 'Hair Stylist' }
+    ];
 
     // Hardcoded timeslots for demonstration
     const timeSlots = ["09:00 AM", "10:00 AM", "11:00 AM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM"];
@@ -83,7 +86,6 @@ const Book = () => {
             }
         };
         fetchBookedSlots();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, date]);
 
     useEffect(() => {
@@ -97,7 +99,6 @@ const Book = () => {
             return;
         }
         fetchServices();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, user]);
 
     const fetchServices = async () => {
@@ -114,20 +115,10 @@ const Book = () => {
             servicesList.sort((a, b) => (b.usage_count || 0) - (a.usage_count || 0));
 
             setServices(servicesList);
-
-            // Fetch Staff for this salon
-            const staffQuery = query(collection(db, 'staff'), where('barber_id', '==', id));
-            const staffSnap = await getDocs(staffQuery);
-            const staffData: StaffMember[] = [];
-            staffSnap.forEach((doc) => {
-                staffData.push({ id: doc.id, ...doc.data() } as StaffMember);
-            });
-            setStaffList(staffData);
-
         } catch (error: unknown) {
             toast({
                 title: t('error'),
-                description: (error as Error).message,
+                description: error.message,
                 variant: 'destructive',
             });
         } finally {
@@ -136,10 +127,11 @@ const Book = () => {
     };
 
     const getServiceName = (service: Service) => {
-        if (language === 'ar' && service.name_ar) return service.name_ar;
-        if (language === 'fr' && service.name_fr) return service.name_fr;
-        if (language === 'en' && service.name_en) return service.name_en;
-        return service.name_ar || service.name_en || service.name_fr || 'Unnamed Service';
+        switch (language) {
+            case 'ar': return service.name_ar;
+            case 'fr': return service.name_fr || service.name_en;
+            default: return service.name_en || service.name_ar;
+        }
     };
 
     const toggleService = (serviceId: string) => {
@@ -182,21 +174,6 @@ const Book = () => {
         setBookingLoading(true);
 
         try {
-            // Smart Payment Routing
-            let transactionId = null;
-            if (paymentMethod !== 'cash') {
-                const paymentResult = await AutomationService.processPayment(paymentMethod, totalAmount, 'DZD');
-                if (!paymentResult.success) {
-                    throw new Error("Online Payment Failed. Please try a different method or pay in cash.");
-                }
-                transactionId = paymentResult.transactionId;
-
-                toast({
-                    title: 'Payment Processed',
-                    description: `Successfully paid via ${paymentMethod} (Ref: ${transactionId})`,
-                });
-            }
-
             await addDoc(collection(db, 'appointments'), {
                 barber_id: id,
                 customer_id: user.uid,
@@ -206,44 +183,14 @@ const Book = () => {
                 appointment_date: date.toISOString(),
                 appointment_time: time,
                 payment_method: paymentMethod,
-                transaction_id: transactionId,
                 barber_chair_id: selectedChair,
                 status: 'pending',
                 created_at: new Date().toISOString()
             });
 
-            // Automated CRM Action: Send WhatsApp Reminder
-            await AutomationService.scheduleAppointmentReminder(
-                user.phoneNumber || "Unknown",
-                user.displayName || "Customer",
-                `${date.toDateString()} at ${time}`
-            );
-
-            // Email Confirmation via BillionMail
-            try {
-                const barberSnap = await getDoc(doc(db, 'barbers', id!));
-                const barberName = barberSnap.exists() ? barberSnap.data().store_name : 'Barber';
-                const firstService = services.find(s => s.id === selectedServices[0]);
-                const serviceLabel = firstService
-                    ? (language === 'ar' ? firstService.name_ar : language === 'fr' ? firstService.name_fr : firstService.name_en)
-                    : 'Service';
-                if (user.email) {
-                    await AutomationService.sendBookingConfirmationEmail(
-                        user.email,
-                        user.displayName || 'Valued Customer',
-                        `${serviceLabel}${selectedServices.length > 1 ? ` (+${selectedServices.length - 1})` : ''}`,
-                        date.toDateString(),
-                        time,
-                        barberName
-                    );
-                }
-            } catch (emailErr) {
-                console.warn('Email send failed (non-blocking):', emailErr);
-            }
-
             toast({
                 title: 'Success',
-                description: 'Your appointment has been booked and a reminder has been scheduled automatically!',
+                description: 'Your appointment has been booked successfully!',
             });
             navigate(`/`); // Can navigate to user appointments later
         } catch (error: unknown) {
@@ -317,7 +264,7 @@ const Book = () => {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="any">{t('booking.notspecified')}</SelectItem>
-                                        {staffList.map(staff => (
+                                        {mockStaff.map(staff => (
                                             <SelectItem key={staff.id} value={staff.id}>{staff.name}</SelectItem>
                                         ))}
                                     </SelectContent>
@@ -368,17 +315,25 @@ const Book = () => {
                             </CardHeader>
                             <CardContent>
                                 <RadioGroup value={paymentMethod} onValueChange={(val: string) => setPaymentMethod(val)}>
-                                    <div className="flex items-center space-x-2 mb-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-border/50">
-                                        <RadioGroupItem value="cib" id="cib" />
-                                        <Label htmlFor="cib" className="cursor-pointer font-medium w-full">CIB / EDAHABIA (البطاقة البنكية أو الذهبية)</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2 mb-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-border/50">
+                                    <div className="flex items-center space-x-2 mb-2">
                                         <RadioGroupItem value="baridimob" id="baridimob" />
-                                        <Label htmlFor="baridimob" className="cursor-pointer font-medium w-full">BaridiMob (بريدي موب)</Label>
+                                        <Label htmlFor="baridimob" className="cursor-pointer">BaridiMob (بريدي موب)</Label>
                                     </div>
-                                    <div className="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-border/50">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                        <RadioGroupItem value="paypal" id="paypal" />
+                                        <Label htmlFor="paypal" className="cursor-pointer">PayPal</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2 mb-2">
+                                        <RadioGroupItem value="visacard" id="visacard" />
+                                        <Label htmlFor="visacard" className="cursor-pointer">Visa Card</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2 mb-2">
+                                        <RadioGroupItem value="google_pay" id="google_pay" />
+                                        <Label htmlFor="google_pay" className="cursor-pointer">Google Pay</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="cash" id="cash" />
-                                        <Label htmlFor="cash" className="cursor-pointer font-medium w-full">Cash (الدفع نقداً في الصالون)</Label>
+                                        <Label htmlFor="cash" className="cursor-pointer">Cash after service (الدفع في الصالون)</Label>
                                     </div>
                                 </RadioGroup>
                             </CardContent>
@@ -404,7 +359,7 @@ const Book = () => {
                                     </div>
                                     <div className="flex justify-between items-center text-sm border-b pb-2">
                                         <span className="text-muted-foreground flex items-center gap-1"><Users2 className="h-4 w-4" /> Staff</span>
-                                        <span className="font-medium">{selectedChair === 'any' ? t('booking.notspecified') : staffList.find(s => s.id === selectedChair)?.name}</span>
+                                        <span className="font-medium">{selectedChair === 'any' ? t('booking.notspecified') : mockStaff.find(s => s.id === selectedChair)?.name}</span>
                                     </div>
 
                                     <div className="pt-2">

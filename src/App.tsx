@@ -13,11 +13,6 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 import Book from "./pages/Book";
-import AdminDashboard from "./pages/AdminDashboard";
-import AboutUs from "./pages/AboutUs";
-import ContactUs from "./pages/ContactUs";
-import AutoSupport from "./pages/AutoSupport";
-import Support from "./pages/Support";
 
 import AIAssistant from "./components/AIAssistant";
 import NotificationManager from "./components/NotificationManager";
@@ -42,10 +37,6 @@ const App = () => (
             <Route path="/book/:id" element={<Book />} />
             <Route path="/chat/:barberId" element={<Chat />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/contact" element={<ContactUs />} />
-            <Route path="/support" element={<Support />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
