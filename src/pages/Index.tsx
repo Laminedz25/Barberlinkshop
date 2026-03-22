@@ -13,7 +13,6 @@ import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, limit } from "firebase/firestore";
 import { User, Users, Car, Scissors, ChevronRight, Star, ShieldCheck, Zap, ArrowRight, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { t, isRTL } = useLanguage();

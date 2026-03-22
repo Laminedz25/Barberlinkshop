@@ -160,15 +160,15 @@ const AdminDashboard = () => {
             <Navigation />
             <main className="container mx-auto px-4 py-8 mt-20">
                 <div className="max-w-7xl mx-auto">
-                    <h1 className="text-5xl font-black mb-10 tracking-tighter uppercase italic">{t('admin.title')} <span className="text-primary tracking-normal">{t('admin.subtitle')}</span></h1>
+                    <h1 className="text-5xl font-black mb-10 tracking-tighter uppercase italic">Platform <span className="text-primary tracking-normal">Control Center</span></h1>
 
                     <Tabs defaultValue="analytics" className="w-full">
                         <TabsList className="mb-10 bg-slate-200 dark:bg-slate-800 p-2 rounded-3xl flex flex-wrap h-auto gap-2">
-                            <TabsTrigger value="analytics" className="rounded-2xl px-6 py-3 font-bold"><BarChart2 className="w-4 h-4 mr-2" /> {t('admin.tab.analytics')}</TabsTrigger>
-                            <TabsTrigger value="settings" className="rounded-2xl px-6 py-3 font-bold"><Settings className="w-4 h-4 mr-2" /> {t('admin.tab.settings')}</TabsTrigger>
-                            <TabsTrigger value="users" className="rounded-2xl px-6 py-3 font-bold"><Users className="w-4 h-4 mr-2" /> {t('admin.tab.users')}</TabsTrigger>
-                            <TabsTrigger value="ai_agents" className="rounded-2xl px-6 py-3 font-bold"><Bot className="w-4 h-4 mr-2" /> {t('admin.tab.ai')}</TabsTrigger>
-                            <TabsTrigger value="keys" className="rounded-2xl px-6 py-3 font-bold"><Key className="w-4 h-4 mr-2" /> {t('admin.tab.keys')}</TabsTrigger>
+                            <TabsTrigger value="analytics" className="rounded-2xl px-6 py-3 font-bold"><BarChart2 className="w-4 h-4 mr-2" /> Analytics</TabsTrigger>
+                            <TabsTrigger value="settings" className="rounded-2xl px-6 py-3 font-bold"><Settings className="w-4 h-4 mr-2" /> Global Settings</TabsTrigger>
+                            <TabsTrigger value="users" className="rounded-2xl px-6 py-3 font-bold"><Users className="w-4 h-4 mr-2" /> Users</TabsTrigger>
+                            <TabsTrigger value="ai_agents" className="rounded-2xl px-6 py-3 font-bold"><Bot className="w-4 h-4 mr-2" /> AI Training</TabsTrigger>
+                            <TabsTrigger value="keys" className="rounded-2xl px-6 py-3 font-bold"><Key className="w-4 h-4 mr-2" /> API Keys</TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="analytics" className="space-y-10">
@@ -181,7 +181,7 @@ const AdminDashboard = () => {
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 <Card className="p-8 rounded-[3rem] shadow-xl">
-                                    <h3 className="text-2xl font-black mb-6 flex items-center gap-2 text-indigo-600"><Server className="w-6 h-6" /> {t('admin.health.title')}</h3>
+                                    <h3 className="text-2xl font-black mb-6 flex items-center gap-2 text-indigo-600"><Server className="w-6 h-6" /> Platform Performance</h3>
                                     <div className="space-y-4">
                                         <HealthRow label="Server Status" status="Live" color="bg-green-500" />
                                         <HealthRow label="Database (Firestore)" status="Connected" color="bg-green-500" />
@@ -206,7 +206,7 @@ const AdminDashboard = () => {
                                 <Card className="p-8 rounded-[3rem] shadow-2xl">
                                     <h3 className="text-3xl font-black mb-8 flex items-center gap-3">
                                         <div className="p-3 bg-primary/10 rounded-2xl text-primary"><CreditCard className="w-6 h-6" /></div>
-                                        {t('admin.payments.title')}
+                                        Algerian Payments
                                     </h3>
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -246,7 +246,7 @@ const AdminDashboard = () => {
                                     </div>
                                 </Card>
                             </div>
-                            <Button size="lg" className="w-full h-16 rounded-2xl text-xl font-black" onClick={saveSettings}>{t('admin.save.system')}</Button>
+                            <Button size="lg" className="w-full h-16 rounded-2xl text-xl font-black" onClick={saveSettings}>Propagate System Changes</Button>
                         </TabsContent>
 
                         <TabsContent value="users">
