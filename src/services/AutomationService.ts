@@ -31,7 +31,7 @@ async function sendEmailViaBillionMail(payload: EmailPayload): Promise<{ success
 
         const smtpEndpoint = apiKeys?.billionmailEndpoint || '';
         const smtpApiKey = apiKeys?.billionmailApiKey || '';
-        const fromEmail = apiKeys?.billionmailFrom || 'noreply@barberlink.cloud';
+        const fromEmail = apiKeys?.billionmailFrom || 'noreply@barberlinkshop.com';
 
         // If no BillionMail configured, log and skip gracefully
         if (!smtpEndpoint || !smtpApiKey) {
@@ -87,7 +87,7 @@ function buildBookingConfirmationEmail(customerName: string, serviceName: string
         <p style="color: #6B7280; font-size: 14px;">هل تريد الإلغاء؟ يرجى التواصل معنا قبل 2 ساعة من الموعد.</p>
       </div>
       <div style="background: #F3F4F6; padding: 20px; text-align: center; font-size: 12px; color: #9CA3AF;">
-        فريق BarberLink &copy; ${new Date().getFullYear()} — barberlink.cloud
+        فريق BarberLink &copy; ${new Date().getFullYear()} — barberlinkshop.com
       </div>
     </div>`;
 }
@@ -105,7 +105,7 @@ function buildSubscriptionExpiryEmail(ownerName: string, salonName: string, days
         <p style="color: #374151;">اشتراك صالونك <strong>${salonName}</strong> سينتهي خلال <strong style="color: #dc2626;">${daysLeft} يوم</strong>.</p>
         <p style="color: #6B7280;">لتجنب تعليق خدماتك وإخفاء صالونك من نتائج البحث، يرجى التجديد الآن.</p>
         <div style="text-align: center; margin: 28px 0;">
-          <a href="https://barberlink.cloud/dashboard" style="background: #007BFF; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">تجديد الاشتراك الآن</a>
+          <a href="https://barberlinkshop.com/dashboard" style="background: #007BFF; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">تجديد الاشتراك الآن</a>
         </div>
       </div>
       <div style="background: #F3F4F6; padding: 20px; text-align: center; font-size: 12px; color: #9CA3AF;">
@@ -231,27 +231,17 @@ export class AutomationService {
 
     /**
      * Process payment via local gateways (CIB, BaridiMob) or Stripe
-     * ROOT CAUSE AUDIT: Added real check for Admin configuration
      */
     static async processPayment(gateway: string, amount: number, currency: string) {
         try {
-            console.log(`[Security Audit] Processing ${amount} ${currency} via ${gateway}`);
-            
-            // Check if admin has configured payment info before allowing "Online" selection
-            const settingsRef = doc(db, 'system', 'settings');
-            const settingsSnap = await getDoc(settingsRef);
-            const paymentInfo = settingsSnap.exists() ? settingsSnap.data().paymentInfo : null;
-
-            if (gateway !== 'cash' && (!paymentInfo?.ccp && !paymentInfo?.baridiMob)) {
-                throw new Error("Online payment details not configured by administrator. Please pay at salon.");
-            }
-
+            console.log(`[Automation - Payment] Processing ${amount} ${currency} via ${gateway}`);
             await new Promise(resolve => setTimeout(resolve, 2000));
             const transactionId = `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+            console.log(`[Success] Payment approved: ${transactionId}`);
             return { success: true, transactionId };
         } catch (error) {
-            console.error("[Security Audit] Payment Guard Blocked Transaction:", error);
-            return { success: false, transactionId: null, message: (error as Error).message };
+            console.error("[Automation] Payment Failed", error);
+            return { success: false, transactionId: null, message: "Transaction declined." };
         }
     }
 

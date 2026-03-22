@@ -522,7 +522,7 @@ const BarberProfile = () => {
 
                         <div className="mt-auto pt-4 w-full">
                           {staff.role === 'vacant_chair' ? (
-                            <Button onClick={() => window.location.href = `mailto:support@barberlink.cloud?subject=Vacant Chair Request inside ${barber?.business_name}`} variant="outline" className="w-full rounded-full border-primary/50 text-primary">
+                            <Button onClick={() => window.location.href = `mailto:support@barberlinkshop.com?subject=Vacant Chair Request inside ${barber?.business_name}`} variant="outline" className="w-full rounded-full border-primary/50 text-primary">
                               Apply to Rent
                             </Button>
                           ) : (

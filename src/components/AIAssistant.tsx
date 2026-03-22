@@ -18,7 +18,7 @@ interface ChatMessage {
 const initialMessages: ChatMessage[] = [
     {
         id: "1",
-        text: "مرحباً بك في barberlink! أنا المساعد الذكي. كيف يمكنني مساعدتك في العثور على الحلاق المناسب، أو الإجابة على استفساراتك اليوم؟",
+        text: "مرحباً بك في barberlinkshop! أنا المساعد الذكي. كيف يمكنني مساعدتك في العثور على الحلاق المناسب، أو الإجابة على استفساراتك اليوم؟",
         isBot: true,
     }
 ];
@@ -217,7 +217,7 @@ const AIAssistant = () => {
                 onClick={() => setIsOpen(true)}
                 className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-[#007BFF] transition-transform hover:scale-105 z-50 p-0 flex items-center justify-center"
             >
-                <img src="/logo.png" alt="barberlink Logo" className="h-8 w-8 object-contain mix-blend-plus-lighter" />
+                <img src="/logo.png" alt="barberlinkshop Logo" className="h-8 w-8 object-contain mix-blend-plus-lighter" />
             </Button>
         );
     }
@@ -226,8 +226,8 @@ const AIAssistant = () => {
         <Card className="fixed bottom-6 right-6 w-80 sm:w-96 h-[500px] flex flex-col shadow-2xl z-50 border-primary/20 overflow-hidden animate-in fade-in slide-in-from-bottom-5">
             <CardHeader className="bg-primary text-primary-foreground flex flex-row items-center justify-between p-4 rounded-t-xl">
                 <div className="flex items-center gap-2">
-                    <img src="/logo.png" alt="barberlink Logo" className="h-8 w-8 object-contain mix-blend-plus-lighter" />
-                    <CardTitle className="text-lg">barberlink AI</CardTitle>
+                    <img src="/logo.png" alt="barberlinkshop Logo" className="h-8 w-8 object-contain mix-blend-plus-lighter" />
+                    <CardTitle className="text-lg">barberlinkshop AI</CardTitle>
                 </div>
                 <div className="flex items-center">
                     <Button variant="ghost" size="icon" className="hover:bg-primary-foreground/20 text-white rounded-full h-8 w-8 mr-1" onClick={() => setIsTTSEnabled(!isTTSEnabled)} title="Toggle Voice / تفعيل الصوت">

@@ -12,7 +12,7 @@ const AboutUs = () => {
                 <h1 className="text-4xl font-black text-primary text-center">About Us / من نحن</h1>
                 <div className="prose dark:prose-invert max-w-none text-lg leading-relaxed text-muted-foreground">
                     <p>
-                        Welcome to barberlink! We are the leading platform connecting top barbers with clients seeking the best grooming experience. Our mission is to revolutionize the salon and barbershop industry using cutting-edge AI technology, seamless bookings, and a dynamic marketplace.
+                        Welcome to barberlinkshop! We are the leading platform connecting top barbers with clients seeking the best grooming experience. Our mission is to revolutionize the salon and barbershop industry using cutting-edge AI technology, seamless bookings, and a dynamic marketplace.
                     </p>
                     <p>
                         Whether you are a professional barber looking to grow your business or a customer searching for the perfect haircut, our smart AI assistants and robust platform are here to make your journey effortless.
