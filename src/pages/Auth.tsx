@@ -223,42 +223,24 @@ const Auth = () => {
           <CardDescription className="font-bold mt-2">Manage your salon or find a style.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-8">
-            <h3 className="text-xl font-black mb-4 text-center">Secure Google Authentication</h3>
-            <p className="text-center text-muted-foreground text-sm font-medium mb-6 leading-relaxed">
-              {isRTL 
-                ? 'لضمان أعلى درجات الحماية لبياناتك وعدم اختلاط حسابات المستخدمين، نعتمد حصرياً على بروتوكولات الأمان العالية لشبكة Google. قم بالتسجيل بضغطة زر واحدة فقط.' 
-                : 'To guarantee the highest data protection and prevent mixed identities, we rely exclusively on Google Secure Authentication. Connect instantly.'}
-            </p>
-            <Button 
-                variant="default" 
-                onClick={handleSocialLogin} 
-                disabled={loading} 
-                className="w-full h-20 rounded-3xl font-black text-xl gap-4 shadow-2xl hover:scale-105 transition-transform"
-            >
-              <FcGoogle className="h-10 w-10 bg-white rounded-full p-1" /> {isRTL ? 'الدخول الآمن باستخدام حساب جوجل' : 'Continue Securely with Google'}
-            </Button>
-          </div>
-
-          <div className="relative mb-8">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-white dark:bg-slate-900 px-4 font-bold text-muted-foreground">Or Developer Admin Access</span></div>
-          </div>
+          <Button variant="outline" onClick={handleSocialLogin} disabled={loading} className="w-full h-16 rounded-2xl font-black text-lg gap-3 mb-8">
+            <FcGoogle className="h-8 w-8" /> Continue with Google
+          </Button>
 
           <Tabs defaultValue="signin">
-            <TabsList className="grid w-full grid-cols-2 mb-6 h-12 rounded-2xl">
-              <TabsTrigger value="signin" className="rounded-xl font-bold">Admin Login</TabsTrigger>
-              <TabsTrigger value="signup" className="rounded-xl font-bold">Hidden Mode</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
-                <Input type="email" placeholder="Email (Admins only)" className="h-12 rounded-xl" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <Input type="email" placeholder="Email" className="h-12 rounded-xl" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 <Input type="password" placeholder="Password" className="h-12 rounded-xl" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                <Button type="submit" variant="secondary" className="w-full h-14 rounded-2xl font-black" disabled={loading}>Login to Admin</Button>
+                <Button type="submit" className="w-full h-14 rounded-2xl font-black" disabled={loading}>Login</Button>
               </form>
             </TabsContent>
             <TabsContent value="signup">
-                <Button variant="outline" className="w-full h-14 rounded-2xl font-black border-2" onClick={() => toast({ title: 'Restricted', description: 'Registration requires exact Google Auth validation.' })}>Restricted Area</Button>
+                <Button className="w-full h-14 rounded-2xl font-black" onClick={() => setCompletingProfile(true)}>Start Registration</Button>
             </TabsContent>
           </Tabs>
         </CardContent>

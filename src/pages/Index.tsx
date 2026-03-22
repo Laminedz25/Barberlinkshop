@@ -14,7 +14,6 @@ import { collection, query, where, getDocs, limit } from "firebase/firestore";
 import { User, Users, Car, Scissors, ChevronRight, Star, ShieldCheck, Zap, ArrowRight, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
 
 const Index = () => {
   const { t, isRTL } = useLanguage();
@@ -64,22 +63,13 @@ const Index = () => {
     fetchBarbers();
   }, []);
 
-  const CategorySection = ({ title, icon: Icon, items, color, desc }: { title: string, icon: React.ElementType, items: Record<string, any>[], color: string, desc: string }) => (
-    <motion.section 
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      className="py-16 group relative"
-    >
+  const CategorySection = ({ title, icon: Icon, items, color, desc }: { title: string, icon: any, items: any[], color: string, desc: string }) => (
+    <section className="py-16 group relative">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
         <div className="flex items-center gap-6">
-           <motion.div 
-              whileHover={{ rotate: 10, scale: 1.1 }}
-              className={`p-6 rounded-[2.5rem] bg-gradient-to-br ${color} text-white shadow-2xl transition-transform duration-500`}
-           >
+           <div className={`p-6 rounded-[2.5rem] bg-gradient-to-br ${color} text-white shadow-2xl transform group-hover:rotate-6 transition-transform duration-500`}>
               <Icon className="w-10 h-10" />
-           </motion.div>
+           </div>
            <div>
               <h2 className="text-4xl lg:text-5xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">{title}</h2>
               <p className="text-lg text-slate-400 font-bold opacity-80 uppercase tracking-widest">{desc}</p>
@@ -106,7 +96,7 @@ const Index = () => {
                 <Button className="mt-6 rounded-2xl" onClick={() => navigate('/auth')}>Be the first barber!</Button>
             </div>
           ) : (
-            items.map((item) => (
+            items.map((item: any) => (
               <div key={item.id} className="min-w-[340px] md:min-w-[420px] snap-start hover:-translate-y-4 transition-transform duration-500">
                 <SalonCard salon={item} />
               </div>
@@ -114,7 +104,7 @@ const Index = () => {
           )}
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 
   return (
@@ -123,23 +113,15 @@ const Index = () => {
 
       <main>
         <HeroSection />
-         <div className="container mx-auto px-4 -mt-6 mb-16 relative z-30 flex justify-center">
-            <SearchFilters />
-        </div>
 
         <div className="container mx-auto px-4">
            {/* Trust Stats Bar */}
-           <motion.div 
-             initial={{ opacity: 0, scale: 0.95 }}
-             animate={{ opacity: 1, scale: 1 }}
-             transition={{ duration: 0.6, delay: 0.2 }}
-             className="grid grid-cols-2 lg:grid-cols-4 gap-4 -mt-10 mb-20 relative z-20"
-           >
+           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 -mt-10 mb-20 relative z-20">
               <StatItem icon={<Star className="text-yellow-500" />} label={t('index.stats.rating')} value="4.9/5" />
               <StatItem icon={<Users className="text-blue-500" />} label={t('index.stats.clients')} value="10k+" />
               <StatItem icon={<Zap className="text-orange-500" />} label={t('index.stats.bookings')} value="850+" />
               <StatItem icon={<ShieldCheck className="text-green-500" />} label={t('index.stats.verified')} value="500+" />
-           </motion.div>
+           </div>
 
            <CategorySection 
               title={t('salon.type.men')} 
@@ -157,13 +139,7 @@ const Index = () => {
               color="from-pink-500 to-rose-600"
            />
 
-           <motion.div 
-              initial={{ opacity: 0, rotateX: 10 }}
-              whileInView={{ opacity: 1, rotateX: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="py-20 bg-white dark:bg-slate-900 rounded-[4rem] shadow-2xl relative overflow-hidden my-10 px-10 border border-slate-100 dark:border-slate-800"
-           >
+           <div className="py-20 bg-white dark:bg-slate-900 rounded-[4rem] shadow-2xl relative overflow-hidden my-10 px-10 border border-slate-100 dark:border-slate-800">
               <div className="grid lg:grid-cols-2 gap-16 items-center">
                   <div className="space-y-8">
                       <h2 className="text-5xl lg:text-7xl font-black leading-tight italic decoration-primary underline decoration-8">{t('index.how.title')} <span className="text-primary not-italic">{t('index.how.works')}</span></h2>
@@ -183,7 +159,7 @@ const Index = () => {
                       </div>
                   </div>
               </div>
-           </motion.div>
+           </div>
 
            <CategorySection 
               title={t('salon.type.unisex')} 
