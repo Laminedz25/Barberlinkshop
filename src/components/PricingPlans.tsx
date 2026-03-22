@@ -1,25 +1,19 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Check, Sparkles, Star, Store, TrendingUp } from 'lucide-react';
+import { Check, Sparkles, Star, Store, TrendingUp, Zap, ShieldCheck, BarChart3, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { useCurrency } from '@/hooks/useCurrency';
 
 export default function PricingPlans() {
     const { t, isRTL } = useLanguage();
     const { toast } = useToast();
+    const { formatPrice, isAlgeria } = useCurrency();
 
-    const handleSubscribe = (planName: string) => {
-        toast({
-            title: t('store.comingsoon'),
-            description: `Subscription for ${planName} will be available in the next release! Enjoy your 1-month free trial.`,
-            variant: 'default',
-        });
-    };
-
-    const [prices, setPrices] = useState({ basic: '1000', pro: '1500', premium: '2000' });
+    const [prices, setPrices] = useState({ basic: '1000', pro: '2500', premium: '4500' });
 
     useEffect(() => {
         const fetchPricing = async () => {
@@ -30,8 +24,8 @@ export default function PricingPlans() {
                     const data = docSnap.data().prices;
                     setPrices({
                         basic: data.basic ? String(data.basic) : '1000',
-                        pro: data.pro ? String(data.pro) : '1500',
-                        premium: data.premium ? String(data.premium) : '2000'
+                        pro: data.pro ? String(data.pro) : '2500',
+                        premium: data.premium ? String(data.premium) : '4500'
                     });
                 }
             } catch (err) {
@@ -43,102 +37,124 @@ export default function PricingPlans() {
 
     const plans = [
         {
-            name: t('pricing.basic.name'),
-            desc: t('pricing.basic.desc'),
-            price: prices.basic,
-            icon: <Star className="h-6 w-6 text-blue-500" />,
-            color: "from-blue-500/20 to-transparent border-blue-500/20",
-            btnClass: "bg-blue-600 hover:bg-blue-700 shadow-blue-600/20 text-white",
+            name: "Starter",
+            desc: "For newly opened salons",
+            price: "Free",
+            icon: <Star className="h-6 w-6 text-slate-400" />,
+            color: "border-slate-200 dark:border-slate-800",
+            btnClass: "bg-slate-800 hover:bg-slate-900 text-white",
             features: [
-                t('pricing.basic.f1'),
-                t('pricing.basic.f2'),
-                t('pricing.basic.f3'),
-            ]
+                "Basic Profile",
+                "Up to 50 Bookings/mo",
+                "WhatsApp Integration",
+                "Standard Search Result"
+            ],
+            notIncluded: ["No Analytics", "No Ranking Boost", "No Multiple Staff"]
         },
         {
-            name: t('pricing.pro.name'),
-            desc: t('pricing.pro.desc'),
-            price: prices.pro,
-            icon: <Store className="h-6 w-6 text-primary" />,
-            color: "from-primary/20 to-primary/5 border-primary/50",
-            btnClass: "bg-primary hover:bg-primary/90 shadow-primary/30 text-white",
+            name: "Pro Professional",
+            desc: "Most Popular for growing businesses",
+            price: formatPrice(prices.pro, '25'),
+            icon: <Zap className="h-6 w-6 text-primary" />,
+            color: "border-primary/50 shadow-primary/10 scale-105 z-10",
+            btnClass: "bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20",
             isPopular: true,
             features: [
-                t('pricing.pro.f1'),
-                <span className="font-bold text-primary">{t('pricing.pro.f2')}</span>,
-                <span className="font-bold text-primary">{t('pricing.pro.f3')}</span>,
-                t('pricing.pro.f4'),
-            ]
+                "Everything in Starter",
+                "Unlimited Bookings",
+                <span className="font-bold text-primary">Advanced Analytics</span>,
+                "Showcase Store Products",
+                "Staff Management (3 Chairs)",
+                "Email Notifications"
+            ],
+            notIncluded: ["Standard Search Ranking"]
         },
         {
-            name: t('pricing.premium.name'),
-            desc: t('pricing.premium.desc'),
-            price: prices.premium,
-            icon: <TrendingUp className="h-6 w-6 text-yellow-500" />,
-            color: "from-yellow-500/20 to-transparent border-yellow-500/20",
-            btnClass: "bg-yellow-500 hover:bg-yellow-600 shadow-yellow-500/20 text-white",
+            name: "Ultimate Premium",
+            desc: "Dominate your local market",
+            price: formatPrice(prices.premium, '49'),
+            icon: <ShieldCheck className="h-6 w-6 text-yellow-500" />,
+            color: "border-yellow-500/30",
+            btnClass: "bg-yellow-500 hover:bg-yellow-600 text-white shadow-xl shadow-yellow-500/20",
             features: [
-                t('pricing.premium.f1'),
-                <span className="font-bold text-yellow-600 dark:text-yellow-400">{t('pricing.premium.f2')}</span>,
-                t('pricing.premium.f3'),
-                t('pricing.premium.f4'),
+                "Everything in Pro",
+                <span className="font-bold text-yellow-600 dark:text-yellow-400 flex items-center gap-1"><TrendingUp className="w-4 h-4" /> Top-of-Search Ranking Boost</span>,
+                "VIP Profile Badge",
+                "Unlimited Staff/Chairs",
+                "Dedicated Account Manager",
+                "Custom SEO for Profile"
             ]
         }
     ];
 
     return (
-        <section className="py-24 bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
-            {/* Decorative Lights */}
-            <div className="absolute top-1/4 left-0 w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
-
+        <section className="py-24 bg-slate-50 dark:bg-slate-950 relative overflow-hidden" id="pricing">
+            <div className="absolute top-1/4 left-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+            
             <div className="container mx-auto px-4 relative z-10">
-                <div className="text-center max-w-3xl mx-auto mb-16">
-                    <Badge text={t('pricing.title')} />
-                    <h2 className="text-4xl md:text-5xl font-black mt-6 mb-4">{t('pricing.title')}</h2>
+                <div className="text-center max-w-3xl mx-auto mb-20">
+                    <Badge text="Flexible Plans" />
+                    <h2 className="text-4xl md:text-6xl font-black mt-6 mb-4 tracking-tighter">
+                        Empower Your <span className="text-primary">Business</span>
+                    </h2>
                     <p className="text-xl text-muted-foreground font-medium">
-                        {t('pricing.subtitle')}
+                        Choose the plan that fits your salon size. Scale as you grow with local DZD support.
                     </p>
+                    <div className="mt-8 flex items-center justify-center gap-4 bg-white dark:bg-slate-900 w-max mx-auto p-2 rounded-2xl border border-slate-200 dark:border-slate-800">
+                        <span className="inline-flex items-center gap-1 text-sm font-bold text-green-600 bg-green-500/10 px-3 py-1 rounded-lg">
+                           <Clock className="w-4 h-4" /> 30-Day Free Trial on all Pro/Premium plans
+                        </span>
+                    </div>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
                     {plans.map((plan, i) => (
-                        <Card key={i} className={`relative bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl rounded-[2.5rem] border ${plan.color} p-8 shadow-2xl transition-transform hover:-translate-y-2 flex flex-col`}>
+                        <Card key={i} className={`relative bg-white dark:bg-slate-900 rounded-[3rem] border-2 ${plan.color} p-10 transition-all hover:shadow-2xl flex flex-col`}>
                             {plan.isPopular && (
-                                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-blue-600 text-white px-6 py-1.5 rounded-full font-bold shadow-lg shadow-primary/30 flex items-center gap-2">
-                                    <Sparkles className="h-4 w-4" /> Most Popular
+                                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-primary text-white px-6 py-2 rounded-full font-black shadow-xl flex items-center gap-2 text-sm uppercase tracking-widest">
+                                    <Sparkles className="h-4 w-4" /> Recommended
                                 </div>
                             )}
 
                             <div className="mb-8">
-                                <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl w-max shadow-sm mb-6 border border-slate-100 dark:border-slate-700">
+                                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-[1.5rem] w-max mb-6">
                                     {plan.icon}
                                 </div>
-                                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                                <p className="text-muted-foreground min-h-[48px]">{plan.desc}</p>
+                                <h3 className="text-3xl font-black mb-2 tracking-tight">{plan.name}</h3>
+                                <p className="text-muted-foreground font-medium">{plan.desc}</p>
                             </div>
 
-                            <div className="mb-8 flex items-end gap-2">
-                                <span className="text-5xl font-black">{plan.price}</span>
-                                <div className="flex flex-col pb-1">
-                                    <span className="font-bold text-lg">{t('pricing.dzd')}</span>
-                                    <span className="text-muted-foreground text-sm font-medium">{t('pricing.month')}</span>
-                                </div>
+                            <div className="mb-8 flex items-baseline gap-2">
+                                <span className="text-6xl font-black tracking-tighter">{plan.price}</span>
+                                {plan.price !== 'Free' && (
+                                    <span className="text-muted-foreground font-bold text-lg">/month</span>
+                                )}
                             </div>
 
-                            <ul className="space-y-4 mb-10 flex-1">
+                            <div className="space-y-4 mb-10 flex-1">
                                 {plan.features.map((feat, idx) => (
-                                    <li key={idx} className="flex items-center gap-3">
-                                        <div className="bg-green-500/10 p-1 rounded-full shrink-0">
-                                            <Check className="h-4 w-4 text-green-600 dark:text-green-500" />
+                                    <div key={idx} className="flex items-center gap-3">
+                                        <div className="bg-green-500/15 p-1 rounded-full shrink-0">
+                                            <Check className="h-4 w-4 text-green-600 dark:text-green-400 stroke-[3]" />
                                         </div>
-                                        <span className="font-medium text-slate-700 dark:text-slate-300">{feat}</span>
-                                    </li>
+                                        <span className="font-bold text-slate-700 dark:text-slate-300 text-base">{feat}</span>
+                                    </div>
                                 ))}
-                            </ul>
+                                {plan.notIncluded?.map((feat, idx) => (
+                                    <div key={idx} className="flex items-center gap-3 opacity-40">
+                                        <div className="bg-slate-200 p-1 rounded-full shrink-0">
+                                            <div className="h-4 w-4 border-2 border-slate-400 rounded-full" />
+                                        </div>
+                                        <span className="font-bold text-slate-500 line-through text-base">{feat}</span>
+                                    </div>
+                                ))}
+                            </div>
 
-                            <Button className={`w-full rounded-full h-14 text-lg font-bold shadow-lg transition-all ${plan.btnClass}`} onClick={() => handleSubscribe(plan.name as string)}>
-                                {t('pricing.button.start')}
+                            <Button 
+                                className={`w-full rounded-[1.5rem] h-16 text-lg font-black transition-transform hover:scale-[1.02] active:scale-[0.98] ${plan.btnClass}`}
+                                onClick={() => window.location.href = '/auth'}
+                            >
+                                Get Started Now
                             </Button>
                         </Card>
                     ))}
@@ -150,8 +166,9 @@ export default function PricingPlans() {
 
 function Badge({ text }: { text: string }) {
     return (
-        <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-semibold text-primary shadow-sm drop-shadow-sm transition-colors hover:bg-primary/20">
+        <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-primary shadow-sm">
             {text}
         </div>
     );
 }
+

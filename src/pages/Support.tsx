@@ -12,19 +12,19 @@ const Support = () => {
     const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
     const tutorials = [
-        { id: '1', title: isRTL ? 'كيفية التسجيل كحلاق جديد' : 'How to Register as a Barber', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { id: '2', title: isRTL ? 'تنظيم وترتيب بروفايل الصالون' : 'Managing your Salon Profile', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { id: '3', title: isRTL ? 'إضافة الخدمات ومعرض الأعمال' : 'Adding Services & Gallery', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { id: '4', title: isRTL ? 'دليل الحلاقة المنزلية (Mobile)' : 'Mobile Barbering Guide', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
-        { id: '5', title: isRTL ? 'استخدام مساعد الذكاء الاصطناعي' : 'Using the AI Stylist Assistant', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        { id: '1', title: 'How to Register as a Barber', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        { id: '2', title: 'Managing your Salon Profile', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        { id: '3', title: 'Adding Services & Gallery', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        { id: '4', title: 'How to use the Booking System', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
     ];
 
     const faqs = [
         { q: t('support.faq.q1'), a: t('support.faq.a1') },
         { q: t('support.faq.q2'), a: t('support.faq.a2') },
-        { q: t('support.faq.q3'), a: t('support.faq.a3') },
-        { q: t('support.faq.q4'), a: t('support.faq.a4') },
-        { q: t('support.faq.q5'), a: t('support.faq.a5') },
+        { 
+            q: isRTL ? 'هل يمكنني إلغاء الحجز؟' : 'Can I cancel my booking?', 
+            a: isRTL ? 'نعم، يمكنك إلغاء الحجز من خلال لوحة تحكم الزبون قبل موعد الخدمة بـ 24 ساعة.' : 'Yes, you can cancel your booking from your customer dashboard up to 24 hours before the appointment.' 
+        },
     ];
 
     return (
