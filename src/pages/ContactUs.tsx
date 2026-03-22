@@ -43,7 +43,7 @@ const ContactUs = () => {
                         <div className="space-y-4">
                             <div className="flex items-center gap-4">
                                 <div className="bg-primary/20 p-3 rounded-xl"><Mail className="text-primary" /></div>
-                                <span>support@barberlink.cloud</span>
+                                <span>support@barberlinkshop.com</span>
                             </div>
                             <div className="flex items-center gap-4">
                                 <div className="bg-accent p-3 rounded-xl"><Phone className="text-accent-foreground" /></div>

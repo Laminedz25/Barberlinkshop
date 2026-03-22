@@ -45,7 +45,7 @@ const Footer = () => {
           {/* Brand Section */}
           <div className="space-y-4">
             <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-gold bg-clip-text text-transparent">
-              barberlink
+              barberlinkshop
             </h3>
             <p className="text-muted-foreground text-sm">
               {t('footer.description')}
@@ -164,7 +164,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-border mt-8 pt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} barberlink. {t('footer.rights')}.
+            © {currentYear} barberlinkshop. {t('footer.rights')}.
           </p>
         </div>
       </div>
