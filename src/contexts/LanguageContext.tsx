@@ -105,7 +105,7 @@ const translations = {
     'download.description': 'Experience seamless booking with our mobile app. Available for Android and iOS.',
 
     // Authentication
-    'auth.welcome': 'Welcome to barberlinkshop',
+    'auth.welcome': 'Welcome to barberlink',
     'auth.subtitle': 'Connect with professional barbers',
     'auth.signin': 'Sign In',
     'auth.signup': 'Sign Up',
@@ -123,7 +123,7 @@ const translations = {
     'auth.loading': 'Loading...',
     'auth.error': 'Authentication Error',
     'auth.signup.success': 'Account created successfully',
-    'auth.signup.success.desc': 'Welcome to barberlinkshop!',
+    'auth.signup.success.desc': 'Welcome to barberlink!',
 
     // Barber Profile
     'barber.notfound': 'Barber not found',
@@ -217,7 +217,7 @@ const translations = {
     // Testimonials
     'testi.title': 'What Our Users Say',
     'testi.sub': 'Join thousands of satisfied salon owners and clients.',
-    'testi.1.text': 'barberlinkshop transformed my business! The AI stylist brings so many new female clients, and the automated weekly reports save me hours of accounting.',
+    'testi.1.text': 'barberlink transformed my business! The AI stylist brings so many new female clients, and the automated weekly reports save me hours of accounting.',
     'testi.1.name': 'Sarah L.',
     'testi.1.role': 'Salon Owner',
     'testi.2.text': 'I manage 4 chairs in my barber shop. The platform handles all bookings seamlessly and sends SMS notifications to clients automatically.',
@@ -330,6 +330,43 @@ const translations = {
     'barber.select_time': 'Select Time',
     'barber.book_offline': 'Add Walk-in Appointment',
     'barber.vacant_chair_desc': 'There is a vacant chair available in this salon. Apply to rent it!',
+    
+    // Support & Help
+    'support.title': 'Support Center',
+    'support.subtitle': 'Need help? We are here for you 24/7.',
+    'support.faq.title': 'Frequently Asked Questions',
+    'support.faq.q1': 'How do I book an appointment?',
+    'support.faq.a1': 'Simply browse our curated list of barbers, select the services you need, pick a convenient date and time, and confirm your booking instantly.',
+    'support.faq.q2': 'What payment methods do you accept?',
+    'support.faq.a2': 'We support Baridi Mob, Visa/Mastercard, and Cash payments directly at the salon.',
+    'support.tutorials.title': 'Video Tutorials',
+    'support.tutorials.desc': 'Short video guides to help you get the most out of BarberLink.',
+    'support.contact.us': 'Still have questions? Contact our team directly via WhatsApp or Chat.',
+
+    // Admin Dashboard
+    'admin.title': 'Platform Center',
+    'admin.subtitle': 'Control Hub',
+    'admin.tab.analytics': 'Analytics',
+    'admin.tab.settings': 'Global Settings',
+    'admin.tab.users': 'Users',
+    'admin.tab.ai': 'AI Training',
+    'admin.tab.keys': 'API Keys',
+    'admin.health.title': 'Platform Performance',
+    'admin.health.server': 'Server Status',
+    'admin.health.db': 'Database (Firestore)',
+    'admin.health.auth': 'Auth Service',
+    'admin.payments.title': 'Algerian Payments',
+    'admin.payments.fullname': 'Full Name',
+    'admin.payments.ccp': 'CCP Account',
+    'admin.payments.baridimob': 'Baridi Mob',
+    'admin.payments.fixed': 'Fixed DZD Price',
+    'admin.seo.title': 'SEO Title',
+    'admin.seo.desc': 'SEO Description',
+    'admin.save.system': 'Propagate System Changes',
+    'admin.users.user': 'User',
+    'admin.users.role': 'Role',
+    'admin.users.status': 'Status',
+    'admin.users.action': 'Action',
   },
   fr: {
     // Navigation
@@ -424,7 +461,7 @@ const translations = {
     'download.description': 'Profitez d\'une réservation fluide avec notre application mobile. Disponible pour Android et iOS.',
 
     // Authentication
-    'auth.welcome': 'Bienvenue sur barberlinkshop',
+    'auth.welcome': 'Bienvenue sur barberlink',
     'auth.subtitle': 'Connectez-vous avec des coiffeurs professionnels',
     'auth.signin': 'Se Connecter',
     'auth.signup': 'S\'inscrire',
@@ -442,7 +479,7 @@ const translations = {
     'auth.loading': 'Chargement...',
     'auth.error': 'Erreur d\'authentification',
     'auth.signup.success': 'Compte créé avec succès',
-    'auth.signup.success.desc': 'Bienvenue sur barberlinkshop!',
+    'auth.signup.success.desc': 'Bienvenue sur barberlink!',
 
     // Barber Profile
     'barber.notfound': 'Coiffeur introuvable',
@@ -536,7 +573,7 @@ const translations = {
     // Testimonials
     'testi.title': 'Ce que disent nos utilisateurs',
     'testi.sub': 'Rejoignez des milliers de propriétaires de salons et de clients satisfaits.',
-    'testi.1.text': 'barberlinkshop a transformé mon entreprise ! L\'IA m\'apporte beaucoup de nouvelles clientes et les rapports hebdomadaires automatisés me font gagner des heures de comptabilité.',
+    'testi.1.text': 'barberlink a transformé mon entreprise ! L\'IA m\'apporte beaucoup de nouvelles clientes et les rapports hebdomadaires automatisés me font gagner des heures de comptabilité.',
     'testi.1.name': 'Sarah L.',
     'testi.1.role': 'Propriétaire de Salon',
     'testi.2.text': 'Je gère 4 chaises dans mon salon. La plateforme gère parfaitement toutes les réservations et envoie des notifications SMS automatiques aux clients.',
@@ -649,6 +686,43 @@ const translations = {
     'barber.select_time': 'Sélectionner l\'Heure',
     'barber.book_offline': 'Ajouter Rendez-vous Hors ligne',
     'barber.vacant_chair_desc': 'Il y a un siège vacant disponible dans ce salon. Postulez pour le louer !',
+
+    // Support & Help
+    'support.title': 'Centre d\'Assistance',
+    'support.subtitle': 'Besoin d\'aide ? Nous sommes là 24/7.',
+    'support.faq.title': 'Questions Fréquemment Posées',
+    'support.faq.q1': 'Comment réserver un rendez-vous ?',
+    'support.faq.a1': 'Parcourez simplement notre liste, sélectionnez les services, choisissez une date et confirmez instantanément.',
+    'support.faq.q2': 'Quelles sont les méthodes de paiement ?',
+    'support.faq.a2': 'Nous acceptons Baridi Mob, Visa/Mastercard et le paiement en espèces au salon.',
+    'support.tutorials.title': 'Tutoriels Vidéo',
+    'support.tutorials.desc': 'Courts guides vidéo pour maîtriser la plateforme.',
+    'support.contact.us': 'D\'autres questions ? Contactez-nous via WhatsApp.',
+
+    // Admin Dashboard
+    'admin.title': 'Centre de Plateforme',
+    'admin.subtitle': 'Hub de Contrôle',
+    'admin.tab.analytics': 'Analyses',
+    'admin.tab.settings': 'Paramètres Globaux',
+    'admin.tab.users': 'Utilisateurs',
+    'admin.tab.ai': 'Formation IA',
+    'admin.tab.keys': 'Clés API',
+    'admin.health.title': 'Performance de la Plateforme',
+    'admin.health.server': 'État du Serveur',
+    'admin.health.db': 'Base de données (Firestore)',
+    'admin.health.auth': 'Service d\'Authentification',
+    'admin.payments.title': 'Paiements Algériens',
+    'admin.payments.fullname': 'Nom Complet',
+    'admin.payments.ccp': 'Compte CCP',
+    'admin.payments.baridimob': 'Baridi Mob',
+    'admin.payments.fixed': 'Prix Fixe DZD',
+    'admin.seo.title': 'Titre SEO',
+    'admin.seo.desc': 'Description SEO',
+    'admin.save.system': 'Propager les Changements',
+    'admin.users.user': 'Utilisateur',
+    'admin.users.role': 'Rôle',
+    'admin.users.status': 'Statut',
+    'admin.users.action': 'Action',
   },
   ar: {
     // Navigation
@@ -743,7 +817,7 @@ const translations = {
     'download.description': 'استمتع بحجز سلس مع تطبيقنا المحمول. متاح لأندرويد و iOS.',
 
     // Authentication
-    'auth.welcome': 'مرحباً بك في barberlinkshop',
+    'auth.welcome': 'مرحباً بك في barberlink',
     'auth.subtitle': 'تواصل مع حلاقين محترفين',
     'auth.signin': 'تسجيل الدخول',
     'auth.signup': 'إنشاء حساب',
@@ -761,7 +835,7 @@ const translations = {
     'auth.loading': 'جاري التحميل...',
     'auth.error': 'خطأ في المصادقة',
     'auth.signup.success': 'تم إنشاء الحساب بنجاح',
-    'auth.signup.success.desc': 'مرحباً بك في barberlinkshop!',
+    'auth.signup.success.desc': 'مرحباً بك في barberlink!',
 
     // Barber Profile
     'barber.notfound': 'الحلاق غير موجود',
@@ -855,7 +929,7 @@ const translations = {
     // Testimonials
     'testi.title': 'ماذا يقول عملاؤنا عنا',
     'testi.sub': 'انضم إلى الآلاف من أصحاب الصالونات والمستخدمين الراضين.',
-    'testi.1.text': 'منصة barberlinkshop غيرت طريقة عملي بالكامل! أداة الذكاء الاصطناعي جراف العديد من الزبونات لصالون التجميل الخاص بي، والتقارير الأسبوعية الآلية توفر علي الكثير من الوقت.',
+    'testi.1.text': 'منصة barberlink غيرت طريقة عملي بالكامل! أداة الذكاء الاصطناعي جراف العديد من الزبونات لصالون التجميل الخاص بي، والتقارير الأسبوعية الآلية توفر علي الكثير من الوقت.',
     'testi.1.name': 'سارة ل.',
     'testi.1.role': 'مالكة صالون تجميل',
     'testi.2.text': 'أدير صالوناً بـ 4 كراسي. المنصة تنظم الحجوزات بشكل مذهل، وتجعل الزبون يختار مقاله المفضل، وتقوم بإرسال رسائل التنبيه تلقائياً للزبائن دون تدخلي.',
@@ -968,6 +1042,18 @@ const translations = {
     'barber.select_time': 'وقت الحجز',
     'barber.book_offline': 'تأكيد الحجز المباشر',
     'barber.vacant_chair_desc': 'يوجد كرسي شاغر للإيجار داخل هذا الصالون، يمكنك التقديم للعمل هنا!',
+
+    // Support & Help
+    'support.title': 'مركز الدعم والمساعدة',
+    'support.subtitle': 'هل تحتاج للمساعدة؟ نحن هنا من أجلك على مدار الساعة.',
+    'support.faq.title': 'الأسئلة الشائعة',
+    'support.faq.q1': 'كيف يمكنني حجز موعد؟',
+    'support.faq.a1': 'ببساطة تصفح قائمة الحلاقين، اختر الخدمات التي ترغب بها، ثم حدد الموعد المناسب وأكد حجزك فوراً.',
+    'support.faq.q2': 'ما هي وسائل الدفع المتاحة؟',
+    'support.faq.a2': 'ندعم الدفع عبر بريدي موب، البطاقات البنكية، والدفع نقداً في الصالون.',
+    'support.tutorials.title': 'شروحات الفيديو',
+    'support.tutorials.desc': 'فيديوهات قصيرة لمساعدتك في احتراف استخدام منصة باربر لينك.',
+    'support.contact.us': 'ما زال لديك استفسار؟ تواصل مع فريقنا مباشرة عبر واتساب.',
   }
 };
 
@@ -1000,7 +1086,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
+ 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {

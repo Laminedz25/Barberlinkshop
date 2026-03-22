@@ -17,6 +17,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import AutoSupport from "./pages/AutoSupport";
+import Support from "./pages/Support";
 
 import AIAssistant from "./components/AIAssistant";
 import NotificationManager from "./components/NotificationManager";
@@ -44,7 +45,7 @@ const App = () => (
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<ContactUs />} />
-            <Route path="/support" element={<AutoSupport />} />
+            <Route path="/support" element={<Support />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

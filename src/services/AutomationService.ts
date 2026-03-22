@@ -31,7 +31,7 @@ async function sendEmailViaBillionMail(payload: EmailPayload): Promise<{ success
 
         const smtpEndpoint = apiKeys?.billionmailEndpoint || '';
         const smtpApiKey = apiKeys?.billionmailApiKey || '';
-        const fromEmail = apiKeys?.billionmailFrom || 'noreply@barberlinkshop.com';
+        const fromEmail = apiKeys?.billionmailFrom || 'noreply@barberlink.cloud';
 
         // If no BillionMail configured, log and skip gracefully
         if (!smtpEndpoint || !smtpApiKey) {
@@ -87,7 +87,7 @@ function buildBookingConfirmationEmail(customerName: string, serviceName: string
         <p style="color: #6B7280; font-size: 14px;">هل تريد الإلغاء؟ يرجى التواصل معنا قبل 2 ساعة من الموعد.</p>
       </div>
       <div style="background: #F3F4F6; padding: 20px; text-align: center; font-size: 12px; color: #9CA3AF;">
-        فريق BarberLink &copy; ${new Date().getFullYear()} — barberlinkshop.com
+        فريق BarberLink &copy; ${new Date().getFullYear()} — barberlink.cloud
       </div>
     </div>`;
 }
@@ -105,7 +105,7 @@ function buildSubscriptionExpiryEmail(ownerName: string, salonName: string, days
         <p style="color: #374151;">اشتراك صالونك <strong>${salonName}</strong> سينتهي خلال <strong style="color: #dc2626;">${daysLeft} يوم</strong>.</p>
         <p style="color: #6B7280;">لتجنب تعليق خدماتك وإخفاء صالونك من نتائج البحث، يرجى التجديد الآن.</p>
         <div style="text-align: center; margin: 28px 0;">
-          <a href="https://barberlinkshop.com/dashboard" style="background: #007BFF; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">تجديد الاشتراك الآن</a>
+          <a href="https://barberlink.cloud/dashboard" style="background: #007BFF; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">تجديد الاشتراك الآن</a>
         </div>
       </div>
       <div style="background: #F3F4F6; padding: 20px; text-align: center; font-size: 12px; color: #9CA3AF;">

@@ -162,7 +162,7 @@ const Chat = () => {
                                     <p className="text-sm text-muted-foreground capitalize">{otherUser?.role || 'User'}</p>
                                 </div>
                             </CardTitle>
-                            <img src="/logo.png" alt="barberlinkshop Logo" className="h-8 w-auto mix-blend-plus-lighter opacity-50 dark:mix-blend-plus-lighter hidden sm:block" />
+                            <img src="/logo.png" alt="barberlink Logo" className="h-8 w-auto mix-blend-plus-lighter opacity-50 dark:mix-blend-plus-lighter hidden sm:block" />
                         </div>
                     </CardHeader>
 
