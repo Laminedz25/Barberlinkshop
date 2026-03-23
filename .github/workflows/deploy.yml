@@ -35,51 +35,63 @@ jobs:
       - name: 🏗️ Build production bundle
         run: npm run build
 
-      # ── 5. Upload dist/ to VPS via SCP ───────────────────────
-      - name: 📤 Upload dist to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          port: 22
-          source: "dist/,nginx.conf,Dockerfile,docker-compose.yml"
-          target: "/opt/Barberlinkshop"
-          overwrite: true
+      # ── 5. Package build artifacts ────────────────────────────
+      - name: 📦 Package dist folder
+        run: |
+          tar -czf deploy.tar.gz dist/ nginx.conf Dockerfile docker-compose.yml
+          echo "Archive size: $(du -sh deploy.tar.gz)"
 
-      # ── 6. Deploy on VPS ─────────────────────────────────────
+      # ── 6. Install sshpass for password auth ──────────────────
+      - name: 🔑 Install SSH tools
+        run: sudo apt-get install -y sshpass
+
+      # ── 7. Upload via SCP with sshpass ────────────────────────  
+      - name: 📤 Upload to VPS
+        run: |
+          sshpass -p "${{ secrets.VPS_PASSWORD }}" scp \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            deploy.tar.gz \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/Barberlinkshop/
+
+      # ── 8. Extract and redeploy on VPS ───────────────────────
       - name: 🚀 Deploy on VPS
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          port: 22
-          script_stop: true
-          script: |
-            set -e
-            echo "=== Deploying BarberLink ==="
-            cd /opt/Barberlinkshop
+        run: |
+          sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
+              set -e
+              cd /opt/Barberlinkshop
+              echo "=== Extracting build artifacts ==="
+              tar -xzf deploy.tar.gz
+              rm -f deploy.tar.gz
 
-            # Rebuild and restart only the barberlink container
-            docker compose build --no-cache barberlink
-            docker compose up -d --force-recreate barberlink
+              echo "=== Rebuilding Docker image ==="
+              docker compose build --no-cache barberlink
 
-            # Verify the container started
-            sleep 5
-            if docker ps --filter "name=barberlink_app" --filter "status=running" | grep -q "barberlink_app"; then
-              echo "✅ BarberLink deployed! Status: $(docker ps --filter 'name=barberlink_app' --format '{{.Status}}')"
-            else
-              echo "❌ Container failed to start!"
-              docker logs barberlink_app --tail 30
-              exit 1
-            fi
+              echo "=== Restarting container ==="
+              docker compose up -d --force-recreate barberlink
 
-      # ── 7. Notifications ──────────────────────────────────────
+              sleep 5
+              if docker ps --filter "name=barberlink_app" --filter "status=running" | grep -q "barberlink_app"; then
+                echo "✅ BarberLink deployed successfully!"
+                docker ps --filter "name=barberlink_app" --format "Status: {{.Status}}"
+              else
+                echo "❌ Container failed to start!"
+                docker logs barberlink_app --tail 30
+                exit 1
+              fi
+            '
+
+      # ── 9. Notify ────────────────────────────────────────────
       - name: ✅ Deployment Success
         if: success()
-        run: echo "🎉 Deployed to https://barberlink.cloud — Commit ${{ github.sha }}"
+        run: |
+          echo "🎉 Successfully deployed to https://barberlink.cloud"
+          echo "   Commit: ${{ github.sha }}"
+          echo "   By: ${{ github.actor }}"
 
       - name: ❌ Deployment Failed
         if: failure()
-        run: echo "💥 Deployment failed! Check logs above."
+        run: echo "💥 Deployment failed! Check the logs above."
