@@ -1,52 +1,92 @@
-name: Deploy to VPS
+name: 🚀 Deploy BarberLink to VPS
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
+    name: Build & Deploy
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    timeout-minutes: 20
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+    steps:
+      # ── 1. Checkout code ──────────────────────────────────────
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Setup Node.js ──────────────────────────────────────
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Install dependencies
+      # ── 3. Install dependencies ───────────────────────────────
+      - name: 📦 Install dependencies
         run: npm ci
 
-      - name: Build application
+      # ── 4. Build the React app ────────────────────────────────
+      - name: 🏗️ Build production bundle
         run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
-      - name: Commit built dist to repo
-        run: |
-          git config user.email "deploy@barberlink.cloud"
-          git config user.name "DeployBot"
-          git add dist -f
-          git diff --staged --quiet || git commit -m "ci: update built dist [skip ci]"
-          git push https://${{ secrets['GH_PAT'] }}@github.com/Laminedz25/Barberlinkshop.git HEAD:main
-
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@master
+      # ── 5. Deploy to VPS ─────────────────────────────────────
+      - name: 🚀 Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets['VPS_HOST'] }}
-          username: ${{ secrets['VPS_USERNAME'] }}
-          key: ${{ secrets['VPS_PRIVATE_KEY'] }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+          script_stop: true
           script: |
-            echo "Starting deployment..."
-            mkdir -p /opt/Barberlinkshop
-            cd /opt/Barberlinkshop
-            if [ -d ".git" ]; then
-              git remote set-url origin https://${{ secrets['GH_PAT'] }}@github.com/Laminedz25/Barberlinkshop.git
-              git pull origin main
-            else
-              git clone https://${{ secrets['GH_PAT'] }}@github.com/Laminedz25/Barberlinkshop.git .
+            set -e
+            echo "=== Starting BarberLink Deployment ==="
+            
+            APP_DIR="/opt/Barberlinkshop"
+            cd "$APP_DIR"
+            
+            # Stash any local modifications and pull latest
+            git stash --include-untracked || true
+            git pull origin main --ff-only
+            
+            # Rebuild and restart only the barberlink container
+            docker compose build --no-cache barberlink
+            docker compose up -d --force-recreate barberlink
+            
+            # Verify the container started
+            sleep 5
+            if ! docker ps --filter "name=barberlink_app" --filter "status=running" | grep -q "barberlink_app"; then
+              echo "❌ Container failed to start!"
+              docker logs barberlink_app --tail 50
+              exit 1
             fi
-            docker compose down || true
-            docker compose up -d --build
-            echo "Deployment complete!"
+            
+            echo "✅ BarberLink deployed successfully!"
+            echo "   Container: $(docker ps --filter 'name=barberlink_app' --format '{{.Status}}')"
+
+      # ── 6. Deployment notification ────────────────────────────
+      - name: ✅ Deployment Success
+        if: success()
+        run: |
+          echo "🎉 Deployment to barberlink.cloud completed successfully!"
+          echo "   Commit: ${{ github.sha }}"
+          echo "   Branch: ${{ github.ref_name }}"
+
+      - name: ❌ Deployment Failed
+        if: failure()
+        run: |
+          echo "💥 Deployment failed!"
+          echo "   Commit: ${{ github.sha }}"

@@ -1,60 +1,169 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper functionality
-    function isAuthenticated() { return request.auth != null; }
-    function isOwner(userId) { return isAuthenticated() && request.auth.uid == userId; }
+
+    // ─── Helper functions ────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
     function isAdmin() {
-      return isAuthenticated() && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return isAuthenticated() && getUserData().role == 'admin';
     }
 
-    // Collection: USERS
+    function isNotSuspended() {
+      return isAuthenticated() && getUserData().get('suspended', false) == false;
+    }
+
+    function isBarber() {
+      return isAuthenticated() && getUserData().role == 'barber';
+    }
+
+    // ─── USERS Collection ───────────────────────────────────
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && request.resource.data.role != 'admin'; // Prevent self-promoting to admin
-      allow update, delete: if isOwner(userId) || isAdmin();
+      // Anyone authenticated can read their OWN profile
+      // Admins can read all profiles
+      // CRITICAL: Users cannot read OTHER users' private data
+      allow read: if isOwner(userId) || isAdmin();
+
+      // Creation: Only the user themselves, and they CANNOT set role='admin'
+      allow create: if isOwner(userId)
+                    && request.resource.data.role != 'admin'
+                    && request.resource.data.keys().hasAll(['email', 'role', 'created_at']);
+
+      // Update: Owner can update their own profile, but CANNOT change role or suspended status
+      allow update: if (isOwner(userId)
+                       && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'suspended', 'id']))
+                    || isAdmin();
+
+      // Delete: Admin only
+      allow delete: if isAdmin();
     }
 
-    // Collection: BARBERS/SALONS
+    // ─── BARBERS/SALONS Collection ──────────────────────────
     match /barbers/{barberId} {
-      allow read: if true; 
-      allow create: if isAuthenticated(); // Registration check handled by business logic
-      allow update: if isAuthenticated() && (request.auth.uid == resource.data.user_id || isAdmin()) && 
-                    !request.resource.data.diff(resource.data).affectedKeys().hasAny(['user_id', 'verified']); // Protect sensitive fields
+      // Public discovery — but only visible/active profiles
+      allow read: if true;
+
+      // Barber creates their own profile; they cannot claim someone else's user_id
+      allow create: if isAuthenticated()
+                    && isNotSuspended()
+                    && request.resource.data.user_id == request.auth.uid;
+
+      // Barber updates their own profile but cannot change user_id or verified status
+      allow update: if isAuthenticated()
+                    && isNotSuspended()
+                    && (resource.data.user_id == request.auth.uid || isAdmin())
+                    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['user_id', 'verified', 'subscription_tier']);
+
+      // Only admin can delete barber profiles
       allow delete: if isAdmin();
     }
 
-    // Collection: BOOKINGS
+    // ─── BOOKINGS Collection ─────────────────────────────────
     match /bookings/{bookingId} {
-      allow read: if isAuthenticated() && 
-                  (isOwner(resource.data.customer_id) || 
-                   isOwner(resource.data.barber_user_id) || 
-                   isAdmin());
-      allow create: if isAuthenticated() && request.resource.data.customer_id == request.auth.uid; // Only book for self
-      allow update: if isAuthenticated() && 
-                    (isOwner(resource.data.barber_user_id) || 
-                     isOwner(resource.data.customer_id) || // For cancellations
-                     isAdmin());
+      // CRITICAL: Only customer or their barber can read a booking — no cross-access
+      allow read: if isAuthenticated()
+                  && (resource.data.customer_id == request.auth.uid
+                      || resource.data.barber_user_id == request.auth.uid
+                      || isAdmin());
+
+      // Only authenticated, non-suspended users can book FOR THEMSELVES
+      allow create: if isAuthenticated()
+                    && isNotSuspended()
+                    && request.resource.data.customer_id == request.auth.uid
+                    && request.resource.data.keys().hasAll(['customer_id', 'barber_user_id', 'service_id', 'date', 'status']);
+
+      // Barber can update status; customer can only cancel their own booking
+      allow update: if isAuthenticated()
+                    && isNotSuspended()
+                    && (resource.data.barber_user_id == request.auth.uid
+                        || (resource.data.customer_id == request.auth.uid
+                            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+                        || isAdmin());
+
       allow delete: if isAdmin();
     }
 
-    // Collection: PAYMENTS/TRANSACTIONS
+    // ─── PAYMENTS Collection ─────────────────────────────────
     match /payments/{paymentId} {
-      allow read: if isAuthenticated() && (isOwner(resource.data.user_id) || isAdmin());
-      allow write: if isAdmin(); // Only system/admin can finalize payments
+      // Users can only see their own payments
+      allow read: if isAuthenticated()
+                  && (resource.data.user_id == request.auth.uid || isAdmin());
+
+      // Only system (via Admin SDK) or admin can write payments
+      allow write: if isAdmin();
     }
 
-    // Collection: ANALYTICS/STATS
+    // ─── ANALYTICS Collection ───────────────────────────────
     match /analytics/{docId} {
       allow read: if isAdmin();
-      allow write: if isAuthenticated(); // To record events
+      // Authenticated users can log their own events
+      allow create: if isAuthenticated() && request.resource.data.user_id == request.auth.uid;
+      allow update, delete: if isAdmin();
     }
 
-    // Collection: SYSTEM
+    // ─── SYSTEM Collection ──────────────────────────────────
     match /system/{document=**} {
-      allow read: if true; 
+      // Public system config can be read by all
+      allow read: if resource.data.get('public', false) == true || isAdmin();
       allow write: if isAdmin();
+    }
+
+    // ─── CHATS Collection ───────────────────────────────────
+    match /chats/{chatId} {
+      allow read: if isAuthenticated()
+                  && (resource.data.participants.hasAny([request.auth.uid]) || isAdmin());
+
+      allow create: if isAuthenticated()
+                    && isNotSuspended()
+                    && request.resource.data.participants.hasAny([request.auth.uid]);
+
+      allow update: if isAuthenticated()
+                    && resource.data.participants.hasAny([request.auth.uid]);
+
+      allow delete: if isAdmin();
+    }
+
+    // ─── MESSAGES Subcollection ─────────────────────────────
+    match /chats/{chatId}/messages/{messageId} {
+      allow read: if isAuthenticated()
+                  && get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
+
+      allow create: if isAuthenticated()
+                    && isNotSuspended()
+                    && request.resource.data.sender_id == request.auth.uid;
+
+      allow update, delete: if isAdmin();
+    }
+
+    // ─── REVIEWS Collection ─────────────────────────────────
+    match /reviews/{reviewId} {
+      allow read: if true;
+
+      // Only post reviews for your own completed bookings
+      allow create: if isAuthenticated()
+                    && isNotSuspended()
+                    && request.resource.data.customer_id == request.auth.uid;
+
+      allow update: if isOwner(resource.data.customer_id) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ─── NOTIFICATIONS Collection ───────────────────────────
+    match /notifications/{notifId} {
+      allow read: if isAuthenticated() && resource.data.user_id == request.auth.uid;
+      allow create: if isAdmin();
+      allow update: if isAuthenticated() && resource.data.user_id == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.user_id == request.auth.uid;
     }
   }
 }

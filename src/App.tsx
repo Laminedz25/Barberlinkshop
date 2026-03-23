@@ -13,7 +13,7 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 import Book from "./pages/Book";
-
+import AdminDashboard from "./pages/AdminDashboard";
 import AIAssistant from "./components/AIAssistant";
 
 const queryClient = new QueryClient();
@@ -35,6 +35,7 @@ const App = () => (
             <Route path="/book/:id" element={<Book />} />
             <Route path="/chat/:barberId" element={<Chat />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
