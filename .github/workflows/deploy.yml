@@ -34,16 +34,21 @@ jobs:
       # ── 4. Build the React app ────────────────────────────────
       - name: 🏗️ Build production bundle
         run: npm run build
-        env:
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
-      # ── 5. Deploy to VPS ─────────────────────────────────────
-      - name: 🚀 Deploy to VPS
+      # ── 5. Upload dist/ to VPS via SCP ───────────────────────
+      - name: 📤 Upload dist to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+          source: "dist/,nginx.conf,Dockerfile,docker-compose.yml"
+          target: "/opt/Barberlinkshop"
+          overwrite: true
+
+      # ── 6. Deploy on VPS ─────────────────────────────────────
+      - name: 🚀 Deploy on VPS
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -53,40 +58,28 @@ jobs:
           script_stop: true
           script: |
             set -e
-            echo "=== Starting BarberLink Deployment ==="
-            
-            APP_DIR="/opt/Barberlinkshop"
-            cd "$APP_DIR"
-            
-            # Stash any local modifications and pull latest
-            git stash --include-untracked || true
-            git pull origin main --ff-only
-            
+            echo "=== Deploying BarberLink ==="
+            cd /opt/Barberlinkshop
+
             # Rebuild and restart only the barberlink container
             docker compose build --no-cache barberlink
             docker compose up -d --force-recreate barberlink
-            
+
             # Verify the container started
             sleep 5
-            if ! docker ps --filter "name=barberlink_app" --filter "status=running" | grep -q "barberlink_app"; then
+            if docker ps --filter "name=barberlink_app" --filter "status=running" | grep -q "barberlink_app"; then
+              echo "✅ BarberLink deployed! Status: $(docker ps --filter 'name=barberlink_app' --format '{{.Status}}')"
+            else
               echo "❌ Container failed to start!"
-              docker logs barberlink_app --tail 50
+              docker logs barberlink_app --tail 30
               exit 1
             fi
-            
-            echo "✅ BarberLink deployed successfully!"
-            echo "   Container: $(docker ps --filter 'name=barberlink_app' --format '{{.Status}}')"
 
-      # ── 6. Deployment notification ────────────────────────────
+      # ── 7. Notifications ──────────────────────────────────────
       - name: ✅ Deployment Success
         if: success()
-        run: |
-          echo "🎉 Deployment to barberlink.cloud completed successfully!"
-          echo "   Commit: ${{ github.sha }}"
-          echo "   Branch: ${{ github.ref_name }}"
+        run: echo "🎉 Deployed to https://barberlink.cloud — Commit ${{ github.sha }}"
 
       - name: ❌ Deployment Failed
         if: failure()
-        run: |
-          echo "💥 Deployment failed!"
-          echo "   Commit: ${{ github.sha }}"
+        run: echo "💥 Deployment failed! Check logs above."
