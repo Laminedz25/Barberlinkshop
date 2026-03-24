@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDuz9012n769uSrrL20y7JsRYvc_dvG_lE",
-  authDomain: "barberlinkshop.firebaseapp.com",
-  projectId: "barberlinkshop",
-  storageBucket: "barberlinkshop.firebasestorage.app",
-  messagingSenderId: "829508519099",
-  appId: "1:829508519099:web:8e20b4b1dc931df410559e"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
