@@ -25,28 +25,56 @@ interface StatCard {
   color: string;
 }
 
+interface SystemSettings {
+  stripe_key?: string;
+  baridimob_ccp?: string;
+  cib_merchant_id?: string;
+  notification_email?: string;
+  service_fee_percent?: number;
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
+  const [activeTab, setActiveTab] = useState<'users' | 'settings'>('users');
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [stats, setStats] = useState({ users: 0, barbers: 0, bookings: 0 });
+  const [systemSettings, setSystemSettings] = useState<SystemSettings>({});
+  const [savingSettings, setSavingSettings] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
-      const [usersSnap, barbersSnap, bookingsSnap] = await Promise.all([
+      const [usersSnap, barbersSnap, bookingsSnap, settingsSnap] = await Promise.all([
         getDocs(query(collection(db, 'users'), orderBy('created_at', 'desc'), limit(50))),
         getDocs(collection(db, 'barbers')),
         getDocs(collection(db, 'bookings')),
+        getDoc(doc(db, 'system', 'settings'))
       ]);
       const usersData = usersSnap.docs.map(d => ({ id: d.id, ...d.data() } as UserRecord));
       setUsers(usersData);
       setStats({ users: usersSnap.size, barbers: barbersSnap.size, bookings: bookingsSnap.size });
+      if (settingsSnap.exists()) {
+        setSystemSettings(settingsSnap.data());
+      }
     } catch (err) {
       toast({ title: 'Error loading data', description: String(err), variant: 'destructive' });
     }
   }, [toast]);
+
+  const saveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    try {
+      await updateDoc(doc(db, 'system', 'settings'), { ...systemSettings });
+      toast({ title: 'Settings Saved', description: 'System configuration updated successfully.' });
+    } catch (err) {
+      toast({ title: 'Error', description: String(err), variant: 'destructive' });
+    } finally {
+      setSavingSettings(false);
+    }
+  };
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -143,87 +171,159 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {/* Users Table */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>User Management</CardTitle>
-            <Button variant="outline" size="sm" onClick={loadData}>
-              <RefreshCw className="h-4 w-4 mr-2" /> Refresh
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-muted-foreground">
-                    <th className="text-left p-3">User</th>
-                    <th className="text-left p-3">Role</th>
-                    <th className="text-left p-3">Joined</th>
-                    <th className="text-left p-3">Status</th>
-                    <th className="text-left p-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id} className="border-b hover:bg-muted/30 transition-colors">
-                      <td className="p-3">
-                        <div>
-                          <p className="font-medium">{user.full_name || '—'}</p>
-                          <p className="text-xs text-muted-foreground">{user.email}</p>
-                        </div>
-                      </td>
-                      <td className="p-3">
-                        <Badge variant={user.role === 'admin' ? 'default' : user.role === 'barber' ? 'secondary' : 'outline'}>
-                          {user.role}
-                        </Badge>
-                      </td>
-                      <td className="p-3 text-muted-foreground">
-                        {user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}
-                      </td>
-                      <td className="p-3">
-                        {user.suspended ? (
-                          <span className="flex items-center gap-1 text-destructive text-xs"><XCircle className="h-3 w-3" /> Suspended</span>
-                        ) : (
-                          <span className="flex items-center gap-1 text-green-500 text-xs"><CheckCircle className="h-3 w-3" /> Active</span>
-                        )}
-                      </td>
-                      <td className="p-3">
-                        <div className="flex gap-2">
-                          {user.role !== 'admin' && (
-                            <>
-                              <Button
-                                size="sm"
-                                variant={user.suspended ? 'default' : 'destructive'}
-                                onClick={() => toggleSuspend(user.id, !!user.suspended)}
-                                className="text-xs h-7"
-                              >
-                                {user.suspended ? 'Reactivate' : 'Suspend'}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => promoteToAdmin(user.id)}
-                                className="text-xs h-7"
-                              >
-                                Make Admin
-                              </Button>
-                            </>
-                          )}
-                          {user.role === 'admin' && (
-                            <span className="text-xs text-muted-foreground italic">Admin</span>
-                          )}
-                        </div>
-                      </td>
+        {/* Tabs */}
+        <div className="flex gap-4 border-b">
+          <Button
+            variant={activeTab === 'users' ? 'default' : 'ghost'}
+            className="rounded-none border-b-2 border-transparent"
+            onClick={() => setActiveTab('users')}
+          >
+            Users Management
+          </Button>
+          <Button
+            variant={activeTab === 'settings' ? 'default' : 'ghost'}
+            className="rounded-none border-b-2 border-transparent"
+            onClick={() => setActiveTab('settings')}
+          >
+            System Settings
+          </Button>
+        </div>
+
+        {activeTab === 'users' && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>User Management</CardTitle>
+              <Button variant="outline" size="sm" onClick={loadData}>
+                <RefreshCw className="h-4 w-4 mr-2" /> Refresh
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b text-muted-foreground">
+                      <th className="text-left p-3">User</th>
+                      <th className="text-left p-3">Role</th>
+                      <th className="text-left p-3">Joined</th>
+                      <th className="text-left p-3">Status</th>
+                      <th className="text-left p-3">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              {users.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">No users found.</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => (
+                      <tr key={user.id} className="border-b hover:bg-muted/30 transition-colors">
+                        <td className="p-3">
+                          <div>
+                            <p className="font-medium">{user.full_name || '—'}</p>
+                            <p className="text-xs text-muted-foreground">{user.email}</p>
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <Badge variant={user.role === 'admin' ? 'default' : user.role === 'barber' ? 'secondary' : 'outline'}>
+                            {user.role}
+                          </Badge>
+                        </td>
+                        <td className="p-3 text-muted-foreground">
+                          {user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}
+                        </td>
+                        <td className="p-3">
+                          {user.suspended ? (
+                            <span className="flex items-center gap-1 text-destructive text-xs"><XCircle className="h-3 w-3" /> Suspended</span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-green-500 text-xs"><CheckCircle className="h-3 w-3" /> Active</span>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          <div className="flex gap-2">
+                            {user.role !== 'admin' && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant={user.suspended ? 'default' : 'destructive'}
+                                  onClick={() => toggleSuspend(user.id, !!user.suspended)}
+                                  className="text-xs h-7"
+                                >
+                                  {user.suspended ? 'Reactivate' : 'Suspend'}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => promoteToAdmin(user.id)}
+                                  className="text-xs h-7"
+                                >
+                                  Make Admin
+                                </Button>
+                              </>
+                            )}
+                            {user.role === 'admin' && (
+                              <span className="text-xs text-muted-foreground italic">Admin</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {users.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">No users found.</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'settings' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>System Configuration</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={saveSettings} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Stripe API Key</label>
+                    <input
+                      type="password"
+                      className="w-full p-2 border rounded-md"
+                      value={systemSettings.stripe_key || ''}
+                      onChange={(e) => setSystemSettings({ ...systemSettings, stripe_key: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">BaridiMob CCP</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded-md"
+                      value={systemSettings.baridimob_ccp || ''}
+                      onChange={(e) => setSystemSettings({ ...systemSettings, baridimob_ccp: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">CIB Merchant ID</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded-md"
+                      value={systemSettings.cib_merchant_id || ''}
+                      onChange={(e) => setSystemSettings({ ...systemSettings, cib_merchant_id: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Admin Notification Email</label>
+                    <input
+                      type="email"
+                      className="w-full p-2 border rounded-md"
+                      value={systemSettings.notification_email || ''}
+                      onChange={(e) => setSystemSettings({ ...systemSettings, notification_email: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <Button type="submit" disabled={savingSettings}>
+                  {savingSettings ? 'Saving...' : 'Update Settings'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
