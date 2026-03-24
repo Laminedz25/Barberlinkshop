@@ -5,6 +5,8 @@ type Language = 'en' | 'fr' | 'ar';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
+  currency: 'DZD' | 'USD';
+  setCurrency: (curr: 'DZD' | 'USD') => void;
   t: (key: string) => string;
   isRTL: boolean;
 }
@@ -175,10 +177,12 @@ const translations = {
     'pricing.subtitle': 'Sign up now and get your first month for FREE!',
     'pricing.monthly': 'Monthly',
     'pricing.dzd': 'DZD',
+    'pricing.usd': '$',
     'pricing.month': '/mo',
     'pricing.basic.name': 'Basic Plan',
     'pricing.basic.desc': 'Perfect for independent professionals.',
     'pricing.basic.price': '1000',
+    'pricing.basic.price.usd': '10',
     'pricing.basic.f1': 'Unlimited Bookings',
     'pricing.basic.f2': 'Client Management',
     'pricing.basic.f3': 'Basic Portfolio',
@@ -186,6 +190,7 @@ const translations = {
     'pricing.pro.name': 'Pro Plan',
     'pricing.pro.desc': 'For growing salons.',
     'pricing.pro.price': '2500',
+    'pricing.pro.price.usd': '25',
     'pricing.pro.f1': 'Everything in Basic',
     'pricing.pro.f2': 'Integrated Digital Store',
     'pricing.pro.f3': 'AI Style & Makeup Assistant',
@@ -193,6 +198,7 @@ const translations = {
     'pricing.premium.name': 'Premium Plan',
     'pricing.premium.desc': 'Advanced tools for full automation.',
     'pricing.premium.price': '5000',
+    'pricing.premium.price.usd': '50',
     'pricing.premium.f1': 'Everything in Pro',
     'pricing.premium.f2': 'VIP Search Placement',
     'pricing.premium.f3': 'Staff & Chairs Management',
@@ -888,35 +894,55 @@ const translations = {
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('ar'); // Default to Arabic
+  const [language, setLanguage] = useState<Language>('ar');
+  const [currency, setCurrency] = useState<'DZD' | 'USD'>('DZD');
 
   useEffect(() => {
     const savedLang = localStorage.getItem('language') as Language;
     if (savedLang && ['en', 'fr', 'ar'].includes(savedLang)) {
       setLanguage(savedLang);
     }
+    const savedCurr = localStorage.getItem('currency') as 'DZD' | 'USD';
+    if (savedCurr && ['DZD', 'USD'].includes(savedCurr)) {
+      setCurrency(savedCurr);
+    }
+
+    // Auto-detect global users (if no preference saved)
+    if (!savedLang) {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (!tz.includes('Algiers') && !navigator.language.startsWith('ar')) {
+        setLanguage('en');
+        setCurrency('USD');
+      }
+    }
   }, []);
 
   useEffect(() => {
     localStorage.setItem('language', language);
+    localStorage.setItem('currency', currency);
     document.documentElement.lang = language;
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-  }, [language]);
+  }, [language, currency]);
 
   const t = (key: string): string => {
-    return translations[language][key] || key;
+    // If currency is USD, try to find a .usd specific translation for prices
+    if (currency === 'USD' && key.startsWith('pricing.')) {
+        const usdKey = `${key}.usd`;
+        if (translations[language][usdKey]) return translations[language][usdKey];
+    }
+    return translations[language][key] || translations['en'][key] || key;
   };
 
   const isRTL = language === 'ar';
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, isRTL }}>
+    <LanguageContext.Provider value={{ language, setLanguage, currency, setCurrency, t, isRTL }}>
       {children}
     </LanguageContext.Provider>
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
+
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {

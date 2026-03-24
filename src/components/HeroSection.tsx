@@ -1,78 +1,96 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search } from "lucide-react";
+import { MapPin, Search, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroImage from "@/assets/hero-barbershop.jpg";
 
 const HeroSection = () => {
   const { t, isRTL } = useLanguage();
+  
   return (
-    <section className={`relative min-h-screen flex items-center justify-center overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`}>
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0">
-        <img
-          src={heroImage}
-          alt="Professional barbershop interior"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/85 to-primary/20" />
+    <section className={`relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20 ${isRTL ? 'rtl' : 'ltr'}`}>
+      
+      {/* Premium Background: Animated Mesh Gradient */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-background" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full animate-float" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full animate-float direction-reverse" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
       </div>
 
-      {/* Hero Content */}
-      <div className="relative z-10 container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
+      <div className="container relative z-10 mx-auto px-6">
+        <div className="flex flex-col items-center text-center space-y-10">
           
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 animate-slide-up">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-xs font-bold tracking-widest uppercase text-primary">The Future of Grooming is Here</span>
+          </div>
+
           {/* Main Headline */}
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-7xl font-bold text-foreground leading-tight">
-              {t('hero.title')}
+          <div className="space-y-6 max-w-5xl animate-slide-up animation-delay-200">
+            <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] text-foreground">
+              {t('hero.title').split(' ').map((word, i) => (
+                <span key={i} className={i % 3 === 0 ? "text-primary" : ""}>{word} </span>
+              ))}
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto font-medium leading-relaxed">
               {t('hero.description')}
             </p>
           </div>
 
-          {/* Search Bar */}
-          <div className="max-w-4xl mx-auto space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="relative">
+          {/* Premium Search Hub */}
+          <div className="w-full max-w-4xl p-2 bg-background/40 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl animate-slide-up animation-delay-300">
+            <div className="flex flex-col md:flex-row items-center gap-2">
+              <div className="flex-1 w-full relative group">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
                   placeholder={t('hero.search.salon')}
-                  className="w-full border bg-card text-lg py-6 px-4 rounded-lg"
+                  className="w-full h-16 pl-14 pr-6 bg-transparent border-none text-lg font-semibold focus-visible:ring-0 placeholder:text-muted-foreground/50"
                 />
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               </div>
-              <div className="relative">
+              <div className="hidden md:block w-px h-10 bg-border/50" />
+              <div className="flex-1 w-full relative group">
+                <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
                   placeholder={t('hero.search.location')}
-                  className="w-full border bg-card text-lg py-6 px-4 rounded-lg"
+                  className="w-full h-16 pl-14 pr-6 bg-transparent border-none text-lg font-semibold focus-visible:ring-0 placeholder:text-muted-foreground/50"
                 />
-                <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               </div>
+              <Button 
+                size="lg" 
+                className="w-full md:w-auto h-14 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 group"
+              >
+                {t('hero.search.button')}
+                <ArrowRight className={`w-5 h-5 transition-transform ${isRTL ? 'rotate-180 mr-2 group-hover:-translate-x-1' : 'ml-2 group-hover:translate-x-1'}`} />
+              </Button>
             </div>
-            <Button 
-              size="lg" 
-              className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white px-12 py-6 text-lg"
-            >
-              {t('hero.search.button')}
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="w-full md:w-auto border-border bg-card/50 backdrop-blur-sm px-8 py-6"
-            >
-              <MapPin className="h-5 w-5 mr-2" />
-              {t('hero.search.nearby')}
-            </Button>
           </div>
+
+          {/* Trust Indicators */}
+          <div className="flex flex-wrap justify-center gap-8 animate-slide-up animation-delay-500 opacity-60 hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-2">
+               <ShieldCheck className="w-5 h-5 text-primary" />
+               <span className="text-sm font-bold">Secure Global Payments</span>
+            </div>
+            <div className="flex items-center gap-2">
+               <Sparkles className="w-5 h-5 text-primary" />
+               <span className="text-sm font-bold">AI Style Assistant</span>
+            </div>
+            <div className="flex items-center gap-2">
+               <MapPin className="w-5 h-5 text-primary" />
+               <span className="text-sm font-bold">500+ Premium Salons</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      {/* Floating Elements */}
-      <div className="absolute top-1/4 left-10 w-20 h-20 rounded-full gradient-hero opacity-20 blur-xl animate-pulse" />
-      <div className="absolute bottom-1/3 right-10 w-32 h-32 rounded-full bg-gold/10 blur-2xl animate-pulse delay-1000" />
+      {/* Modern Accents */}
+      <div className="absolute top-[20%] right-[15%] w-24 h-24 border-2 border-primary/10 rounded-3xl rotate-12 animate-float" />
+      <div className="absolute bottom-[20%] left-[10%] w-16 h-16 bg-primary/5 rounded-full blur-xl animate-pulse" />
+      
     </section>
   );
 };
 
-export default HeroSection;
+export default HeroSection;
