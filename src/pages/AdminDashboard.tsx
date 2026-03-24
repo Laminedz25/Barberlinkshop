@@ -281,36 +281,44 @@ const AdminDashboard = () => {
               <form onSubmit={saveSettings} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Stripe API Key</label>
+                    <label htmlFor="stripe-key" className="text-sm font-medium">Stripe API Key</label>
                     <input
+                      id="stripe-key"
                       type="password"
+                      placeholder="sk_live_..."
                       className="w-full p-2 border rounded-md"
                       value={systemSettings.stripe_key || ''}
                       onChange={(e) => setSystemSettings({ ...systemSettings, stripe_key: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">BaridiMob CCP</label>
+                    <label htmlFor="baridimob-ccp" className="text-sm font-medium">BaridiMob CCP</label>
                     <input
+                      id="baridimob-ccp"
                       type="text"
+                      placeholder="00799999 12"
                       className="w-full p-2 border rounded-md"
                       value={systemSettings.baridimob_ccp || ''}
                       onChange={(e) => setSystemSettings({ ...systemSettings, baridimob_ccp: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">CIB Merchant ID</label>
+                    <label htmlFor="cib-id" className="text-sm font-medium">CIB Merchant ID</label>
                     <input
+                      id="cib-id"
                       type="text"
+                      placeholder="MAG1234567"
                       className="w-full p-2 border rounded-md"
                       value={systemSettings.cib_merchant_id || ''}
                       onChange={(e) => setSystemSettings({ ...systemSettings, cib_merchant_id: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Admin Notification Email</label>
+                    <label htmlFor="admin-email" className="text-sm font-medium">Admin Notification Email</label>
                     <input
+                      id="admin-email"
                       type="email"
+                      placeholder="admin@barberlink.cloud"
                       className="w-full p-2 border rounded-md"
                       value={systemSettings.notification_email || ''}
                       onChange={(e) => setSystemSettings({ ...systemSettings, notification_email: e.target.value })}
