@@ -90,13 +90,19 @@ const BarberProfile = () => {
       const gSnap = await getDocs(collection(db, 'barbers', id, 'portfolio'));
       setGallery(gSnap.docs.map(d => ({ id: d.id, ...d.data() } as GalleryItem)));
 
+      if (user) {
+        const userSnap = await getDoc(doc(db, 'users', user.uid));
+        const favs = userSnap.data()?.favorites || [];
+        setIsFavorite(favs.includes(id));
+      }
+
     } catch (e) {
       const error = e as Error;
       toast({ title: "Booking Error", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
-  }, [id, toast]);
+  }, [id, toast, user]);
 
   useEffect(() => {
     fetchData();
@@ -138,14 +144,46 @@ const BarberProfile = () => {
                     <span>{barber.address}</span>
                   </div>
                 </div>
-                <div className="flex gap-4">
-                   <Button variant="outline" size="icon" className="h-14 w-14 rounded-2xl border-slate-200">
-                     <Heart className="w-6 h-6" />
-                   </Button>
-                   <Button variant="outline" size="icon" className="h-14 w-14 rounded-2xl border-slate-200">
-                     <Share2 className="w-6 h-6" />
-                   </Button>
-                </div>
+                 <div className="flex gap-4">
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={async () => {
+                        if (!user) return navigate('/auth');
+                        const isFav = !isFavorite;
+                        setIsFavorite(isFav);
+                        const userRef = doc(db, 'users', user.uid);
+                        const snap = await getDoc(userRef);
+                        const favs = snap.data()?.favorites || [];
+                        if (isFav) {
+                          await updateDoc(userRef, { favorites: [...favs, id] });
+                          toast({ title: "Added to Favorites", description: "Node affinity secured." });
+                        } else {
+                          await updateDoc(userRef, { favorites: favs.filter((f: string) => f !== id) });
+                          toast({ title: "Removed", description: "Node affinity disconnected." });
+                        }
+                      }}
+                      className={cn("h-14 w-14 rounded-2xl border-slate-200 transition-all", isFavorite && "bg-pink-50 text-pink-500 border-pink-200 shadow-lg shadow-pink-500/10")}
+                    >
+                      <Heart className={cn("w-6 h-6", isFavorite && "fill-current")} />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={() => {
+                        const url = window.location.href;
+                        if (navigator.share) {
+                          navigator.share({ title: barber.business_name, url });
+                        } else {
+                          navigator.clipboard.writeText(url);
+                          toast({ title: "Node Link Copied", description: "Identity URL saved to clipboard." });
+                        }
+                      }}
+                      className="h-14 w-14 rounded-2xl border-slate-200"
+                    >
+                      <Share2 className="w-6 h-6" />
+                    </Button>
+                 </div>
               </div>
 
               <div className="flex flex-wrap gap-4">

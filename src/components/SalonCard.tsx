@@ -135,6 +135,12 @@ const SalonCard = ({ salon }: SalonCardProps) => {
 
         <div className="flex gap-3 mt-4">
           <Button
+            className="flex-1 h-14 rounded-2xl bg-slate-900 hover:bg-black text-white font-black shadow-xl transition-all hover:scale-[1.02] active:scale-95"
+            onClick={() => navigate(`/book/${salon.id}`)}
+          >
+            QUICK BOOK
+          </Button>
+          <Button
             className="flex-1 h-14 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
             onClick={() => navigate(`/barber/${salon.id}`)}
           >

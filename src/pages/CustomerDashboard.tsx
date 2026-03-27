@@ -11,7 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { Calendar, Clock, Star } from 'lucide-react';
+import { Calendar, Clock, Star, Heart, Trophy, Crown, Zap, Search } from 'lucide-react';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import {
     Dialog,
     DialogContent,
@@ -40,11 +41,35 @@ const CustomerDashboard = () => {
     const navigate = useNavigate();
 
     const [appointments, setAppointments] = useState<Appointment[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [reviewText, setReviewText] = useState('');
-    const [rating, setRating] = useState(5);
-    const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
+    const [points, setPoints] = useState(0);
+    const [favorites, setFavorites] = useState<any[]>([]);
     const [isReviewOpen, setIsReviewOpen] = useState(false);
+
+    useEffect(() => {
+        if (user) {
+            fetchUserProfile();
+        }
+    }, [user]);
+
+    const fetchUserProfile = async () => {
+        if (!user) return;
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        if (snap.exists()) {
+            const data = snap.data();
+            setPoints(data.points || 0);
+            
+            // Fetch Favorite Barber documents
+            const favIds = data.favorites || [];
+            if (favIds.length > 0) {
+                const favs: any[] = [];
+                for (const id of favIds) {
+                    const bSnap = await getDoc(doc(db, 'barbers', id));
+                    if (bSnap.exists()) favs.push({ id: bSnap.id, ...bSnap.data() });
+                }
+                setFavorites(favs);
+            }
+        }
+    };
 
     useEffect(() => {
         if (!user) {
@@ -122,11 +147,49 @@ const CustomerDashboard = () => {
             </div>
 
             <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl relative z-10">
-                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                    <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600 dark:from-primary dark:to-blue-400">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 pt-4">
+                    <h1 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-500 to-indigo-600 dark:from-primary dark:to-blue-400 tracking-tighter uppercase">
                         {t('dashboard.title.customer')}
                     </h1>
+                    
+                    <div className="flex items-center gap-4">
+                        <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20 backdrop-blur-md flex items-center gap-4 shadow-xl shadow-primary/5">
+                            <div className="p-2 bg-primary rounded-xl text-white">
+                                <Trophy className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black uppercase text-primary/70 tracking-widest leading-none mb-1">Loyalty Node</p>
+                                <p className="text-2xl font-black leading-none">{points} <span className="text-xs text-muted-foreground ml-1">pts</span></p>
+                            </div>
+                        </div>
+                        <Badge variant="outline" className="h-14 rounded-2xl px-6 border-slate-200 bg-white font-black text-xs space-gap-2">
+                           <Crown className="w-4 h-4 text-amber-500 mr-2" /> 
+                           {points > 500 ? 'DIAMOND NODE' : points > 200 ? 'GOLD NODE' : 'STANDARD'}
+                        </Badge>
+                    </div>
                 </div>
+
+                {favorites.length > 0 && (
+                  <div className="mb-12 space-y-4">
+                     <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                        <Heart className="w-4 h-4 text-pink-500 fill-pink-500" /> Favorite Masters
+                     </h3>
+                     <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+                        {favorites.map(fav => (
+                           <button 
+                             key={fav.id}
+                             onClick={() => navigate(`/barber/${fav.id}`)}
+                             className="min-w-[150px] p-4 bg-white/60 dark:bg-slate-900/60 rounded-[2.5rem] border border-white/40 shadow-xl hover:scale-105 transition-all text-center space-y-3"
+                           >
+                              <div className="w-20 h-20 rounded-full mx-auto bg-slate-100 overflow-hidden border-4 border-white shadow-lg">
+                                 <img src={fav.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${fav.business_name}`} className="w-full h-full object-cover" alt="" />
+                              </div>
+                              <p className="font-black text-xs uppercase truncate max-w-[120px]">{fav.business_name}</p>
+                           </button>
+                        ))}
+                     </div>
+                  </div>
+                )}
 
                 {loading ? (
                     <div className="flex justify-center items-center py-20">

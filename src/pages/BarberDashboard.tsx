@@ -420,6 +420,40 @@ const BarberDashboard = () => {
                      <p className="text-4xl font-black mt-2">{totalProfit} {t('currency')}</p>
                   </Card>
                </div>
+
+               <Card className="p-10 rounded-[3rem] border-none shadow-2xl bg-slate-950 text-white relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 blur-[120px] rounded-full -mr-40 -mt-40 animate-pulse group-hover:bg-primary/30 transition-all duration-700" />
+                  <div className="relative z-10">
+                     <div className="flex justify-between items-center mb-10">
+                        <h3 className="text-3xl font-black flex items-center gap-4 tracking-tighter uppercase">
+                           <Bot className="text-primary fill-primary w-8 h-8" /> Neural Business Insights
+                        </h3>
+                        <Badge className="bg-primary/20 text-primary border-none font-bold px-4 py-2 rounded-full uppercase text-[10px] tracking-widest">Level 3 Autonomous Analysis</Badge>
+                     </div>
+                     
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="space-y-3 p-6 bg-white/5 rounded-[2rem] border border-white/5 backdrop-blur-sm">
+                           <TrendingUp className="text-green-500 w-6 h-6" />
+                           <h4 className="font-bold text-lg">Revenue Projection</h4>
+                           <p className="text-sm text-white/60">AI predicts a <span className="text-green-400 font-black">+18% growth</span> next month based on current booking velocity and local market trends in Setif.</p>
+                        </div>
+                        <div className="space-y-3 p-6 bg-white/5 rounded-[2rem] border border-white/5 backdrop-blur-sm">
+                           <Activity className="text-blue-500 w-6 h-6" />
+                           <h4 className="font-bold text-lg">Occupancy Efficiency</h4>
+                           <p className="text-sm text-white/60">Current peak hours (14:00 - 18:00) are <span className="text-blue-400 font-black">94% saturated</span>. AI recommends adding a part-time barber to maximize ROI.</p>
+                        </div>
+                        <div className="space-y-3 p-6 bg-white/5 rounded-[2rem] border border-white/5 backdrop-blur-sm">
+                           <Zap className="text-amber-500 w-6 h-6" />
+                           <h4 className="font-bold text-lg">Smart Recommendations</h4>
+                           <p className="text-sm text-white/60">Launch a "Happy Hour" promotion between 09:00-11:00 on weekdays to fill low-occupancy nodes.</p>
+                        </div>
+                     </div>
+                     
+                     <Button className="mt-10 w-full h-16 rounded-2xl bg-white text-slate-950 font-black text-lg hover:bg-slate-100 transition-all active:scale-[0.98]">
+                        IMPLEMENT AI STRATEGY
+                     </Button>
+                  </div>
+               </Card>
                
                <div className="grid md:grid-cols-2 gap-8">
                   <Card className="p-8 rounded-3xl shadow-xl bg-white/60 dark:bg-slate-900/60 border-none">
