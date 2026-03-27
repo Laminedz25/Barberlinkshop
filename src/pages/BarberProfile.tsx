@@ -25,7 +25,15 @@ interface BarberProfileData {
   address: string;
   rating: number;
   user_id: string;
-  socials?: { instagram?: string; facebook?: string; website?: string };
+  socials?: { 
+    instagram?: string; 
+    facebook?: string; 
+    website?: string;
+    whatsapp?: string;
+    tiktok?: string;
+    snapchat?: string;
+    telegram?: string;
+  };
   bio?: string;
   verified?: boolean;
 }
@@ -142,17 +150,40 @@ const BarberProfile = () => {
 
               <div className="flex flex-wrap gap-4">
                  {barber.socials?.instagram && (
-                   <Button variant="ghost" className="rounded-xl h-12 gap-2 font-bold px-6 bg-white shadow-sm hover:text-pink-500">
+                   <Button variant="ghost" onClick={() => window.open(`https://instagram.com/${barber.socials?.instagram}`, '_blank')} className="rounded-xl h-12 gap-2 font-bold px-6 bg-white shadow-sm hover:text-pink-500">
                      <Instagram className="w-5 h-5" /> Instagram
                    </Button>
                  )}
                  {barber.socials?.facebook && (
-                   <Button variant="ghost" className="rounded-xl h-12 gap-2 font-bold px-6 bg-white shadow-sm hover:text-blue-600">
+                   <Button variant="ghost" onClick={() => window.open(`https://facebook.com/${barber.socials?.facebook}`, '_blank')} className="rounded-xl h-12 gap-2 font-bold px-6 bg-white shadow-sm hover:text-blue-600">
                      <Facebook className="w-5 h-5" /> Facebook
                    </Button>
                  )}
-                 <Button variant="ghost" className="rounded-xl h-12 gap-2 font-bold px-6 bg-white shadow-sm hover:text-primary">
-                    <Globe className="w-5 h-5" /> Website
+                 {barber.socials?.whatsapp && (
+                   <Button variant="ghost" onClick={() => window.open(`https://wa.me/${barber.socials?.whatsapp}`, '_blank')} className="rounded-xl h-12 gap-2 font-bold px-6 bg-white shadow-sm hover:text-green-500">
+                     <Phone className="w-5 h-5" /> WhatsApp
+                   </Button>
+                 )}
+                 {barber.socials?.tiktok && (
+                   <Button variant="ghost" onClick={() => window.open(`https://tiktok.com/@${barber.socials?.tiktok}`, '_blank')} className="rounded-xl h-12 gap-2 font-bold px-6 bg-white shadow-sm hover:text-black">
+                     <Sparkles className="w-5 h-5" /> TikTok
+                   </Button>
+                 )}
+                 {barber.socials?.telegram && (
+                   <Button variant="ghost" onClick={() => window.open(`https://t.me/${barber.socials?.telegram}`, '_blank')} className="rounded-xl h-12 gap-2 font-bold px-6 bg-white shadow-sm hover:text-blue-400">
+                     <MessageSquare className="w-5 h-5" /> Telegram
+                   </Button>
+                 )}
+                 <Button variant="ghost" onClick={() => {
+                    const url = window.location.href;
+                    if (navigator.share) {
+                        navigator.share({ title: barber.business_name, url });
+                    } else {
+                        navigator.clipboard.writeText(url);
+                        toast({ title: "Link Copied", description: "Profile URL saved to clipboard." });
+                    }
+                 }} className="rounded-xl h-12 gap-2 font-bold px-6 bg-white shadow-sm hover:text-primary">
+                    <Grid className="w-5 h-5" /> Generate QR
                  </Button>
               </div>
             </section>
@@ -254,12 +285,20 @@ const BarberProfile = () => {
                </div>
             </Card>
 
-            <div className="grid grid-cols-2 gap-4">
-               <Button className="h-16 rounded-2xl border-none bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold gap-3">
+             <div className="grid grid-cols-2 gap-4">
+               <Button onClick={() => navigate(`/chat?recipient=${barber.user_id}`)} className="h-16 rounded-2xl border-none bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold gap-3">
                   <MessageSquare className="w-5 h-5 text-primary" /> CHAT
                </Button>
-               <Button className="h-16 rounded-2xl border-none bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold gap-3">
-                  <Share2 className="w-5 h-5 text-primary" /> SOCIAL
+               <Button onClick={() => {
+                  const url = window.location.href;
+                  if (navigator.share) {
+                      navigator.share({ title: barber.business_name, url });
+                  } else {
+                      navigator.clipboard.writeText(url);
+                      toast({ title: "Copied!", description: "Profile link saved to clipboard." });
+                  }
+               }} className="h-16 rounded-2xl border-none bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold gap-3">
+                  <Share2 className="w-5 h-5 text-primary" /> SHARE
                </Button>
             </div>
           </div>

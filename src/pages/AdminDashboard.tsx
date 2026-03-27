@@ -83,6 +83,9 @@ const AdminDashboard = () => {
   const [authorized, setAuthorized] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'subscriptions' | 'ai_agents' | 'marketing' | 'monitoring' | 'settings' | 'verification' | 'investors'>('overview');
   const [users, setUsers] = useState<UserRecord[]>([]);
+  const [barbers, setBarbers] = useState<BarberRecord[]>([]);
+  const [pendingVerifications, setPendingVerifications] = useState<BarberRecord[]>([]);
+  const [bookings, setBookings] = useState<BookingRecord[]>([]);
   const [stats, setStats] = useState<Stats>({ users: 0, barbers: 0, bookings: 0, revenue_dzd: 154000, revenue_usd: 1200, conversion_rate: 0, retention_rate: 0 });
   const [savingSettings, setSavingSettings] = useState(false);
   const { config: systemConfig, loading: configLoading } = useSystemConfig();
@@ -138,6 +141,11 @@ const AdminDashboard = () => {
       setUsers(usersSnap.docs.map(d => ({ id: d.id, ...d.data() } as UserRecord)));
       setPlans(plansSnap.docs.map(d => ({ id: d.id, ...d.data() } as SubscriptionPlan)));
       setCoupons(couponsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Coupon)));
+      
+      const allBarbers = barbersSnap.docs.map(d => ({ id: d.id, ...d.data() } as BarberRecord));
+      setBarbers(allBarbers);
+      setPendingVerifications(allBarbers.filter(b => b.verification_status === 'pending' && !b.verified));
+
       setStats({
         users: usersSnap.size,
         barbers: barbersSnap.size,
@@ -918,13 +926,42 @@ const AdminDashboard = () => {
 
         {activeTab === 'verification' && (
           <Card className="animate-slide-up">
-            <CardHeader><CardTitle>Professional Verification Center</CardTitle></CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
+               <CardTitle className="flex items-center gap-2"><ShieldCheck className="w-6 h-6 text-primary" /> Professional Verification Center</CardTitle>
+               <Badge variant="outline">{pendingVerifications.length} Pending Nodes</Badge>
+            </CardHeader>
             <CardContent>
-              <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed">
-                <ShieldAlert className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-                <h3 className="text-xl font-bold">No Pending Requests</h3>
-                <p className="text-muted-foreground mt-2">Verified barbers will appear here for identity and license approval.</p>
-              </div>
+              {pendingVerifications.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                   {pendingVerifications.map(b => (
+                     <div key={b.id} className="p-6 border-2 border-slate-100 rounded-[2rem] bg-slate-50/50 space-y-4">
+                        <div className="flex justify-between items-start">
+                           <h4 className="text-xl font-extrabold">{b.business_name}</h4>
+                           <Badge className="bg-orange-500 text-white border-none">Pending Level 3</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground font-bold">{b.address}</p>
+                        <div className="pt-4 flex gap-2">
+                           <Button onClick={async () => {
+                              await updateDoc(doc(db, 'barbers', b.id), { verified: true, verification_status: 'verified' });
+                              toast({ title: 'Barber Verified', description: `${b.business_name} is now a Level-3 partner.` });
+                              loadData();
+                           }} className="flex-1 rounded-xl bg-green-600 hover:bg-green-700 font-bold">Approve</Button>
+                           <Button onClick={async () => {
+                              await updateDoc(doc(db, 'barbers', b.id), { verification_status: 'rejected' });
+                              toast({ title: 'Request Rejected', variant: 'destructive' });
+                              loadData();
+                           }} variant="outline" className="flex-1 rounded-xl text-destructive font-bold">Reject</Button>
+                        </div>
+                     </div>
+                   ))}
+                </div>
+              ) : (
+                <div className="text-center py-20 bg-slate-50/30 rounded-3xl border-2 border-dashed border-slate-200">
+                  <ShieldAlert className="h-12 w-12 text-orange-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold">Safe & Secure</h3>
+                  <p className="text-muted-foreground mt-2">Zero pending verification requests in the queue.</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}

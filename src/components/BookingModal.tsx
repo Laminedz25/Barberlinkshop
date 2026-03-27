@@ -50,6 +50,7 @@ const BookingModal = ({ isOpen, onClose, salonId, salonName }: BookingModalProps
   const [selectedTime, setSelectedTime] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'electronic' | 'after_service'>('after_service');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
 
   // --- PERSISTENCE LAYER: Prevent data loss on disconnect or reload ---
   useEffect(() => {
@@ -122,6 +123,14 @@ const BookingModal = ({ isOpen, onClose, salonId, salonName }: BookingModalProps
     if (!date || !selectedTime || !selectedBarberId) return;
 
     setIsSubmitting(true);
+    
+    if (paymentMethod === 'electronic') {
+        setPaymentStatus('processing');
+        // Simulated Secure Gateway Handshake
+        await new Promise(r => setTimeout(r, 2000));
+        setPaymentStatus('success');
+    }
+
     try {
       const startTime = new Date(date);
       const [hours, minutes] = selectedTime.split(':').map(Number);
@@ -135,7 +144,7 @@ const BookingModal = ({ isOpen, onClose, salonId, salonName }: BookingModalProps
         totalPrice: totals.price,
         totalDuration: totals.duration,
         startTime: startTime,
-        status: 'pending'
+        status: paymentMethod === 'electronic' ? 'confirmed' : 'pending'
       });
 
       clearCache();
@@ -144,14 +153,22 @@ const BookingModal = ({ isOpen, onClose, salonId, salonName }: BookingModalProps
           description: `Your appointment at ${salonName} is set for ${format(startTime, 'PPP')} at ${selectedTime}.`,
           variant: "default" 
       });
-      onClose();
+      
+      setTimeout(() => {
+        onClose();
+        setStep(1);
+        setPaymentStatus('idle');
+      }, 1000);
+
     } catch (e) {
       const error = e as Error;
       toast({ title: "Booking Error", description: error.message, variant: "destructive" });
+      setPaymentStatus('failed');
     } finally {
       setIsSubmitting(false);
     }
   };
+   const isConfirmDisabled = !selectedServices.length || !selectedBarberId || !date || !selectedTime || isSubmitting || paymentStatus === 'processing';
 
   const timeSlots = [
     '09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'
@@ -289,11 +306,13 @@ const BookingModal = ({ isOpen, onClose, salonId, salonName }: BookingModalProps
                             <div className="flex gap-4 pt-4">
                                 <Button variant="outline" onClick={() => setStep(2)} className="flex-1 h-14 rounded-2xl font-bold">Back</Button>
                                 <Button 
-                                    disabled={!selectedTime || !date || isSubmitting} 
+                                    disabled={isConfirmDisabled} 
                                     onClick={handleConfirm} 
                                     className="flex-3 h-14 rounded-2xl font-black px-12 text-lg shadow-xl shadow-primary/20"
                                 >
-                                    {isSubmitting ? "Booking..." : "Confirm & Book Now"}
+                                    {paymentStatus === 'processing' ? 'PROCESSING GATEWAY...' :
+                                     isSubmitting ? "SYNCING LEDGER..." : 
+                                     "Confirm & Book Now"}
                                 </Button>
                             </div>
                         </div>

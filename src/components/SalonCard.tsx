@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Star, MapPin, Phone, MessageCircle } from "lucide-react";
+import { Star, MapPin, Phone, MessageCircle, Share2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 
@@ -141,15 +141,23 @@ const SalonCard = ({ salon }: SalonCardProps) => {
             EXPLORE
           </Button>
           <Button
-            onClick={() => salon.phone ? handleCall() : undefined}
+            onClick={() => {
+              const url = `${window.location.origin}/barber/${salon.id}`;
+              if (navigator.share) {
+                navigator.share({ title: businessName, url });
+              } else {
+                navigator.clipboard.writeText(url);
+                alert("Link copied to clipboard!");
+              }
+            }}
             variant="outline"
             size="icon"
             className="h-14 w-14 rounded-2xl border-slate-200 hover:bg-slate-50 transition-all active:scale-95"
           >
-            <Phone className="h-5 w-5" />
+            <Share2 className="h-5 w-5" />
           </Button>
           <Button
-            onClick={() => salon.whatsapp ? handleWhatsApp() : navigate(`/chat/${salon.id}`)}
+            onClick={() => navigate(`/chat/${(salon as any).user_id || salon.id}`)}
             variant="outline"
             size="icon"
             className="h-14 w-14 rounded-2xl border-slate-200 hover:bg-slate-50 transition-all active:scale-95"

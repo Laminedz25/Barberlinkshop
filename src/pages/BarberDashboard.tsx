@@ -119,6 +119,10 @@ const BarberDashboard = () => {
   const [expenseName, setExpenseName] = useState('');
   const [expenseAmount, setExpenseAmount] = useState('');
   const [isVerified, setIsVerified] = useState(false);
+  const [socials, setSocials] = useState({
+    instagram: '', facebook: '', whatsapp: '', 
+    tiktok: '', snapchat: '', telegram: '', website: ''
+  });
   const [referralLink, setReferralLink] = useState('');
 
   const fetchBarberProfile = useCallback(async () => {
@@ -129,7 +133,8 @@ const BarberDashboard = () => {
       if (snap.empty) { navigate('/'); return; }
       const docData = snap.docs[0].data();
       setBarberId(snap.docs[0].id);
-      setIsVerified(docData.is_verified || false);
+      setIsVerified(docData.is_verified || docData.verified || false);
+      setSocials(docData.socials || {});
       setReferralLink(`${window.location.origin}/auth?ref=${snap.docs[0].id}`);
     } catch (e) { 
       const error = e as Error;
@@ -448,16 +453,44 @@ const BarberDashboard = () => {
                    
                    <Card className="p-10 rounded-[3rem] shadow-2xl bg-white/60 dark:bg-slate-900/60 border-none">
                       <h3 className="text-2xl font-black mb-6 uppercase tracking-tighter">Verification Profile</h3>
-                      <div className="flex items-center gap-6 p-6 border rounded-[2rem] bg-primary/5 border-primary/20">
-                         <div className={`p-5 rounded-full ${isVerified ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white shadow-lg'}`}>
-                            {isVerified ? <CheckCircle2 className="h-8 w-8" /> : <Activity className="h-8 w-8" />}
-                         </div>
-                         <div>
-                            <p className="font-extrabold text-xl">{isVerified ? "Verified Studio" : "Identity In Review"}</p>
-                            <p className="text-sm opacity-80">{isVerified ? t('verified') : "Level 1 Access - Standard"}</p>
-                         </div>
-                      </div>
-                   </Card>
+                       <div className="flex items-center gap-6 p-6 border rounded-[2rem] bg-primary/5 border-primary/20">
+                          <div className={`p-5 rounded-full ${isVerified ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white shadow-lg'}`}>
+                             {isVerified ? <CheckCircle2 className="h-8 w-8" /> : <Activity className="h-8 w-8" />}
+                          </div>
+                          <div className="flex-1">
+                             <p className="font-extrabold text-xl">{isVerified ? "Verified Studio" : "Identity In Review"}</p>
+                             <p className="text-sm opacity-80">{isVerified ? t('verified') : "Level 1 Access - Standard"}</p>
+                          </div>
+                          {!isVerified && (
+                             <Button onClick={async () => {
+                                if (!barberId) return;
+                                await updateDoc(doc(db, 'barbers', barberId), { verification_status: 'pending' });
+                                toast({ title: "Verification Requested", description: "Identity node submitted for Level 3 review." });
+                             }} variant="outline" className="rounded-xl border-primary/20 bg-white">Request Official Badge</Button>
+                          )}
+                       </div>
+                    </Card>
+
+                    <Card className="p-10 rounded-[3rem] shadow-2xl bg-white/60 dark:bg-slate-900/60 border-none space-y-6">
+                        <h3 className="text-2xl font-black uppercase tracking-tighter">Social Connectivity</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           {Object.keys(socials).map((k) => (
+                              <div key={k} className="space-y-1">
+                                 <Label className="capitalize text-[10px] font-black">{k}</Label>
+                                 <Input 
+                                    placeholder={k === 'whatsapp' ? '213...' : `@${k}_id`} 
+                                    className="rounded-xl" 
+                                    value={socials[k as keyof typeof socials] || ''} 
+                                    onChange={async (e) => {
+                                       const newSocials = { ...socials, [k]: e.target.value };
+                                       setSocials(newSocials);
+                                       if (barberId) await updateDoc(doc(db, 'barbers', barberId), { socials: newSocials });
+                                    }}
+                                 />
+                              </div>
+                           ))}
+                        </div>
+                    </Card>
                 </div>
             </TabsContent>
 
