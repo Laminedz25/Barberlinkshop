@@ -80,7 +80,12 @@ class ProjectAuditor {
 
   auditHardcodedKeys() {
     try {
-      const content = execSync('findstr /S /I "apiKey" src\\*.tsx', { encoding: 'utf8' });
+      const isWin = process.platform === "win32";
+      const cmd = isWin 
+        ? 'findstr /S /I "apiKey" src\\*.tsx' 
+        : 'grep -r "apiKey" src/*.tsx';
+      
+      const content = execSync(cmd, { encoding: 'utf8' });
       if (content.split('\n').filter(l => l.includes(': "AIza')).length > 2) {
         this.report.security.warnings.push("WARNING: Possible hardcoded API Keys in source code.");
         this.report.security.score -= 10;
