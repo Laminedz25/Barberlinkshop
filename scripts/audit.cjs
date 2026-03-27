@@ -41,10 +41,11 @@ class ProjectAuditor {
   runLintAudit() {
     console.log("🔍 Running Lint Audit...");
     try {
-      const output = execSync('npm run lint', { encoding: 'utf8' });
+      execSync('npm run lint', { encoding: 'utf8', stdio: 'pipe' });
       console.log("✅ Lint passed.");
     } catch (error) {
-      const issuesCount = (error.stdout.match(/error/g) || []).length;
+      const out = error.stdout || error.stderr || "";
+      const issuesCount = (out.match(/error/g) || []).length;
       this.report.issues.push(`Lint Audit: Found ${issuesCount} ESLint errors.`);
       this.report.stability.score -= Math.min(20, issuesCount);
       console.warn(`⚠️ Lint issues found: ${issuesCount}`);
@@ -54,9 +55,10 @@ class ProjectAuditor {
   runTypeAudit() {
     console.log("🔷 Running Type Audit...");
     try {
-      execSync('npx tsc --noEmit', { encoding: 'utf8' });
+      execSync('npx tsc --noEmit', { encoding: 'utf8', stdio: 'pipe' });
       console.log("✅ Type check passed.");
     } catch (error) {
+      const out = error.stdout || error.stderr || "";
       this.report.issues.push("Type Audit: Found TypeScript interface mismatches.");
       this.report.stability.score -= 15;
       console.warn("⚠️ Type mismatches found.");

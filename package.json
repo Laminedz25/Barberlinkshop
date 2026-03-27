@@ -67,6 +67,7 @@
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.9",
     "zod": "^3.25.76",
+    "axios": "^1.7.9",
     "bullmq": "^5.34.0",
     "ioredis": "^5.4.1",
     "nodemailer": "^6.9.16"
