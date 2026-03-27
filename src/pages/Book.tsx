@@ -49,44 +49,12 @@ const Book = () => {
     const [bookingLoading, setBookingLoading] = useState(false);
     const [bookedSlots, setBookedSlots] = useState<string[]>([]);
 
+    const [staff, setStaff] = useState<StaffMember[]>([]);
     const [searchParams] = useSearchParams();
     const initialChair = searchParams.get('chair') || 'any';
     const [selectedChair, setSelectedChair] = useState<string>(initialChair);
 
-    const mockStaff: StaffMember[] = [
-        { id: 's1', name: 'Ahmed (Senior Barber)', role: 'Senior Barber' },
-        { id: 's2', name: 'Karim (Fade Specialist)', role: 'Fade Specialist' },
-        { id: 's3', name: 'Youssef (Hair Stylist)', role: 'Hair Stylist' }
-    ];
-
-    // Hardcoded timeslots for demonstration
     const timeSlots = ["09:00 AM", "10:00 AM", "11:00 AM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM"];
-
-    useEffect(() => {
-        if (!id || !date) return;
-        const fetchBookedSlots = async () => {
-            try {
-                const q = query(collection(db, 'appointments'), where('barber_id', '==', id), where('status', 'in', ['pending', 'accepted']));
-                const snap = await getDocs(q);
-                const slots: string[] = [];
-                snap.forEach(d => {
-                    const data = d.data();
-                    const apptDate = new Date(data.appointment_date);
-                    if (apptDate.toDateString() === date.toDateString()) {
-                        slots.push(data.appointment_time);
-                    }
-                });
-                setBookedSlots(slots);
-                // Clear time if it is now booked
-                if (slots.includes(time)) {
-                    setTime('');
-                }
-            } catch (error) {
-                console.error("Error fetching booked slots:", error);
-            }
-        };
-        fetchBookedSlots();
-    }, [id, date]);
 
     useEffect(() => {
         if (!user) {
@@ -98,33 +66,78 @@ const Book = () => {
             navigate('/auth');
             return;
         }
-        fetchServices();
+        fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, user]);
 
-    const fetchServices = async () => {
+    const fetchData = async () => {
         if (!id) return;
         try {
+            // Fetch Services
             const servicesQuery = query(collection(db, 'services'), where('barber_id', '==', id), where('is_active', '==', true));
             const servicesSnap = await getDocs(servicesQuery);
             const servicesList: Service[] = [];
             servicesSnap.forEach(docSnap => {
                 servicesList.push({ id: docSnap.id, usage_count: Math.floor(Math.random() * 50), ...(docSnap.data() as Omit<Service, 'id' | 'usage_count'>) });
             });
-
-            // Sort services by usage_count (popularity) descending
             servicesList.sort((a, b) => (b.usage_count || 0) - (a.usage_count || 0));
-
             setServices(servicesList);
-        } catch (error: unknown) {
+
+            // Fetch Real Staff (Level 3 Multi-Barber Support)
+            const staffSnap = await getDocs(collection(db, 'barbers', id, 'staff'));
+            if (!staffSnap.empty) {
+                const staffList: StaffMember[] = [];
+                staffSnap.forEach(d => staffList.push({ id: d.id, ...d.data() } as StaffMember));
+                setStaff(staffList);
+            } else {
+                // Fallback to main barber profile if no staff sub-collection exists
+                const mainBarber = await getDoc(doc(db, 'barbers', id));
+                if (mainBarber.exists()) {
+                    setStaff([{ id: 'main', name: mainBarber.data().business_name, role: 'Owner' }]);
+                }
+            }
+        } catch (error) {
+            const err = error as Error;
             toast({
                 title: t('error'),
-                description: error.message,
+                description: err.message,
                 variant: 'destructive',
             });
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (!id || !date) return;
+        const fetchBookedSlots = async () => {
+            try {
+                // Fetch appointments for this barber/salon on this date
+                const q = query(collection(db, 'appointments'), 
+                    where('barber_id', '==', id), 
+                    where('status', 'in', ['pending', 'accepted'])
+                );
+                const snap = await getDocs(q);
+                const slots: string[] = [];
+                snap.forEach(d => {
+                    const data = d.data();
+                    const apptDate = new Date(data.appointment_date);
+                    if (apptDate.toDateString() === date.toDateString()) {
+                        // If specific staff is selected, only block their slots
+                        // If 'any' is selected, we might want different logic, but for now block all
+                        if (selectedChair === 'any' || data.barber_chair_id === selectedChair) {
+                            slots.push(data.appointment_time);
+                        }
+                    }
+                });
+                setBookedSlots(slots);
+                if (slots.includes(time)) setTime('');
+            } catch (error) {
+                console.error("Error fetching booked slots:", error);
+            }
+        };
+        fetchBookedSlots();
+    }, [id, date, selectedChair, time]);
 
     const getServiceName = (service: Service) => {
         switch (language) {
@@ -136,7 +149,7 @@ const Book = () => {
 
     const toggleService = (serviceId: string) => {
         if (selectedServices.includes(serviceId)) {
-            setSelectedServices(selectedServices.filter(id => id !== serviceId));
+            setSelectedServices(selectedServices.filter(sid => sid !== serviceId));
         } else {
             setSelectedServices([...selectedServices, serviceId]);
         }
@@ -192,11 +205,12 @@ const Book = () => {
                 title: 'Success',
                 description: 'Your appointment has been booked successfully!',
             });
-            navigate(`/`); // Can navigate to user appointments later
-        } catch (error: unknown) {
+            navigate(`/bookings`); // Navigate to customer dashboard
+        } catch (error) {
+            const err = error as Error;
             toast({
                 title: t('error'),
-                description: (error as Error).message,
+                description: err.message,
                 variant: 'destructive',
             });
         } finally {
@@ -264,8 +278,8 @@ const Book = () => {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="any">{t('booking.notspecified')}</SelectItem>
-                                        {mockStaff.map(staff => (
-                                            <SelectItem key={staff.id} value={staff.id}>{staff.name}</SelectItem>
+                                        {staff.map(member => (
+                                            <SelectItem key={member.id} value={member.id}>{member.name}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
@@ -359,7 +373,7 @@ const Book = () => {
                                     </div>
                                     <div className="flex justify-between items-center text-sm border-b pb-2">
                                         <span className="text-muted-foreground flex items-center gap-1"><Users2 className="h-4 w-4" /> Staff</span>
-                                        <span className="font-medium">{selectedChair === 'any' ? t('booking.notspecified') : mockStaff.find(s => s.id === selectedChair)?.name}</span>
+                                        <span className="font-medium">{selectedChair === 'any' ? t('booking.notspecified') : staff.find(s => s.id === selectedChair)?.name}</span>
                                     </div>
 
                                     <div className="pt-2">

@@ -1,146 +1,76 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import SalonCard from "./SalonCard";
 import SalonMap from "./SalonMap";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Grid, Map as MapIcon } from 'lucide-react';
+import { Grid, Map as MapIcon, Loader2, SearchX } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import salon1 from "@/assets/salon-1.jpg";
 import salon2 from "@/assets/salon-2.jpg";
 import salon3 from "@/assets/salon-3.jpg";
 
-const SalonGrid = () => {
+interface SalonGridProps {
+  searchQuery?: string;
+  locationQuery?: string;
+}
+
+const SalonGrid = ({ searchQuery = '', locationQuery = '' }: SalonGridProps) => {
   const { t } = useLanguage();
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [dbSalons, setDbSalons] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample salon data
-  const salons = [
+  useEffect(() => {
+    const q = query(collection(db, 'barbers'), orderBy('created_at', 'desc'));
+    const unsub = onSnapshot(q, (snap) => {
+      setDbSalons(snap.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data(),
+          image: doc.data().image || (doc.data().business_name?.includes('Elite') ? salon1 : salon2) 
+      })));
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
+
+  // Sample fallback data for empty systems
+  const fallbackSalons = [
     {
-      id: '1',
-      name: 'Elite Barbershop',
+      id: 'f1',
+      business_name: 'Elite Barbershop (Genesis Node)',
       image: salon1,
       rating: 4.8,
-      reviewCount: 124,
-      distance: '0.5 km',
-      address: 'Rue Didouche Mourad, Algiers Center',
-      isOpen: true,
+      address: 'Algiers Center, Algeria',
+      verified: true,
       openUntil: '22:00',
-      specialties: ['Classic Cut', 'Beard Styling', 'Hot Towel'],
       priceRange: '1,500-3,000 DZD',
-      nextAvailable: 'Today 3:30 PM',
-      isVip: true,
-      gender: 'men' as const,
-      gallery: [
-        {
-          id: '1',
-          type: 'image' as const,
-          url: salon1,
-          title: 'Classic Haircut',
-          description: 'Professional classic haircut for men'
-        },
-        {
-          id: '2',
-          type: 'image' as const,
-          url: salon2,
-          title: 'Beard Styling',
-          description: 'Expert beard trimming and styling'
-        }
-      ]
+      created_at: new Date().toISOString()
     },
     {
-      id: '2',
-      name: 'Glamour Beauty Studio',
+      id: 'f2',
+      business_name: 'Oran Style Studio',
       image: salon2,
       rating: 4.9,
-      reviewCount: 89,
-      distance: '1.2 km',
       address: 'Boulevard Mohamed V, Oran',
-      isOpen: true,
+      verified: true,
       openUntil: '20:00',
-      specialties: ['Hair Styling', 'Coloring', 'Manicure', 'Facial'],
       priceRange: '2,000-5,000 DZD',
-      nextAvailable: 'Tomorrow 10:00 AM',
-      isVip: false,
-      gender: 'women' as const,
-      gallery: [
-        {
-          id: '3',
-          type: 'image' as const,
-          url: salon2,
-          title: 'Hair Styling',
-          description: 'Professional women hair styling'
-        },
-        {
-          id: '4',
-          type: 'image' as const,
-          url: salon3,
-          title: 'Hair Coloring',
-          description: 'Expert hair coloring service'
-        }
-      ]
-    },
-    {
-      id: '3',
-      name: 'Style Hub Unisex',
-      image: salon3,
-      rating: 4.7,
-      reviewCount: 156,
-      distance: '0.8 km',
-      address: 'Avenue de l\'Independence, Constantine',
-      isOpen: false,
-      specialties: ['Modern Cut', 'Hair Treatment', 'Styling'],
-      priceRange: '1,200-2,800 DZD',
-      nextAvailable: 'Tomorrow 9:00 AM',
-      isVip: false,
-      gender: 'unisex' as const
-    },
-    {
-      id: '4',
-      name: 'Royal Men\'s Lounge',
-      image: salon1,
-      rating: 4.6,
-      reviewCount: 98,
-      distance: '2.1 km',
-      address: 'Rue Larbi Ben M\'hidi, Tlemcen',
-      isOpen: true,
-      openUntil: '21:30',
-      specialties: ['Premium Cut', 'Massage', 'Grooming'],
-      priceRange: '2,500-4,500 DZD',
-      nextAvailable: 'Today 5:00 PM',
-      isVip: true,
-      gender: 'men' as const
-    },
-    {
-      id: '5',
-      name: 'Bella Vista Salon',
-      image: salon2,
-      rating: 4.8,
-      reviewCount: 203,
-      distance: '1.5 km',
-      address: 'Place 1er Novembre, Annaba',
-      isOpen: true,
-      openUntil: '19:00',
-      specialties: ['Bridal Hair', 'Extensions', 'Makeup'],
-      priceRange: '3,000-8,000 DZD',
-      nextAvailable: 'Today 4:15 PM',
-      isVip: true,
-      gender: 'women' as const
-    },
-    {
-      id: '6',
-      name: 'Modern Look Studio',
-      image: salon3,
-      rating: 4.5,
-      reviewCount: 67,
-      distance: '3.2 km',
-      address: 'Boulevard Emir Abdelkader, Sétif',
-      isOpen: true,
-      openUntil: '22:30',
-      specialties: ['Trendy Cut', 'Color Correction', 'Perm'],
-      priceRange: '1,800-3,500 DZD',
-      nextAvailable: 'Tomorrow 11:30 AM',
-      isVip: false,
-      gender: 'unisex' as const
+      created_at: new Date().toISOString()
     }
   ];
+
+  const allSalons = dbSalons.length > 0 ? dbSalons : fallbackSalons;
+
+  const filteredSalons = useMemo(() => {
+    return allSalons.filter(s => {
+        const matchesSearch = !searchQuery || 
+                             s.business_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                             s.bio?.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesLocation = !locationQuery || 
+                               s.address?.toLowerCase().includes(locationQuery.toLowerCase());
+        return matchesSearch && matchesLocation;
+    });
+  }, [allSalons, searchQuery, locationQuery]);
 
   return (
     <section className="py-12">
@@ -157,11 +87,11 @@ const SalonGrid = () => {
 
         {/* Filter Summary */}
         <div className="flex flex-wrap items-center gap-4 mb-8 text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{salons.length} {t('grid.found')}</span>
+          <span className="font-medium text-foreground">{filteredSalons.length} {t('grid.found')}</span>
           <span>•</span>
           <span>{t('grid.sorted')}</span>
           <span>•</span>
-          <span>Algiers, Algeria</span>
+          <span>{locationQuery || "Algeria"}</span>
         </div>
 
         <div className="flex justify-center mb-8">
@@ -182,14 +112,27 @@ const SalonGrid = () => {
         </div>
 
         {/* Salon View Mode */}
-        {viewMode === 'grid' ? (
+        {loading ? (
+             <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                <p className="font-bold text-muted-foreground animate-pulse">Consulting Global Node Registry...</p>
+             </div>
+        ) : filteredSalons.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="p-6 bg-slate-50 rounded-full mb-6">
+                    <SearchX className="h-12 w-12 text-slate-400" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">No results matching your request</h3>
+                <p className="text-muted-foreground max-w-sm">Try broadening your search or exploring different locations across Algeria.</p>
+            </div>
+        ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {salons.map((salon) => (
+            {filteredSalons.map((salon) => (
               <SalonCard key={salon.id} salon={salon as any} />
             ))}
           </div>
         ) : (
-          <SalonMap salons={salons} />
+          <SalonMap salons={filteredSalons} />
         )}
 
         {/* Load More */}

@@ -42,6 +42,16 @@ const Auth = () => {
   // For social login complete profile step
   const [completingProfile, setCompletingProfile] = useState(false);
   const [socialUser, setSocialUser] = useState<User | null>(null);
+  const [referrerId, setReferrerId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      setReferrerId(ref);
+      console.log("[Sentinel] Capture referral node:", ref);
+    }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -90,6 +100,9 @@ const Auth = () => {
   };
 
   const createFirestoreUser = async (userAcc: User) => {
+    // Generate a unique 6-char referral code for the new user
+    const referralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
     await setDoc(doc(db, 'users', userAcc.uid), {
       id: userAcc.uid,
       email: email,
@@ -100,15 +113,18 @@ const Auth = () => {
       country,
       state: stateProv,
       municipality,
+      referral_code: referralCode,
+      referred_by: referrerId, 
       created_at: new Date().toISOString()
     });
 
     if (userType !== 'customer') {
       const salonType = 'men';
+      // Initialize Barber Profile with Level 3 verification and revenue tracking
       await setDoc(doc(db, 'barbers', userAcc.uid), {
         user_id: userAcc.uid,
         business_name: fullName,
-        type: userType, // salon_owner, salon_barber, mobile_barber
+        type: userType,
         country,
         state: stateProv,
         city: municipality,
@@ -116,7 +132,19 @@ const Auth = () => {
         salon_type: salonType,
         rating: 5,
         total_reviews: 0,
+        verification_status: 'pending', // Level 3 Requirement
+        revenue_total: 0,
         created_at: new Date().toISOString()
+      });
+
+      // Initialize Barber Wallet
+      await setDoc(doc(db, 'wallets', userAcc.uid), {
+        user_id: userAcc.uid,
+        balance_dzd: 0,
+        balance_usd: 0,
+        referral_earnings: 0,
+        commission_paid: 0,
+        last_updated: new Date().toISOString()
       });
     }
   };

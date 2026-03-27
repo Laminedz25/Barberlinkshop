@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export interface SystemConfig {
@@ -13,6 +13,20 @@ export interface SystemConfig {
   whatsappNumber?: string;
   billionmailUser?: string;
   billionmailPass?: string;
+  commission_percentage?: number;
+  referral_bonus_dzd?: number;
+  global_pricing?: {
+    usa: number;
+    uk: number;
+    france: number;
+    dzd: number;
+  };
+  openaiKey?: string;
+  maintenance_mode?: boolean;
+  booking_buffer_minutes?: number;
+  security_level?: 'standard' | 'high' | 'paranoid';
+  auto_assign_agent?: boolean;
+  supported_currencies?: string[];
 }
 
 export const useSystemConfig = () => {

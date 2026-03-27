@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-03-24T18:47:29.659Z",
+  "issues": [
+    "Lint Audit: Found 191 ESLint errors."
+  ],
+  "security": {
+    "score": 100,
+    "warnings": []
+  },
+  "stability": {
+    "score": 80,
+    "warnings": []
+  },
+  "architecture": {
+    "score": 100,
+    "warnings": []
+  }
+}

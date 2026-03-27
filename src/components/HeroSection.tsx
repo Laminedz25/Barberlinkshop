@@ -1,10 +1,23 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MapPin, Search, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  onSearch: (query: string) => void;
+  onLocationChange: (location: string) => void;
+}
+
+const HeroSection = ({ onSearch, onLocationChange }: HeroSectionProps) => {
   const { t, isRTL } = useLanguage();
+  const [localSearch, setLocalSearch] = useState("");
+  const [localLocation, setLocalLocation] = useState("");
+
+  const handleSearch = () => {
+    onSearch(localSearch);
+    onLocationChange(localLocation);
+  };
   
   return (
     <section className={`relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20 ${isRTL ? 'rtl' : 'ltr'}`}>
@@ -44,6 +57,8 @@ const HeroSection = () => {
               <div className="flex-1 w-full relative group">
                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
+                  value={localSearch}
+                  onChange={(e) => setLocalSearch(e.target.value)}
                   placeholder={t('hero.search.salon')}
                   className="w-full h-16 pl-14 pr-6 bg-transparent border-none text-lg font-semibold focus-visible:ring-0 placeholder:text-muted-foreground/50"
                 />
@@ -52,11 +67,14 @@ const HeroSection = () => {
               <div className="flex-1 w-full relative group">
                 <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
+                  value={localLocation}
+                  onChange={(e) => setLocalLocation(e.target.value)}
                   placeholder={t('hero.search.location')}
                   className="w-full h-16 pl-14 pr-6 bg-transparent border-none text-lg font-semibold focus-visible:ring-0 placeholder:text-muted-foreground/50"
                 />
               </div>
               <Button 
+                onClick={handleSearch}
                 size="lg" 
                 className="w-full md:w-auto h-14 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 group"
               >

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, addDoc, getDoc } from 'firebase/firestore';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { Plus, Edit, Trash2, DollarSign, Clock, QrCode, ImagePlus, UserPlus, Link as LinkIcon, CheckCircle2, XCircle, Check, TrendingUp, TrendingDown, ShoppingBag } from 'lucide-react';
+import { 
+  Plus, Edit, Trash2, DollarSign, Clock, QrCode, 
+  ImagePlus, UserPlus, Link as LinkIcon, CheckCircle2, 
+  XCircle, Check, TrendingUp, TrendingDown, ShoppingBag, 
+  Activity, Bot, Users2 
+} from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +27,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QRCodeSVG } from 'qrcode.react';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 interface Expense {
@@ -55,6 +61,14 @@ interface Product {
   created_at?: string;
 }
 
+interface StaffMember {
+  id: string;
+  name: string;
+  role: string;
+  avatar?: string;
+  rating?: number;
+}
+
 interface Appointment {
   id: string;
   customer_id: string;
@@ -74,43 +88,90 @@ const BarberDashboard = () => {
   const { t, language, isRTL } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [services, setServices] = useState<Service[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+
   const [barberId, setBarberId] = useState<string | null>(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [staff, setStaff] = useState<StaffMember[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [formData, setFormData] = useState({
-    name_ar: '',
-    name_en: '',
-    name_fr: '',
-    description_ar: '',
-    description_fr: '',
-    price: 0,
-    duration_minutes: 30,
+    name_ar: '', name_en: '', name_fr: '',
+    description_ar: '', description_en: '', description_fr: '',
+    price: 0, duration_minutes: 30,
   });
 
-  const [products, setProducts] = useState<Product[]>([]);
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productFormData, setProductFormData] = useState({
-    name: '',
-    price: 0,
-    image: '',
-    description: '',
+    name: '', price: 0, image: '', description: '',
   });
 
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [isStaffDialogOpen, setIsStaffDialogOpen] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
+  const [staffFormData, setStaffFormData] = useState({
+    name: '', role: '', avatar: '',
+  });
+
   const [expenseName, setExpenseName] = useState('');
   const [expenseAmount, setExpenseAmount] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
+  const [referralLink, setReferralLink] = useState('');
+
+  const fetchBarberProfile = useCallback(async () => {
+    if (!user?.uid) return;
+    try {
+      const q = query(collection(db, 'barbers'), where('user_id', '==', user.uid));
+      const snap = await getDocs(q);
+      if (snap.empty) { navigate('/'); return; }
+      const docData = snap.docs[0].data();
+      setBarberId(snap.docs[0].id);
+      setIsVerified(docData.is_verified || false);
+      setReferralLink(`${window.location.origin}/auth?ref=${snap.docs[0].id}`);
+    } catch (e) { 
+      const error = e as Error;
+      toast({ title: 'Error', description: error.message, variant: 'destructive' }); 
+    }
+  }, [user?.uid, navigate, toast]);
+
+  const fetchServices = useCallback(async () => {
+    if (!barberId) return;
+    const snap = await getDocs(query(collection(db, 'services'), where('barber_id', '==', barberId)));
+    setServices(snap.docs.map(d => ({ id: d.id, ...d.data() } as Service)));
+  }, [barberId]);
+
+  const fetchProducts = useCallback(async () => {
+    if (!barberId) return;
+    const snap = await getDocs(query(collection(db, 'products'), where('barber_id', '==', barberId)));
+    setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() } as Product)));
+  }, [barberId]);
+
+  const fetchStaff = useCallback(async () => {
+    if (!barberId) return;
+    const snap = await getDocs(collection(db, 'barbers', barberId, 'staff'));
+    setStaff(snap.docs.map(d => ({ id: d.id, ...d.data() } as StaffMember)));
+  }, [barberId]);
+
+  const fetchAppointments = useCallback(async () => {
+    if (!barberId) return;
+    const snap = await getDocs(query(collection(db, 'appointments'), where('barber_id', '==', barberId)));
+    const appts = snap.docs.map(d => ({ id: d.id, ...d.data() } as Appointment));
+    setAppointments(appts);
+  }, [barberId]);
+
+  const fetchExpenses = useCallback(async () => {
+    if (!barberId) return;
+    const snap = await getDocs(query(collection(db, 'expenses'), where('barber_id', '==', barberId)));
+    setExpenses(snap.docs.map(d => ({ id: d.id, ...d.data() } as Expense)));
+  }, [barberId]);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
+    if (!user) { navigate('/auth'); return; }
     fetchBarberProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, navigate]);
+  }, [user, navigate, fetchBarberProfile]);
 
   useEffect(() => {
     if (barberId) {
@@ -118,739 +179,338 @@ const BarberDashboard = () => {
       fetchAppointments();
       fetchExpenses();
       fetchProducts();
+      fetchStaff();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [barberId]);
-
-  const fetchBarberProfile = async () => {
-    if (!user?.uid) return;
-
-    try {
-      const q = query(collection(db, 'barbers'), where('user_id', '==', user.uid));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        toast({
-          title: t('error'),
-          description: 'You need to create a barber profile first',
-          variant: 'destructive',
-        });
-        navigate('/');
-        return;
-      }
-
-      setBarberId(querySnapshot.docs[0].id);
-    } catch (error: unknown) {
-      const err = error as Error;
-      toast({
-        title: t('error'),
-        description: err.message,
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const fetchProducts = async () => {
-    if (!barberId) return;
-    try {
-      const q = query(collection(db, 'products'), where('barber_id', '==', barberId));
-      const querySnapshot = await getDocs(q);
-
-      const productsData: Product[] = [];
-      querySnapshot.forEach((docSnap) => {
-        productsData.push({ id: docSnap.id, ...docSnap.data() } as Product);
-      });
-
-      productsData.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
-      setProducts(productsData || []);
-    } catch (error: unknown) {
-      console.error("Error fetching products", error);
-    }
-  };
-
-  const fetchServices = async () => {
-    if (!barberId) return;
-    try {
-      const q = query(collection(db, 'services'), where('barber_id', '==', barberId));
-      const querySnapshot = await getDocs(q);
-
-      const servicesData: Service[] = [];
-      querySnapshot.forEach((docSnap) => {
-        servicesData.push({ id: docSnap.id, ...docSnap.data() } as Service);
-      });
-
-      servicesData.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
-      setServices(servicesData || []);
-    } catch (error: unknown) {
-      const err = error as Error;
-      toast({
-        title: t('error'),
-        description: err.message,
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const fetchAppointments = async () => {
-    if (!barberId) return;
-    try {
-      const q = query(collection(db, 'appointments'), where('barber_id', '==', barberId));
-      const querySnapshot = await getDocs(q);
-
-      const apptsData: Appointment[] = [];
-      querySnapshot.forEach((docSnap) => {
-        apptsData.push({ id: docSnap.id, ...docSnap.data() } as Appointment);
-      });
-
-      for (const app of apptsData) {
-        if (app.customer_id) {
-          const usersSnap = await getDocs(query(collection(db, 'users'), where('__name__', '==', app.customer_id)));
-          if (!usersSnap.empty) {
-            app.customer_name = usersSnap.docs[0].data().full_name || 'Customer';
-          }
-        }
-      }
-
-      apptsData.sort((a, b) => {
-        const dateA = new Date(`${a.appointment_date.split('T')[0]}T${a.appointment_time}`);
-        const dateB = new Date(`${b.appointment_date.split('T')[0]}T${b.appointment_time}`);
-        return dateB.getTime() - dateA.getTime();
-      });
-
-      setAppointments(apptsData);
-    } catch (error: unknown) {
-      const err = error as Error;
-      toast({
-        title: t('error'),
-        description: err.message,
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const fetchExpenses = async () => {
-    if (!barberId) return;
-    try {
-      const q = query(collection(db, 'expenses'), where('barber_id', '==', barberId));
-      const querySnapshot = await getDocs(q);
-      const exps: Expense[] = [];
-      querySnapshot.forEach((docSnap) => {
-        exps.push({ id: docSnap.id, ...docSnap.data() } as Expense);
-      });
-      setExpenses(exps);
-    } catch (error: unknown) {
-      console.error("Error fetching expenses", error);
-    }
-  };
+  }, [barberId, fetchServices, fetchAppointments, fetchExpenses, fetchProducts, fetchStaff]);
 
   const updateAppointmentStatus = async (appId: string, newStatus: string) => {
     try {
-      const appRef = doc(db, 'appointments', appId);
-      await updateDoc(appRef, { status: newStatus });
-      toast({ title: 'Success', description: t(`dashboard.requests.${newStatus === 'completed' ? 'complete' : newStatus}`) || `Appointment marked as ${newStatus}` });
+      await updateDoc(doc(db, 'appointments', appId), { status: newStatus });
+      toast({ title: 'Success', description: `Appointment ${newStatus}` });
       fetchAppointments();
-    } catch (error: unknown) {
-      const err = error as Error;
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } catch (e) {
+      const error = e as Error;
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleServiceSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!barberId) return;
-
-    const serviceData = {
-      ...formData,
-      barber_id: barberId,
-      is_active: true,
-      updated_at: new Date().toISOString()
-    };
-
     try {
       if (editingService) {
-        const serviceRef = doc(db, 'services', editingService.id);
-        await updateDoc(serviceRef, serviceData);
-        toast({ title: 'Success', description: t('dashboard.service.update') + ' ✓' });
+        await updateDoc(doc(db, 'services', editingService.id), formData);
+        toast({ title: 'Success', description: 'Service updated' });
       } else {
-        const newService = {
-          ...serviceData,
-          created_at: new Date().toISOString()
-        };
-        await addDoc(collection(db, 'services'), newService);
-        toast({ title: 'Success', description: t('dashboard.service.add') + ' ✓' });
+        await addDoc(collection(db, 'services'), { ...formData, barber_id: barberId, is_active: true, created_at: new Date().toISOString() });
+        toast({ title: 'Success', description: 'Service added' });
       }
-
       setIsDialogOpen(false);
-      setEditingService(null);
-      setFormData({
-        name_ar: '',
-        name_en: '',
-        name_fr: '',
-        description_ar: '',
-        description_en: '',
-        description_fr: '',
-        price: 0,
-        duration_minutes: 30,
-      });
       fetchServices();
-    } catch (error: unknown) {
-      const err = error as Error;
-      toast({ title: t('error'), description: err.message, variant: 'destructive' });
+    } catch (e) {
+      const error = e as Error;
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
     }
   };
 
-  const handleEdit = (service: Service) => {
-    setEditingService(service);
-    setFormData({
-      name_ar: service.name_ar || '',
-      name_en: service.name_en || '',
-      name_fr: service.name_fr || '',
-      description_ar: service.description_ar || '',
-      description_en: service.description_en || '',
-      description_fr: service.description_fr || '',
-      price: service.price || 0,
-      duration_minutes: service.duration_minutes || 30,
-    });
-    setIsDialogOpen(true);
-  };
-
-  const handleDelete = async (id: string) => {
+  const handleStaffSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!barberId) return;
     try {
-      await deleteDoc(doc(db, 'services', id));
-      toast({ title: 'Success', description: 'Service deleted successfully' });
-      fetchServices();
-    } catch (error: unknown) {
-      const err = error as Error;
-      toast({ title: t('error'), description: err.message, variant: 'destructive' });
+      if (editingStaff) {
+        await updateDoc(doc(db, 'barbers', barberId, 'staff', editingStaff.id), staffFormData);
+      } else {
+        await addDoc(collection(db, 'barbers', barberId, 'staff'), { ...staffFormData, rating: 5 });
+      }
+      setIsStaffDialogOpen(false);
+      fetchStaff();
+      toast({ title: 'Success', description: 'Staff operation complete' });
+    } catch (e) {
+      const error = e as Error;
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
     }
-  };
-
-  const getServiceName = (service: Service) => {
-    if (language === 'ar') return service.name_ar;
-    if (language === 'fr') return service.name_fr;
-    return service.name_en;
   };
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!barberId) return;
-
-    const newProductData = {
-      ...productFormData,
-      barber_id: barberId,
-      is_active: true,
-      updated_at: new Date().toISOString()
-    };
-
     try {
       if (editingProduct) {
-        const productRef = doc(db, 'products', editingProduct.id);
-        await updateDoc(productRef, newProductData);
-        toast({ title: 'Success', description: 'Product updated successfully ✓' });
+        await updateDoc(doc(db, 'products', editingProduct.id), productFormData);
       } else {
-        const newProduct = {
-          ...newProductData,
-          created_at: new Date().toISOString()
-        };
-        await addDoc(collection(db, 'products'), newProduct);
-        toast({ title: 'Success', description: 'Product added successfully ✓' });
+        await addDoc(collection(db, 'products'), { ...productFormData, barber_id: barberId, is_active: true, created_at: new Date().toISOString() });
       }
-
       setIsProductDialogOpen(false);
-      setEditingProduct(null);
-      setProductFormData({
-        name: '',
-        price: 0,
-        image: '',
-        description: '',
-      });
       fetchProducts();
-    } catch (error: unknown) {
-      const err = error as Error;
-      toast({ title: t('error'), description: err.message, variant: 'destructive' });
-    }
-  };
-
-  const handleProductEdit = (product: Product) => {
-    setEditingProduct(product);
-    setProductFormData({
-      name: product.name || '',
-      price: product.price || 0,
-      image: product.image || '',
-      description: product.description || '',
-    });
-    setIsProductDialogOpen(true);
-  };
-
-  const handleProductDelete = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, 'products', id));
-      toast({ title: 'Success', description: 'Product deleted successfully' });
-      fetchProducts();
-    } catch (error: unknown) {
-      const err = error as Error;
-      toast({ title: t('error'), description: err.message, variant: 'destructive' });
+      toast({ title: 'Success', description: 'Product updated' });
+    } catch (e) {
+      const error = e as Error;
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
     }
   };
 
   const handleAddExpense = async () => {
     if (!expenseName || !expenseAmount || !barberId) return;
     try {
-      await addDoc(collection(db, 'expenses'), {
-        name: expenseName,
-        amount: Number(expenseAmount),
-        barber_id: barberId,
-        created_at: new Date().toISOString()
-      });
-      setExpenseName('');
-      setExpenseAmount('');
-      toast({ title: "Success", description: "Expense added successfully" });
+      await addDoc(collection(db, 'expenses'), { name: expenseName, amount: Number(expenseAmount), barber_id: barberId, created_at: new Date().toISOString() });
+      setExpenseName(''); setExpenseAmount('');
       fetchExpenses();
-    } catch (error: unknown) {
-      const err = error as Error;
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (e) {
+      const error = e as Error;
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
     }
   };
+
+  const getServiceName = (s: Service) => language === 'ar' ? s.name_ar : (language === 'fr' ? s.name_fr : s.name_en);
 
   const totalEarnings = appointments.filter(a => a.status === 'completed').reduce((sum, a) => sum + (a.total_price || 0), 0);
   const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
   const totalProfit = totalEarnings - totalExpenses;
 
-  // Mock chart data (you can later replace this by aggregating appointments by date)
-  const chartData = [
-    { name: 'Mon', revenue: 1500 },
-    { name: 'Tue', revenue: 2000 },
-    { name: 'Wed', revenue: 1200 },
-    { name: 'Thu', revenue: 3500 },
-    { name: 'Fri', revenue: 4500 },
-    { name: 'Sat', revenue: 5000 },
-    { name: 'Sun', revenue: 2500 },
-  ];
-
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
       <Navigation />
-
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-primary/20 blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/20 blur-[120px]" />
-      </div>
-
-      <main className="container mx-auto px-4 py-8 mt-20 relative z-10">
+      
+      <main className="container mx-auto px-4 py-8 mt-20">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+          
+          <div className="flex justify-between items-center mb-10">
             <div>
-              <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600 dark:from-primary dark:to-blue-400 mb-2">
-                {t('dashboard.services.management')}
+              <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
+                Barber Dashboard
               </h1>
-              <p className="text-muted-foreground text-lg">{t('dashboard.services.desc')}</p>
+              <p className="text-muted-foreground">Manage your autonomous grooming company</p>
             </div>
-
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="lg" className="rounded-full shadow-xl shadow-primary/20" onClick={() => {
-                  setEditingService(null);
-                  setFormData({
-                    name_ar: '', name_en: '', name_fr: '',
-                    description_ar: '', description_en: '', description_fr: '',
-                    price: 0, duration_minutes: 30,
-                  });
-                }}>
-                  <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                  {t('dashboard.service.add')}
-                </Button>
-              </DialogTrigger>
-
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] p-6 sm:p-8 bg-white/95 dark:bg-slate-900/95 backdrop-blur-3xl border-white/20">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold">
-                    {editingService ? t('dashboard.service.edit') : t('dashboard.service.add')}
-                  </DialogTitle>
-                </DialogHeader>
-
-                <form onSubmit={handleSubmit} className="space-y-6 mt-4">
-                  <div className="space-y-5">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="name_ar">{t('dashboard.service.name.ar')}</Label>
-                        <Input id="name_ar" className="mt-1" value={formData.name_ar} onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })} required dir="rtl" />
-                      </div>
-                      <div>
-                        <Label htmlFor="name_en">{t('dashboard.service.name.en')}</Label>
-                        <Input id="name_en" className="mt-1" value={formData.name_en} onChange={(e) => setFormData({ ...formData, name_en: e.target.value })} required />
-                      </div>
-                      <div>
-                        <Label htmlFor="name_fr">{t('dashboard.service.name.fr')}</Label>
-                        <Input id="name_fr" className="mt-1" value={formData.name_fr} onChange={(e) => setFormData({ ...formData, name_fr: e.target.value })} required />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="description_ar">{t('dashboard.service.desc.ar')}</Label>
-                        <Textarea id="description_ar" className="mt-1 resize-none" value={formData.description_ar} onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })} dir="rtl" />
-                      </div>
-                      <div>
-                        <Label htmlFor="description_en">{t('dashboard.service.desc.en')}</Label>
-                        <Textarea id="description_en" className="mt-1 resize-none" value={formData.description_en} onChange={(e) => setFormData({ ...formData, description_en: e.target.value })} />
-                      </div>
-                      <div>
-                        <Label htmlFor="description_fr">{t('dashboard.service.desc.fr')}</Label>
-                        <Textarea id="description_fr" className="mt-1 resize-none" value={formData.description_fr} onChange={(e) => setFormData({ ...formData, description_fr: e.target.value })} />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="price">{t('dashboard.service.price')}</Label>
-                        <Input id="price" type="number" className="mt-1" value={formData.price} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} required min="0" />
-                      </div>
-                      <div>
-                        <Label htmlFor="duration">{t('dashboard.service.duration')}</Label>
-                        <Input id="duration" type="number" className="mt-1" value={formData.duration_minutes} onChange={(e) => setFormData({ ...formData, duration_minutes: Number(e.target.value) })} required min="15" step="15" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button type="submit" size="lg" className="w-full rounded-full shadow-lg">
-                    {editingService ? t('dashboard.service.update') : t('dashboard.service.add')}
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
           </div>
 
           <Tabs defaultValue="services" className="w-full">
-            <div className="flex justify-between items-center mb-6">
-              <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 bg-slate-200/50 dark:bg-slate-800/50 p-1.5 rounded-2xl h-auto">
-                <TabsTrigger value="services" className="rounded-xl py-3 text-sm sm:text-base font-bold transition-all">{t('dashboard.tabs.services')}</TabsTrigger>
-                <TabsTrigger value="store" className="rounded-xl py-3 text-sm sm:text-base font-bold transition-all gap-2"><ShoppingBag className="w-4 h-4 hidden sm:block" /> {t('store.title')}</TabsTrigger>
-                <TabsTrigger value="bookings" className="rounded-xl py-3 text-sm sm:text-base font-bold transition-all">{t('dashboard.tabs.bookings')}</TabsTrigger>
-                <TabsTrigger value="profile" className="rounded-xl py-3 text-sm sm:text-base font-bold transition-all">{t('dashboard.tabs.profile')}</TabsTrigger>
-                <TabsTrigger value="finance" className="rounded-xl py-3 text-sm sm:text-base font-bold transition-all">{t('dashboard.tabs.finance')}</TabsTrigger>
-              </TabsList>
-            </div>
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 bg-slate-200/50 dark:bg-slate-800/50 p-1 rounded-2xl h-auto">
+              <TabsTrigger value="services" className="rounded-xl py-3 font-bold">{t('dashboard.tabs.services')}</TabsTrigger>
+              <TabsTrigger value="staff" className="rounded-xl py-3 font-bold gap-2"><Users2 className="w-4 h-4" /> {t('salon.staff')}</TabsTrigger>
+              <TabsTrigger value="store" className="rounded-xl py-3 font-bold gap-2"><ShoppingBag className="w-4 h-4" /> {t('store.title')}</TabsTrigger>
+              <TabsTrigger value="bookings" className="rounded-xl py-3 font-bold">{t('dashboard.tabs.bookings')}</TabsTrigger>
+              <TabsTrigger value="finance" className="rounded-xl py-3 font-bold">{t('dashboard.tabs.finance')}</TabsTrigger>
+              <TabsTrigger value="profile" className="rounded-xl py-3 font-bold">{t('dashboard.tabs.profile')}</TabsTrigger>
+            </TabsList>
 
-            <TabsContent value="services" className="space-y-6 mt-4">
-              <div className="grid gap-6">
-                {services.length === 0 ? (
-                  <div className="text-center py-20 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl shadow-xl">
-                    <p className="text-xl text-muted-foreground mb-6">{t('dashboard.services.empty')}</p>
-                    <Button size="lg" className="rounded-full shadow-xl shadow-primary/20" onClick={() => setIsDialogOpen(true)}>
-                      <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                      {t('dashboard.services.first')}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {services.map((service) => (
-                      <div key={service.id} className="group relative bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-6 shadow-xl transition-all hover:shadow-2xl hover:-translate-y-1 overflow-hidden flex flex-col justify-between">
-                        <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-primary to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                        <div>
-                          <h3 className="text-xl font-bold mb-4">{getServiceName(service)}</h3>
-                          <div className="space-y-3 mb-6 flex flex-wrap gap-2">
-                            <div className="flex items-center gap-2 bg-slate-100/50 dark:bg-slate-800/50 px-3 py-2 rounded-2xl text-sm font-medium">
-                              <DollarSign className="h-4 w-4 text-primary" />
-                              <span>{service.price} {t('currency')}</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-slate-100/50 dark:bg-slate-800/50 px-3 py-2 rounded-2xl text-sm font-medium">
-                              <Clock className="h-4 w-4 text-primary" />
-                              <span>{service.duration_minutes} {t('barber.minutes')}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-3 mt-auto">
-                          <Button variant="outline" className="flex-1 rounded-xl border-primary/20 hover:bg-primary/5" onClick={() => handleEdit(service)}>
-                            <Edit className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} /> Edit
-                          </Button>
-                          <Button variant="outline" className="flex-1 rounded-xl border-red-500/20 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => handleDelete(service.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+            <TabsContent value="services" className="mt-8 space-y-6">
+               <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold">{t('dashboard.services.management')}</h2>
+                  <Button onClick={() => { setEditingService(null); setIsDialogOpen(true); }}>
+                    <Plus className="mr-2" /> Add Service
+                  </Button>
+               </div>
+               <div className="grid md:grid-cols-3 gap-6">
+                  {services.map(s => (
+                    <Card key={s.id} className="rounded-3xl p-6 shadow-xl border-none bg-white/60 dark:bg-slate-900/60 transition-all hover:-translate-y-1">
+                       <h3 className="font-bold text-xl mb-4">{getServiceName(s)}</h3>
+                       <div className="flex gap-4 mb-6">
+                          <Badge variant="secondary">{s.price} {t('currency')}</Badge>
+                          <Badge variant="outline">{s.duration_minutes} min</Badge>
+                       </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" className="flex-1 rounded-xl" onClick={() => { 
+                            if (s) {
+                              setEditingService(s); 
+                              setFormData({
+                                name_ar: s.name_ar,
+                                name_en: s.name_en,
+                                name_fr: s.name_fr,
+                                description_ar: s.description_ar || '',
+                                description_en: s.description_en || '',
+                                description_fr: s.description_fr || '',
+                                price: s.price,
+                                duration_minutes: s.duration_minutes
+                              }); 
+                              setIsDialogOpen(true);
+                            }
+                          }}>Edit</Button>
+                          <Button variant="outline" className="text-red-500 rounded-xl" onClick={async () => { await deleteDoc(doc(db, 'services', s.id)); fetchServices(); }}><Trash2 className="h-4 w-4" /></Button>
+                       </div>
+                    </Card>
+                  ))}
+               </div>
             </TabsContent>
 
-            <TabsContent value="store" className="space-y-6 mt-4">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold flex items-center gap-3"><ShoppingBag className="text-primary" /> {t('store.title')}</h2>
-                <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="lg" className="rounded-full shadow-xl shadow-primary/20" onClick={() => {
-                      setEditingProduct(null);
-                      setProductFormData({ name: '', price: 0, image: '', description: '' });
-                    }}>
-                      <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                      {t('dashboard.service.add')} Product
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-xl rounded-[2rem] p-6 sm:p-8 bg-white/95 dark:bg-slate-900/95 backdrop-blur-3xl border-white/20">
-                    <DialogHeader>
-                      <DialogTitle className="text-2xl font-bold">
-                        {editingProduct ? 'Edit Product' : 'Add Product'}
-                      </DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={handleProductSubmit} className="space-y-6 mt-4">
-                      <div className="space-y-4">
-                        <div>
-                          <Label>Product Name</Label>
-                          <Input value={productFormData.name} onChange={(e) => setProductFormData({ ...productFormData, name: e.target.value })} required />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label>Price ({t('currency')})</Label>
-                            <Input type="number" value={productFormData.price} onChange={(e) => setProductFormData({ ...productFormData, price: Number(e.target.value) })} required min="0" />
-                          </div>
-                          <div>
-                            <Label>Image URL</Label>
-                            <Input value={productFormData.image} onChange={(e) => setProductFormData({ ...productFormData, image: e.target.value })} placeholder="https://..." />
-                          </div>
-                        </div>
-                        <div>
-                          <Label>Description</Label>
-                          <Textarea value={productFormData.description} onChange={(e) => setProductFormData({ ...productFormData, description: e.target.value })} />
-                        </div>
-                      </div>
-                      <Button type="submit" size="lg" className="w-full rounded-full shadow-lg">Save Product</Button>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-              </div>
-
-              {products.length === 0 ? (
-                <div className="text-center py-20 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl shadow-xl">
-                  <p className="text-xl text-muted-foreground mb-6">No products available in your store.</p>
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {products.map((product) => (
-                    <div key={product.id} className="group overflow-hidden flex flex-col bg-white/60 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/50 rounded-[2rem] shadow-md hover:shadow-2xl transition-all">
-                      <div className="h-48 overflow-hidden bg-slate-100 dark:bg-slate-900">
-                        <img src={product.image || 'https://images.unsplash.com/photo-1599305090598-fe179d501227?w=500&auto=format&fit=crop'} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                      </div>
-                      <div className="p-5 flex flex-col flex-1">
-                        <div className="flex justify-between items-start mb-2 gap-2">
-                          <h3 className="font-extrabold text-lg">{product.name}</h3>
-                          <span className="font-black text-primary bg-primary/10 px-2 py-1 rounded-xl text-sm whitespace-nowrap">{product.price} {t('currency')}</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground font-medium mb-4 flex-1 line-clamp-2">{product.description}</p>
-                        <div className="flex gap-2 mt-auto">
-                          <Button variant="outline" className="flex-1 rounded-xl border-primary/20 hover:bg-primary/5" onClick={() => handleProductEdit(product)}>
-                            <Edit className="h-4 w-4 mr-2" /> Edit
-                          </Button>
-                          <Button variant="outline" className="flex-1 rounded-xl border-red-500/20 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => handleProductDelete(product.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
+            <TabsContent value="staff" className="mt-8 space-y-6">
+               <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold">{t('salon.staff')}</h2>
+                  <Button onClick={() => { setEditingStaff(null); setIsStaffDialogOpen(true); }}>
+                    <Plus className="mr-2" /> Add Member
+                  </Button>
+               </div>
+               <div className="grid md:grid-cols-3 gap-6">
+                  {staff.map(m => (
+                    <div key={m.id} className="flex items-center gap-4 p-4 border rounded-3xl bg-white/60 dark:bg-slate-900/60 shadow-xl">
+                       <img src={m.avatar || 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&h=100&auto=format&fit=crop'} className="w-16 h-16 rounded-2xl object-cover" alt="" />
+                       <div className="flex-1">
+                          <h4 className="font-bold text-lg">{m.name}</h4>
+                          <p className="text-xs text-muted-foreground font-black uppercase tracking-tighter">{m.role}</p>
+                       </div>
+                       <Button size="icon" variant="ghost" onClick={async () => { await deleteDoc(doc(db, 'barbers', barberId!, 'staff', m.id)); fetchStaff(); }} className="text-red-500"><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   ))}
-                </div>
-              )}
+               </div>
             </TabsContent>
 
-            <TabsContent value="bookings" className="space-y-8 mt-4">
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold flex items-center gap-3"><Clock className="text-primary" /> {t('dashboard.requests.online')}</h2>
-                {appointments.length === 0 ? (
-                  <div className="py-16 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl text-center text-lg font-medium text-muted-foreground shadow-sm">
-                    {t('dashboard.requests.empty')}
-                  </div>
-                ) : (
-                  <div className="grid gap-6">
-                    {appointments.filter(a => a.status === 'pending' || a.status === 'accepted').map(appt => (
-                      <div key={appt.id} className={`group relative bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border ${appt.status === 'pending' ? 'border-primary/50 bg-primary/5' : 'border-white/40 dark:border-slate-800/60'} rounded-3xl p-6 shadow-xl transition-all`}>
-                        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                          <div className="w-full md:w-auto">
-                            <div className="flex flex-wrap items-center gap-3 mb-4">
-                              <Badge className={`px-3 py-1 font-bold uppercase tracking-wider ${appt.status === 'pending' ? 'bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg shadow-yellow-500/30' : 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30'}`}>
-                                {t(`dashboard.requests.${appt.status === 'pending' ? 'online' : appt.status}`) || appt.status}
-                              </Badge>
-                              <span className="font-bold text-xl">{appt.customer_name || 'Customer'}</span>
-                            </div>
-
-                            <div className="flex flex-wrap gap-3 text-sm font-semibold">
-                              <div className="bg-white dark:bg-slate-800 px-4 py-2 shadow-sm rounded-xl">{new Date(appt.appointment_date).toLocaleDateString()}</div>
-                              <div className="bg-white dark:bg-slate-800 px-4 py-2 shadow-sm rounded-xl">{appt.appointment_time}</div>
-                            </div>
-
-                            <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-bold text-slate-700 dark:text-slate-300">
-                              <div className="opacity-90">{t('booking.total')}: {appt.total_price} {t('currency')} • {appt.total_duration} {t('barber.minutes')}</div>
-                              <div className="opacity-80">
-                                {appt.payment_method === 'pay_now' ? t('dashboard.payment.online') : t('dashboard.payment.salon')}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col gap-3 w-full md:w-auto min-w-[140px]">
-                            {appt.status === 'pending' && (
-                              <>
-                                <Button onClick={() => updateAppointmentStatus(appt.id, 'accepted')} className="bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg shadow-green-600/20">
-                                  <CheckCircle2 className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} /> {t('dashboard.requests.accept')}
-                                </Button>
-                                <Button onClick={() => updateAppointmentStatus(appt.id, 'rejected')} variant="destructive" className="rounded-xl shadow-lg shadow-red-600/20">
-                                  <XCircle className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} /> {t('dashboard.requests.reject')}
-                                </Button>
-                              </>
-                            )}
-                            {appt.status === 'accepted' && (
-                              <Button onClick={() => updateAppointmentStatus(appt.id, 'completed')} variant="outline" className="border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 rounded-xl">
-                                <Check className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} /> {t('dashboard.requests.complete')}
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-6 shadow-xl">
-                <h2 className="text-2xl font-bold flex items-center gap-3 mb-2">
-                  <UserPlus className="h-6 w-6 text-primary" /> {t('dashboard.walkin.title')}
-                </h2>
-                <p className="text-sm text-muted-foreground mb-6">{t('dashboard.walkin.desc')}</p>
-                <div className="flex justify-center py-10 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl bg-slate-50/50 dark:bg-slate-800/50 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800">
-                  <Button variant="outline" className="rounded-full shadow-sm" size="lg">
-                    <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                    {t('dashboard.walkin.add')}
+            <TabsContent value="store" className="mt-8 space-y-6">
+               <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold">{t('store.title')}</h2>
+                  <Button onClick={() => { setEditingProduct(null); setIsProductDialogOpen(true); }}>
+                    <Plus className="mr-2" /> Add Product
                   </Button>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="profile" className="space-y-8 mt-4">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl flex flex-col items-center justify-between">
-                  <div className="w-full">
-                    <h2 className="text-2xl font-bold flex items-center gap-3 mb-2 w-full justify-center">
-                      <QrCode className="h-6 w-6 text-primary" /> {t('dashboard.qr.title')}
-                    </h2>
-                    <p className="text-sm text-muted-foreground mb-8 text-center">{t('dashboard.qr.desc')}</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-[2rem] shadow-2xl mb-8 transform transition-all hover:scale-105 hover:shadow-primary/30 border border-slate-100 dark:border-slate-200">
-                    {user && barberId && (
-                      <QRCodeSVG value={`${window.location.origin}/barber/${barberId}`} size={220} level="H" includeMargin={true} />
-                    )}
-                  </div>
-                  <div className="flex gap-2 w-full">
-                    <Input readOnly value={`${window.location.origin}/barber/${barberId}`} className="flex-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl" />
-                    <Button variant="secondary" className="rounded-xl shadow-md" onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/barber/${barberId}`);
-                      toast({ title: "Copied!", description: "Link copied to clipboard ✓" });
-                    }}>
-                      <LinkIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl flex flex-col">
-                  <div>
-                    <h2 className="text-2xl font-bold flex items-center gap-3 mb-2">
-                      <ImagePlus className="h-6 w-6 text-primary" /> {t('dashboard.gallery.title')}
-                    </h2>
-                    <p className="text-sm text-muted-foreground mb-8">{t('dashboard.gallery.desc')}</p>
-                  </div>
-                  <div className="text-center py-20 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-[2rem] bg-slate-50/50 dark:bg-slate-800/50 flex-1 flex flex-col items-center justify-center transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800">
-                    <Button variant="outline" size="lg" className="rounded-full shadow-sm">
-                      <Plus className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                      {t('dashboard.gallery.upload')}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="finance" className="space-y-8 mt-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="group bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent rounded-3xl p-6 shadow-xl relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl">
-                  <div className="absolute top-0 right-0 w-2 h-full bg-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-green-500/10 rounded-2xl"><TrendingUp className="text-green-600 dark:text-green-400 h-6 w-6" /></div>
-                    <h3 className="text-xl font-bold">{t('dashboard.finance.earnings')}</h3>
-                  </div>
-                  <p className="text-4xl font-black text-green-600 dark:text-green-400">
-                    {totalEarnings} {t('currency')}
-                  </p>
-                </div>
-
-                <div className="group bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-red-500/20 bg-gradient-to-br from-red-500/5 to-transparent rounded-3xl p-6 shadow-xl relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl">
-                  <div className="absolute top-0 right-0 w-2 h-full bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-red-500/10 rounded-2xl"><TrendingDown className="text-red-500 dark:text-red-400 h-6 w-6" /></div>
-                    <h3 className="text-xl font-bold">{t('dashboard.finance.expenses')}</h3>
-                  </div>
-                  <p className="text-4xl font-black text-red-500 dark:text-red-400">{totalExpenses} {t('currency')}</p>
-                </div>
-
-                <div className="group bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent rounded-3xl p-6 shadow-xl relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-2xl">
-                  <div className="absolute top-0 right-0 w-2 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-primary/10 rounded-2xl"><DollarSign className="text-primary h-6 w-6" /></div>
-                    <h3 className="text-xl font-bold">{t('dashboard.finance.profit')}</h3>
-                  </div>
-                  <p className="text-4xl font-black text-primary">
-                    {totalProfit} {t('currency')}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Chart */}
-                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl">
-                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><TrendingUp className="text-primary h-6 w-6" /> {t('dashboard.finance.weekly')}</h2>
-                  <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                        <YAxis axisLine={false} tickLine={false} />
-                        <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
-                        <Bar dataKey="revenue" fill="currentColor" radius={[6, 6, 0, 0]} className="fill-primary" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
-                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl flex flex-col">
-                  <h2 className="text-2xl font-bold mb-2">{t('dashboard.finance.add')}</h2>
-                  <p className="text-sm text-muted-foreground mb-8">{t('dashboard.finance.expense.desc')}</p>
-
-                  <div className="flex flex-col gap-4 mb-4">
-                    <Input value={expenseName} onChange={e => setExpenseName(e.target.value)} placeholder={t('dashboard.finance.expense.name')} className="w-full rounded-xl bg-slate-50/50 dark:bg-slate-800/50 h-12" />
-                    <Input value={expenseAmount} onChange={e => setExpenseAmount(e.target.value)} type="number" placeholder={t('dashboard.finance.expense.amount')} className="w-full rounded-xl bg-slate-50/50 dark:bg-slate-800/50 h-12" />
-                    <Button onClick={handleAddExpense} className="w-full rounded-xl shadow-lg shadow-primary/20 h-12 font-bold mt-2" size="lg"><Plus className="h-5 w-5 mr-2" /> {t('dashboard.finance.add')}</Button>
-                  </div>
-
-                  {expenses.length > 0 && (
-                    <div className="mt-8 flex-1">
-                      <h4 className="font-bold mb-4 text-sm text-muted-foreground uppercase tracking-wider">{t('dashboard.finance.recent')}</h4>
-                      <div className="space-y-3">
-                        {expenses.slice(0, 3).map(exp => (
-                          <div key={exp.id} className="flex justify-between items-center p-4 bg-slate-100/50 dark:bg-slate-800/50 rounded-2xl">
-                            <span className="font-semibold">{exp.name}</span>
-                            <span className="font-bold text-red-500">-{exp.amount} {t('currency')}</span>
+               </div>
+               <div className="grid md:grid-cols-3 gap-6">
+                  {products.map(p => (
+                    <div key={p.id} className="group overflow-hidden flex flex-col bg-white/60 dark:bg-slate-900/60 rounded-3xl border-none shadow-xl transition-all hover:-translate-y-1">
+                       <div className="h-40 overflow-hidden">
+                          <img src={p.image || 'https://images.unsplash.com/photo-1599305090598-fe179d501227?w=500&auto=format&fit=crop'} alt={p.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                       </div>
+                       <div className="p-5 flex-1 flex flex-col">
+                          <div className="flex justify-between items-start mb-2">
+                             <h4 className="font-bold">{p.name}</h4>
+                             <span className="font-black text-primary">{p.price} {t('currency')}</span>
                           </div>
-                        ))}
-                      </div>
+                          <Button variant="outline" className="mt-auto rounded-xl" onClick={async () => { await deleteDoc(doc(db, 'products', p.id)); fetchProducts(); }}><Trash2 className="h-4 w-4 mr-2" /> Delete</Button>
+                       </div>
                     </div>
-                  )}
-                </div>
-              </div>
+                  ))}
+               </div>
             </TabsContent>
+
+            <TabsContent value="bookings" className="mt-8 space-y-6">
+               <h2 className="text-2xl font-bold">{t('dashboard.tabs.bookings')}</h2>
+               <div className="grid gap-4">
+                  {appointments.map(a => (
+                    <Card key={a.id} className="p-6 rounded-3xl border-none shadow-xl bg-white/60 dark:bg-slate-900/60">
+                       <div className="flex justify-between items-center">
+                          <div>
+                             <Badge className={a.status === 'pending' ? 'bg-yellow-500' : 'bg-green-500'}>{a.status}</Badge>
+                             <h4 className="font-bold text-xl mt-2">{a.customer_name || 'Customer'}</h4>
+                             <p className="text-sm text-muted-foreground">{new Date(a.appointment_date).toLocaleDateString()} at {a.appointment_time}</p>
+                          </div>
+                          <div className="flex gap-2">
+                             {a.status === 'pending' && <Button onClick={() => updateAppointmentStatus(a.id, 'accepted')} className="bg-green-600 rounded-xl">Accept</Button>}
+                             <Button onClick={() => updateAppointmentStatus(a.id, 'completed')} variant="outline" className="rounded-xl">Complete</Button>
+                             <Button onClick={() => updateAppointmentStatus(a.id, 'rejected')} variant="destructive" className="rounded-xl">Reject</Button>
+                          </div>
+                       </div>
+                    </Card>
+                  ))}
+               </div>
+            </TabsContent>
+
+            <TabsContent value="finance" className="mt-8 space-y-8">
+               <div className="grid md:grid-cols-3 gap-6">
+                  <Card className="p-8 rounded-[2rem] bg-green-500 text-white shadow-xl shadow-green-500/20">
+                     <h3 className="text-lg font-bold opacity-80">Earnings</h3>
+                     <p className="text-4xl font-black mt-2">{totalEarnings} {t('currency')}</p>
+                  </Card>
+                  <Card className="p-8 rounded-[2rem] bg-red-500 text-white shadow-xl shadow-red-500/20">
+                     <h3 className="text-lg font-bold opacity-80">Expenses</h3>
+                     <p className="text-4xl font-black mt-2">{totalExpenses} {t('currency')}</p>
+                  </Card>
+                  <Card className="p-8 rounded-[2rem] bg-primary text-white shadow-xl shadow-primary/20">
+                     <h3 className="text-lg font-bold opacity-80">Profit</h3>
+                     <p className="text-4xl font-black mt-2">{totalProfit} {t('currency')}</p>
+                  </Card>
+               </div>
+               
+               <div className="grid md:grid-cols-2 gap-8">
+                  <Card className="p-8 rounded-3xl shadow-xl bg-white/60 dark:bg-slate-900/60 border-none">
+                     <h3 className="text-xl font-bold mb-6">Finance Tracking</h3>
+                     <div className="space-y-4">
+                        <Input placeholder="Expense Name" value={expenseName} onChange={e => setExpenseName(e.target.value)} className="rounded-xl" />
+                        <Input placeholder="Amount" type="number" value={expenseAmount} onChange={e => setExpenseAmount(e.target.value)} className="rounded-xl" />
+                        <Button onClick={handleAddExpense} className="w-full h-12 rounded-xl">Add Expense</Button>
+                     </div>
+                  </Card>
+                  <Card className="p-8 rounded-3xl shadow-xl bg-white/60 dark:bg-slate-900/60 border-none">
+                     <h3 className="text-xl font-bold mb-6">Referral Engine</h3>
+                     <p className="text-sm text-muted-foreground mb-4">Invite other barbers and earn 500 DZD for each successful verification.</p>
+                     <div className="flex gap-2">
+                        <Input readOnly value={referralLink} className="rounded-xl flex-1" />
+                        <Button variant="outline" className="rounded-xl" onClick={() => { navigator.clipboard.writeText(referralLink); toast({ title: "Copied!" }) }}><LinkIcon className="h-4 w-4" /></Button>
+                     </div>
+                  </Card>
+               </div>
+            </TabsContent>
+
+            <TabsContent value="profile" className="mt-8 space-y-6">
+                <div className="grid md:grid-cols-2 gap-8">
+                   <Card className="p-10 rounded-[3rem] shadow-2xl bg-white/60 dark:bg-slate-900/60 border-none flex flex-col items-center">
+                      <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Your Salon QR</h3>
+                      <div className="p-6 bg-white rounded-[2rem] shadow-inner mb-6">
+                         {barberId && <QRCodeSVG value={`${window.location.origin}/barber/${barberId}`} size={200} />}
+                      </div>
+                      <p className="text-center text-sm text-muted-foreground">Customers can scan this to book directly from your salon. Print and place on your mirror!</p>
+                   </Card>
+                   
+                   <Card className="p-10 rounded-[3rem] shadow-2xl bg-white/60 dark:bg-slate-900/60 border-none">
+                      <h3 className="text-2xl font-black mb-6 uppercase tracking-tighter">Verification Profile</h3>
+                      <div className="flex items-center gap-6 p-6 border rounded-[2rem] bg-primary/5 border-primary/20">
+                         <div className={`p-5 rounded-full ${isVerified ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white shadow-lg'}`}>
+                            {isVerified ? <CheckCircle2 className="h-8 w-8" /> : <Activity className="h-8 w-8" />}
+                         </div>
+                         <div>
+                            <p className="font-extrabold text-xl">{isVerified ? "Verified Studio" : "Identity In Review"}</p>
+                            <p className="text-sm opacity-80">{isVerified ? t('verified') : "Level 1 Access - Standard"}</p>
+                         </div>
+                      </div>
+                   </Card>
+                </div>
+            </TabsContent>
+
           </Tabs>
+
         </div>
       </main>
 
       <Footer />
+
+      {/* Dialogs */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="rounded-[2.5rem] p-8">
+           <DialogHeader><DialogTitle>{editingService ? 'Edit' : 'Add'} Service</DialogTitle></DialogHeader>
+           <form onSubmit={handleServiceSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-1"><Label>Nombre (AR)</Label><Input value={formData.name_ar} onChange={e => setFormData({...formData, name_ar: e.target.value})} required dir="rtl" /></div>
+                 <div className="space-y-1"><Label>Name (EN)</Label><Input value={formData.name_en} onChange={e => setFormData({...formData, name_en: e.target.value})} required /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-1"><Label>Price</Label><Input type="number" value={formData.price} onChange={e => setFormData({...formData, price: Number(e.target.value)})} required /></div>
+                 <div className="space-y-1"><Label>Duration (min)</Label><Input type="number" value={formData.duration_minutes} onChange={e => setFormData({...formData, duration_minutes: Number(e.target.value)})} required /></div>
+              </div>
+              <Button type="submit" className="w-full h-12 rounded-xl">Save Service</Button>
+           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isStaffDialogOpen} onOpenChange={setIsStaffDialogOpen}>
+        <DialogContent className="rounded-[2.5rem] p-8">
+           <DialogHeader><DialogTitle>Add Staff Member</DialogTitle></DialogHeader>
+           <form onSubmit={handleStaffSubmit} className="space-y-4">
+              <div className="space-y-1"><Label>Full Name</Label><Input value={staffFormData.name} onChange={e => setStaffFormData({...staffFormData, name: e.target.value})} required /></div>
+              <div className="space-y-1"><Label>Role</Label><Input value={staffFormData.role} onChange={e => setStaffFormData({...staffFormData, role: e.target.value})} required /></div>
+              <div className="space-y-1"><Label>Avatar URL</Label><Input value={staffFormData.avatar} onChange={e => setStaffFormData({...staffFormData, avatar: e.target.value})} placeholder="https://..." /></div>
+              <Button type="submit" className="w-full h-12 rounded-xl">Save Member</Button>
+           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
+        <DialogContent className="rounded-[2.5rem] p-8">
+           <DialogHeader><DialogTitle>Add Product</DialogTitle></DialogHeader>
+           <form onSubmit={handleProductSubmit} className="space-y-4">
+              <div className="space-y-1"><Label>Product Name</Label><Input value={productFormData.name} onChange={e => setProductFormData({...productFormData, name: e.target.value})} required /></div>
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-1"><Label>Price</Label><Input type="number" value={productFormData.price} onChange={e => setProductFormData({...productFormData, price: Number(e.target.value)})} required /></div>
+                 <div className="space-y-1"><Label>Image URL</Label><Input value={productFormData.image} onChange={e => setProductFormData({...productFormData, image: e.target.value})} /></div>
+              </div>
+              <Button type="submit" className="w-full h-12 rounded-xl">Save Product</Button>
+           </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

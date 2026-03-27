@@ -31,7 +31,11 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      # ── 4. Build the React app ────────────────────────────────
+      # ── 4. Autonomous Project Audit ───────────────────────────
+      - name: 🛡️ Radical Code Audit
+        run: node scripts/audit.cjs
+
+      # ── 5. Build the React app ────────────────────────────────
       - name: 🏗️ Build production bundle
         run: npm run build
         env:

@@ -6,140 +6,129 @@
   :root {
     --background: 210 20% 98%;
     --foreground: 222 47% 11%;
-
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-
     --primary: 221 83% 53%;
     --primary-foreground: 210 40% 98%;
-
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 47% 11%;
-
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
     --accent: 210 40% 96.1%;
     --accent-foreground: 222 47% 11%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221 83% 53%;
-
-    --radius: 0.75rem;
+    --radius: 1rem;
   }
 
   .dark {
-    --background: 222 47% 11%;
+    --background: 230 25% 5%;
     --foreground: 210 40% 98%;
-
-    --card: 222 47% 11%;
+    --card: 230 25% 7%;
     --card-foreground: 210 40% 98%;
-
-    --popover: 222 47% 11%;
+    --popover: 230 25% 7%;
     --popover-foreground: 210 40% 98%;
-
     --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 11%;
-
-    --secondary: 217.2 32.6% 17.5%;
+    --primary-foreground: 230 25% 5%;
+    --secondary: 217.2 32.6% 12%;
     --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 217.2 32.6% 12%;
     --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 217.2 32.6% 12%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 217.2 32.6% 15%;
+    --input: 217.2 32.6% 15%;
     --ring: 224.3 76.3% 48%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary/30;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Premium Animations */
-@keyframes float {
-  0% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(2deg); }
-  100% { transform: translateY(0px) rotate(0deg); }
+/* Clean SaaS Aesthetic Re-Design */
+:root {
+  --background: 210 20% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --border: 214.3 31.8% 91.4%;
+  --primary: 221 83% 53%;
 }
 
-@keyframes pulse-glow {
-  0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
-  70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+.dark {
+  --background: 222 47% 3%;
+  --foreground: 210 40% 98%;
+  --card: 222 47% 5%;
+  --border: 217.2 32.6% 12%;
+  --primary: 217 91% 60%;
 }
 
-@keyframes slide-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary/20;
+    font-feature-settings: "cv02", "cv05", "cv08", "cv11", "ss01";
+    letter-spacing: -0.011em;
+  }
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s infinite;
-}
-
-.animate-slide-up {
-  animation: slide-up 0.5s ease-out forwards;
-}
-
-/* Glassmorphism Classes */
+/* Premium Component Foundations */
 .glass {
-  @apply bg-background/60 backdrop-blur-lg border border-white/10;
+  @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 shadow-sm;
 }
 
-.glass-card {
-  @apply bg-card/40 backdrop-blur-md border border-white/5 hover:border-primary/30 transition-all duration-300;
+.premium-card {
+  @apply bg-card border border-slate-200/60 dark:border-slate-800/60 rounded-3xl shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300;
 }
 
-/* Modern Typography */
-h1, h2, h3, h4 {
-  @apply tracking-tight font-extrabold;
+/* Sophisticated Typography */
+h1, h2, h3, h4 { @apply tracking-tighter font-extrabold; }
+
+.section-title {
+  @apply text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight;
 }
 
-/* Premium Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  @apply bg-background;
-}
-::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
+/* Subtle Micro-interactions */
+.hover-lift {
+  @apply transition-transform duration-300 hover:-translate-y-1;
 }
 
-/* 3D Transform Effects */
-.perspective-1000 {
-  perspective: 1000px;
+.inner-glow {
+  @apply relative overflow-hidden;
+}
+.inner-glow::after {
+  content: "";
+  @apply absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none opacity-0 transition-opacity duration-500;
+}
+.inner-glow:hover::after {
+  @apply opacity-100;
 }
 
-.preserve-3d {
-  transform-style: preserve-3d;
+/* Smooth Transitions */
+.transition-smooth {
+  @apply transition-all duration-300 ease-in-out;
 }
 
-.hover-3d:hover {
-  transform: rotateX(5deg) rotateY(5deg) translateZ(10px);
+/* Responsive Utilities */
+@media (max-width: 640px) {
+  .section-title { @apply text-3xl; }
 }
+
+/* Professional Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { 
+  @apply bg-slate-200 dark:bg-slate-800 rounded-full border-2 border-solid border-transparent bg-clip-content;
+}
+::-webkit-scrollbar-thumb:hover { @apply bg-slate-300 dark:bg-slate-700; }

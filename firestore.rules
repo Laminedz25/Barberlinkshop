@@ -158,7 +158,40 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ─── WALLETS Collection (Financial Engine) ──────────────
+    match /wallets/{walletId} {
+      // Barbers can only see their own wallet balance and history
+      allow read: if isAuthenticated() && (resource.data.user_id == request.auth.uid || isAdmin());
+      // Only system (Admin SDK) can write to wallets
+      allow write: if isAdmin();
+    }
+
+    // ─── REFERRALS Collection ──────────────────────────────
+    match /referrals/{referralId} {
+      allow read: if isAuthenticated() && (resource.data.referrer_id == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && isNotSuspended();
+      allow update, delete: if isAdmin();
+    }
+
     // ─── NOTIFICATIONS Collection ───────────────────────────
+    // ─── MESSAGES (Top-level Global) ─────────────────────────
+    match /messages/{messageId} {
+      allow read: if isAuthenticated()
+                  && (resource.data.participants.hasAny([request.auth.uid]) || isAdmin());
+
+      allow create: if isAuthenticated()
+                    && isNotSuspended()
+                    && request.resource.data.participants.hasAny([request.auth.uid])
+                    && request.resource.data.sender_id == request.auth.uid;
+
+      allow update, delete: if isAdmin();
+    }
+
+    // ─── SYSTEM / INVESTOR_METRICS ─────────────────────────
+    match /system/investor_metrics {
+      allow read, write: if isAdmin();
+    }
+
     match /notifications/{notifId} {
       allow read: if isAuthenticated() && resource.data.user_id == request.auth.uid;
       allow create: if isAdmin();
