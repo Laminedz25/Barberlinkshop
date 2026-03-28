@@ -15,7 +15,7 @@ import {
   Plus, Edit, Trash2, DollarSign, Clock, QrCode, 
   ImagePlus, UserPlus, Link as LinkIcon, CheckCircle2, 
   XCircle, Check, TrendingUp, TrendingDown, ShoppingBag, 
-  Activity, Bot, Users2 
+  Activity, Bot, Users2, Zap, Star
 } from 'lucide-react';
 import {
   Dialog,

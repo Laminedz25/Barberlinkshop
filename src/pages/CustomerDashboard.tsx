@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { Calendar, Clock, Star, Heart, Trophy, Crown, Zap, Search } from 'lucide-react';
+import { Calendar, Clock, Star, Heart, Trophy, Crown, Zap, Search, CheckCircle2, Bot, TrendingUp, Activity, Users, DollarSign } from 'lucide-react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import {
     Dialog,
@@ -34,6 +34,13 @@ interface Appointment {
     barber_name?: string;
 }
 
+interface FavoriteBarber {
+    id: string;
+    business_name: string;
+    image?: string;
+    is_verified?: boolean;
+}
+
 const CustomerDashboard = () => {
     const { user } = useAuth();
     const { t, isRTL } = useLanguage();
@@ -41,17 +48,15 @@ const CustomerDashboard = () => {
     const navigate = useNavigate();
 
     const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [reviewText, setReviewText] = useState('');
+    const [rating, setRating] = useState(5);
+    const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
     const [points, setPoints] = useState(0);
-    const [favorites, setFavorites] = useState<any[]>([]);
+    const [favorites, setFavorites] = useState<FavoriteBarber[]>([]);
     const [isReviewOpen, setIsReviewOpen] = useState(false);
 
-    useEffect(() => {
-        if (user) {
-            fetchUserProfile();
-        }
-    }, [user]);
-
-    const fetchUserProfile = async () => {
+    const fetchUserProfile = useCallback(async () => {
         if (!user) return;
         const snap = await getDoc(doc(db, 'users', user.uid));
         if (snap.exists()) {
@@ -61,15 +66,29 @@ const CustomerDashboard = () => {
             // Fetch Favorite Barber documents
             const favIds = data.favorites || [];
             if (favIds.length > 0) {
-                const favs: any[] = [];
+                const favs: FavoriteBarber[] = [];
                 for (const id of favIds) {
                     const bSnap = await getDoc(doc(db, 'barbers', id));
-                    if (bSnap.exists()) favs.push({ id: bSnap.id, ...bSnap.data() });
+                    if (bSnap.exists()) {
+                        const bData = bSnap.data();
+                        favs.push({ 
+                            id: bSnap.id, 
+                            business_name: bData.business_name || 'Professional Master',
+                            image: bData.image,
+                            is_verified: bData.verified || bData.is_verified
+                        });
+                    }
                 }
                 setFavorites(favs);
             }
         }
-    };
+    }, [user]);
+
+    useEffect(() => {
+        if (user) {
+            fetchUserProfile();
+        }
+    }, [user, fetchUserProfile]);
 
     useEffect(() => {
         if (!user) {

@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart, TrendingUp, Users, Scissors, CalendarCheck, ShieldAlert, RefreshCw, CheckCircle, XCircle, LogOut, Plus, Bot, Mail, Settings, Activity, Trash2, Edit3, Save, Search, Filter, Percent, CreditCard, Tag, Globe, Zap, ShieldCheck, ShoppingBag, LineChart, Layers, Layout, Brain } from 'lucide-react';
+import { Scissors, ShoppingBag, TrendingUp, TrendingDown, Users, DollarSign, Calendar, MessageSquare, Bot, Brain, Activity, ShieldCheck, Mail, ShieldAlert, BarChart3, RefreshCw, Zap, Save, CheckCircle, XCircle, Settings, Plus, BookOpen } from 'lucide-react';
+import { MasterOrchestrator } from '@/ai-agents/MasterOrchestrator';
+import { MemorySystem, MemoryNode } from '@/lib/agent-memory';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -98,8 +100,11 @@ const AdminDashboard = () => {
     total_revenue: 1540000,
     active_barbers: 1240,
     ai_efficiency: 94,
-    monthly_growth: 32
+    monthly_growth: 12
   });
+  const [aiMemories, setAiMemories] = useState<MemoryNode[]>([]);
+  const [selectedAgentForTraining, setSelectedAgentForTraining] = useState<AgentRecord | null>(null);
+  const [newSystemPrompt, setNewSystemPrompt] = useState('');
   const [isAddingAgent, setIsAddingAgent] = useState(false);
   const [newAgent, setNewAgent] = useState<Partial<AIAgent>>({ name: '', type: 'stylist', status: 'idle', tasks: [] });
   const [isAddingPlan, setIsAddingPlan] = useState(false);
@@ -174,6 +179,14 @@ const AdminDashboard = () => {
     });
 
     loadData().finally(() => setLoading(false));
+    MasterOrchestrator.getInstance().startLoop();
+    // Fetch memories
+    const fetchMemories = async () => {
+      const q = query(collection(db, 'ai_memories'), orderBy('timestamp', 'desc'), limit(20));
+      const snap = await getDocs(q);
+      setAiMemories(snap.docs.map(d => d.data() as MemoryNode));
+    };
+    fetchMemories();
 
     return () => unsub();
   }, [authorized, loadData]);
@@ -739,57 +752,122 @@ const AdminDashboard = () => {
                   <Card className="p-6 bg-slate-900 text-white rounded-[2rem] border-none">
                      <h4 className="font-black text-sm uppercase tracking-widest text-primary/80 mb-4">Autonomous Workflows</h4>
                      <div className="space-y-3">
-                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                           <span className="text-xs font-bold">Auto-Scale Agents</span>
-                           <div className="w-8 h-4 bg-primary rounded-full relative"><div className="absolute right-1 top-1 w-2 h-2 bg-white rounded-full"></div></div>
-                        </div>
-                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                           <span className="text-xs font-bold">Predictive Booking</span>
-                           <div className="w-8 h-4 bg-white/10 rounded-full relative"><div className="absolute left-1 top-1 w-2 h-2 bg-white/40 rounded-full"></div></div>
-                        </div>
+                         <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                            <span className="text-xs font-bold">Auto-Scale Agents</span>
+                            <div className="w-8 h-4 bg-primary rounded-full relative"><div className="absolute right-1 top-1 w-2 h-2 bg-white rounded-full"></div></div>
+                         </div>
+                         <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                            <span className="text-xs font-bold">Predictive Booking</span>
+                            <div className="w-8 h-4 bg-white/10 rounded-full relative"><div className="absolute left-1 top-1 w-2 h-2 bg-white/40 rounded-full"></div></div>
+                         </div>
                      </div>
                   </Card>
                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {aiAgents.map(agent => (
-                <div key={agent.id} className="p-8 bg-card border rounded-[2.5rem] group hover:border-primary transition-all duration-500 hover:shadow-2xl shadow-sm relative overflow-hidden">
-                   <div className="flex justify-between items-start mb-6">
-                      <div className="p-4 rounded-[1.5rem] bg-slate-100 text-slate-900 group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm">
-                         {agent.id.includes('support') ? <Users className="w-6 h-6" /> : 
-                          agent.id.includes('barber') ? <Scissors className="w-6 h-6" /> :
-                          agent.id.includes('brain') ? <Brain className="w-6 h-6" /> :
-                          <Bot className="w-6 h-6" />}
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                         <Badge variant="outline" className="rounded-full px-3 py-1 font-black text-[9px] uppercase tracking-tighter border-slate-200">{agent.id.split('_')[0]} Node</Badge>
-                         <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${agent.status === 'active' ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`} />
-                            <span className="text-[10px] font-black uppercase text-muted-foreground">{agent.status}</span>
-                         </div>
-                      </div>
-                   </div>
-                   
-                   <h4 className="text-2xl font-black mb-2 tracking-tight uppercase">{agent.id.replace(/_/g, ' ')}</h4>
-                   <p className="text-sm font-medium text-muted-foreground leading-relaxed mb-8 h-10 line-clamp-2">{agent.role}</p>
-                   
-                   <div className="space-y-4 mb-8">
-                      <div className="p-4 bg-muted/50 rounded-2xl border border-slate-100">
-                         <span className="text-[10px] font-black uppercase text-primary/70 block mb-1">Standard Logic Path</span>
-                         <span className="text-[11px] font-bold text-slate-700 italic block leading-tight">{agent.workflow || 'Autonomous Intelligence'}</span>
-                      </div>
-                   </div>
-
-                   <div className="flex gap-3 mt-auto pt-4 border-t border-dashed">
-                      <Button variant="outline" className="flex-1 h-12 rounded-xl border-slate-200 font-bold hover:bg-slate-50">MANAGE</Button>
-                      <Button className="flex-1 h-12 rounded-xl font-bold shadow-md shadow-primary/10">TRAIN</Button>
-                   </div>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {aiAgents.map(agent => (
+                    <div key={agent.id} className="p-8 bg-card border rounded-[2.5rem] group hover:border-primary transition-all duration-500 hover:shadow-2xl shadow-sm relative overflow-hidden flex flex-col">
+                       <div className="flex justify-between items-start mb-6">
+                          <div className="p-4 rounded-[1.5rem] bg-slate-100 text-slate-900 group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm">
+                             {agent.id.includes('support') ? <Users className="w-6 h-6" /> : 
+                              agent.id.includes('orchestrator') ? <Brain className="w-6 h-6" /> :
+                              agent.id.includes('payment') ? <ShieldCheck className="w-6 h-6" /> :
+                              <Bot className="w-6 h-6" />}
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                             <Badge variant="outline" className="rounded-full px-3 py-1 font-black text-[9px] uppercase tracking-tighter border-slate-200">
+                                {agent.id.split('_')[0]} Node
+                             </Badge>
+                             <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${agent.status === 'active' || agent.status === 'executing' ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`} />
+                                <span className="text-[10px] font-black uppercase text-muted-foreground">{agent.status}</span>
+                             </div>
+                          </div>
+                       </div>
+                       
+                       <h4 className="text-xl font-black mb-2 tracking-tight uppercase line-clamp-1">{agent.id.replace(/_/g, ' ')}</h4>
+                       <p className="text-xs font-medium text-muted-foreground leading-relaxed mb-6 h-10 line-clamp-2">{agent.role}</p>
+                       
+                       <div className="mt-auto space-y-4">
+                          <div className="p-3 bg-muted/30 rounded-xl border border-slate-100">
+                             <span className="text-[9px] font-black uppercase text-primary/70 block mb-1">Last Autonomous Output</span>
+                             <p className="text-[10px] font-mono text-slate-600 truncate">{agent.logs?.[agent.logs.length - 1] || 'Scanning mesh...'}</p>
+                          </div>
+                          
+                          <div className="flex gap-2">
+                             <Button onClick={() => {
+                                setSelectedAgentForTraining(agent);
+                                const registryEntry = AGENT_REGISTRY[agent.id];
+                                setNewSystemPrompt(registryEntry?.systemPrompt || '');
+                             }} variant="outline" className="flex-1 h-10 rounded-xl border-slate-200 text-xs font-black uppercase">Train Node</Button>
+                             <Button className="flex-1 h-10 rounded-xl text-xs font-black uppercase shadow-lg shadow-primary/10">Manage</Button>
+                          </div>
+                       </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+
+                <div className="lg:col-span-1 space-y-6">
+                   <Card className="border-none shadow-2xl rounded-[2.5rem] bg-slate-950 text-white overflow-hidden">
+                      <div className="p-6 border-b border-white/5 bg-white/5">
+                         <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                            <BookOpen className="w-4 h-4 text-primary" /> Neural Memory
+                         </h3>
+                      </div>
+                      <CardContent className="p-4 max-h-[600px] overflow-y-auto no-scrollbar">
+                         <div className="space-y-4">
+                            {aiMemories.map((mem, i) => (
+                               <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/5 space-y-2 group hover:bg-white/10 transition-all">
+                                  <div className="flex justify-between items-center">
+                                     <Badge variant="outline" className="text-[8px] border-primary/30 text-primary font-black uppercase">{mem.agent_id.split('_')[0]}</Badge>
+                                     <span className="text-[8px] text-white/30">{new Date(mem.timestamp).toLocaleTimeString()}</span>
+                                  </div>
+                                  <p className="text-[10px] font-bold text-white/80">{mem.decision}</p>
+                                  <p className="text-[9px] text-white/40 line-clamp-2 font-mono">{JSON.stringify(mem.context)}</p>
+                               </div>
+                            ))}
+                            {aiMemories.length === 0 && <p className="text-center py-10 text-xs text-white/20 italic font-medium tracking-widest">Awaiting Neural Spikes...</p>}
+                         </div>
+                      </CardContent>
+                   </Card>
+                </div>
+             </div>
           </div>
         )}
+
+        {/* Training Dialog */}
+        <Dialog open={!!selectedAgentForTraining} onOpenChange={() => setSelectedAgentForTraining(null)}>
+           <DialogContent className="rounded-[3rem] p-8 sm:p-10 max-w-2xl bg-white/95 backdrop-blur-xl">
+              <DialogHeader>
+                 <DialogTitle className="text-3xl font-black uppercase tracking-tighter mb-4">
+                    Fine-Tune Node: <span className="text-primary">{selectedAgentForTraining?.id.replace(/_/g, ' ')}</span>
+                 </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6 py-4">
+                 <div className="space-y-2">
+                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground italic">Neural Core Instructions (System Prompt)</Label>
+                    <textarea 
+                       value={newSystemPrompt}
+                       onChange={(e) => setNewSystemPrompt(e.target.value)}
+                       className="w-full h-80 rounded-[2rem] p-6 bg-slate-50 border-2 border-slate-100 font-mono text-xs focus:border-primary transition-all outline-none"
+                    />
+                 </div>
+                 <Button onClick={async () => {
+                    if (!selectedAgentForTraining) return;
+                    await updateDoc(doc(db, 'ai_agents', selectedAgentForTraining.id), { 
+                      systemPrompt: newSystemPrompt,
+                      logs: arrayUnion(`[System] Neural Core Updated. Re-indexing logic nodes at ${new Date().toISOString()}`)
+                    });
+                    toast({ title: "Node Trained", description: "Identity logic reorganized for global operations." });
+                    setSelectedAgentForTraining(null);
+                 }} className="w-full h-16 rounded-2xl text-lg font-black shadow-xl shadow-primary/20">
+                    SYNC NEURAL CORE
+                 </Button>
+              </div>
+           </DialogContent>
+        </Dialog>
 
         {activeTab === 'marketing' && (
           <div className="space-y-6 animate-slide-up">

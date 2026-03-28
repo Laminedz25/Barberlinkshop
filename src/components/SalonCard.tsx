@@ -24,6 +24,7 @@ interface SalonCardProps {
     salonType?: 'men' | 'women' | 'unisex';
     phone?: string;
     whatsapp?: string;
+    user_id?: string;
   };
 }
 
@@ -163,7 +164,7 @@ const SalonCard = ({ salon }: SalonCardProps) => {
             <Share2 className="h-5 w-5" />
           </Button>
           <Button
-            onClick={() => navigate(`/chat/${(salon as any).user_id || salon.id}`)}
+            onClick={() => navigate(`/chat/${salon.user_id || salon.id}`)}
             variant="outline"
             size="icon"
             className="h-14 w-14 rounded-2xl border-slate-200 hover:bg-slate-50 transition-all active:scale-95"
