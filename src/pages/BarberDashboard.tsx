@@ -193,6 +193,16 @@ const BarberDashboard = () => {
     }
   }, [barberId, fetchServices, fetchAppointments, fetchExpenses, fetchProducts, fetchStaff]);
 
+  const handleSaveSocials = async () => {
+    if (!barberId) return;
+    try {
+      await updateDoc(doc(db, 'barbers', barberId), { socials });
+      toast({ title: t('profile.saveSuccess', 'Profile Updated'), description: t('socials.saved', 'Your social links were updated successfully.'), variant: 'default' });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    }
+  };
+
   const updateAppointmentStatus = async (appId: string, newStatus: string) => {
     try {
       await updateDoc(doc(db, 'appointments', appId), { status: newStatus });
@@ -653,6 +663,32 @@ const BarberDashboard = () => {
                               </div>
                            ))}
                         </div>
+                    </Card>
+                    <Card className="p-10 rounded-[3rem] shadow-2xl bg-white/60 dark:bg-slate-900/60 border-none lg:col-span-2">
+                      <h3 className="text-2xl font-black mb-6 uppercase tracking-tighter">Social & Digital Presence</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Instagram Handle (without @)</Label>
+                          <Input value={socials.instagram || ''} onChange={(e) => setSocials({ ...socials, instagram: e.target.value })} placeholder="barberlink" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Facebook Username</Label>
+                          <Input value={socials.facebook || ''} onChange={(e) => setSocials({ ...socials, facebook: e.target.value })} placeholder="barberlink.dz" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>TikTok Handle</Label>
+                          <Input value={socials.tiktok || ''} onChange={(e) => setSocials({ ...socials, tiktok: e.target.value })} placeholder="barberlink" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>WhatsApp Number</Label>
+                          <Input type="tel" value={socials.whatsapp || ''} onChange={(e) => setSocials({ ...socials, whatsapp: e.target.value })} placeholder="+213XXXXXXXX" />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                          <Label>Website URL</Label>
+                          <Input type="url" value={socials.website || ''} onChange={(e) => setSocials({ ...socials, website: e.target.value })} placeholder="https://barberlink.cloud" />
+                        </div>
+                      </div>
+                      <Button onClick={handleSaveSocials} className="mt-6 w-full h-12 rounded-xl text-lg font-bold">Save Social Links</Button>
                     </Card>
                 </div>
             </TabsContent>

@@ -9,7 +9,10 @@ import {
   signInWithPopup,
   sendPasswordResetEmail,
   sendEmailVerification,
-  User
+  User,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
@@ -46,6 +49,7 @@ const Auth = () => {
   const [socialUser, setSocialUser] = useState<User | null>(null);
   const [referrerId, setReferrerId] = useState<string | null>(null);
   const isRegistering = useRef(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -214,6 +218,7 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
       const res = await signInWithEmailAndPassword(auth, email, password);
       // FORCE REDIRECTION SYNC
       const snap = await getDoc(doc(db, 'users', res.user.uid));
@@ -405,6 +410,10 @@ const Auth = () => {
                     </button>
                   </div>
                   <Input id="password-signin" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                </div>
+                <div className="flex items-center space-x-2 pb-2">
+                  <Checkbox id="remember-me" checked={rememberMe} onCheckedChange={(c) => setRememberMe(c as boolean)} />
+                  <Label htmlFor="remember-me" className="text-sm cursor-pointer">{isRTL ? 'تذكرني' : 'Remember me'}</Label>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? t('auth.loading') : t('auth.signin')}

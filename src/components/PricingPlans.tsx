@@ -73,36 +73,36 @@ export default function PricingPlans() {
     const fallbackPlans: SubscriptionPlan[] = [
         {
             id: 'basic',
-            name: t('pricing.basic.name'),
-            desc: t('pricing.basic.desc'),
+            name: isRTL ? 'الأساسية' : 'Standard Starter',
+            desc: isRTL ? 'مثالية للبدء والتواجد على الخريطة الذكية.' : 'Perfect for getting your barbershop on the map.',
             price_dzd: dzdBase,
             price_usd: usdBase,
             icon: <Star className="h-6 w-6 text-blue-500" />,
             color: "from-blue-500/10 to-transparent border-blue-500/20",
-            features: [t('pricing.basic.f1'), t('pricing.basic.f2'), t('pricing.basic.f3')],
+            features: isRTL ? ['حجوزات قياسية غير محدودة', 'ظهور في الخريطة والتطبيق', 'تلقي التقييمات'] : ['Unlimited Standard Bookings', 'Global App Visibility', 'Receive Client Reviews'],
             btnVariant: 'outline'
         },
         {
             id: 'pro',
-            name: t('pricing.pro.name'),
-            desc: t('pricing.pro.desc'),
+            name: isRTL ? 'احترافي بلس' : 'Professional Plus',
+            desc: isRTL ? 'أدوات ذكية بالذكاء الاصطناعي لزيادة أرباحك.' : 'AI-powered tools to maximize your revenue.',
             price_dzd: Math.round(dzdBase * 2.5),
             price_usd: Math.round(usdBase * 2.5),
             icon: <Zap className="h-6 w-6 text-primary" />,
             color: "from-primary/20 to-primary/5 border-primary/40 shadow-primary/20",
             isPopular: true,
-            features: [t('pricing.pro.f1'), t('pricing.pro.f2'), t('pricing.pro.f3'), t('pricing.pro.f4')],
+            features: isRTL ? ['مساعد الذكاء الاصطناعي (AI Stylist)', 'محفظة أعمال احترافية وحسابات تواصل', 'نظام "الحلاق المفضل"', 'أولوية في نتائج الحجز (SEO)'] : ['AI Assistant (Stylist)', 'Pro Portfolio & Social Integrations', 'Favorite Barber Feature', 'Booking Priority (SEO)'],
             btnVariant: 'default'
         },
         {
             id: 'premium',
-            name: t('pricing.premium.name'),
-            desc: t('pricing.premium.desc'),
+            name: isRTL ? 'نخبة الأعمال' : 'Elite Enterprise',
+            desc: isRTL ? 'إدارة كاملة للمستثمرين وأصحاب الصالونات المتعددة.' : 'Full management for investors & multiple salons.',
             price_dzd: dzdBase * 5,
             price_usd: usdBase * 5,
             icon: <TrendingUp className="h-6 w-6 text-amber-500" />,
             color: "from-amber-500/10 to-transparent border-amber-500/20",
-            features: [t('pricing.premium.f1'), t('pricing.premium.f2'), t('pricing.premium.f3'), t('pricing.premium.f4')],
+            features: isRTL ? ['وكيل صيانة البيانات المستقل (AI)', 'لوحة تحكم استثمارية متقدمة', 'دردشة مالية وتسويق بالعمولة', 'دعم وحماية أمنية 24/7'] : ['Autonomous Database Agent', 'Investor Advanced Dashboard', 'Financial Chat & Affiliates', '24/7 Premium Security Support'],
             btnVariant: 'outline'
         }
     ];
@@ -133,8 +133,8 @@ export default function PricingPlans() {
                     </h2>
                     
                     {/* Interval Selector */}
-                    <div className="flex flex-col items-center gap-8 mt-12">
-                        <div className="p-1.5 bg-muted/50 backdrop-blur-md rounded-2xl flex border border-border shadow-inner">
+                    <div className="flex flex-col items-center gap-8 mt-12 w-full">
+                        <div className="p-1.5 bg-muted/50 backdrop-blur-md rounded-2xl flex flex-wrap md:flex-nowrap justify-center gap-2 border border-border shadow-inner w-full max-w-2xl">
                             {[1, 3, 6, 12].map((m) => (
                                 <button 
                                     key={m}
