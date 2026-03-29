@@ -91,8 +91,12 @@ const SystemDiagnostics = () => {
         const unsub = onAuthStateChanged(auth, async (u) => {
             setUser(u);
             if (u) {
-                const snap = await getDoc(doc(db, 'users', u.uid));
-                if (snap.exists()) setRole(snap.data().role);
+                try {
+                    const snap = await getDoc(doc(db, 'users', u.uid));
+                    if (snap.exists()) setRole(snap.data().role);
+                } catch (e) {
+                    console.error("DIAGNOSTICS: Failed to fetch role:", e);
+                }
             }
         });
         return () => unsub();

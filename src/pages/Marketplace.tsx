@@ -219,7 +219,7 @@ const Marketplace = () => {
                     cart.map(item => (
                       <div key={item.product.id} className="flex gap-4 items-center animate-in slide-in-from-right-4">
                         <div className="w-20 h-24 rounded-2xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100 shadow-sm">
-                           <img src={item.product.image} className="w-full h-full object-cover" />
+                           <img src={item.product.image} alt={item.product.name || 'Product Image'} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1">
                            <h4 className="font-black text-sm uppercase tracking-tight">{item.product.name}</h4>

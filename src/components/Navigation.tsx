@@ -5,7 +5,8 @@ import {
   Calendar,
   LayoutDashboard,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  ShoppingBag
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -33,9 +34,14 @@ const Navigation = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       if (user) {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          setIsAdmin(userDoc.data().role === 'admin');
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            setIsAdmin(userDoc.data().role === 'admin');
+          }
+        } catch (e) {
+          console.error("Admin check failed (likely guest/pending status):", e);
+          setIsAdmin(false);
         }
       } else {
         setIsAdmin(false);
