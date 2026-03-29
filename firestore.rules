@@ -12,7 +12,10 @@ service cloud.firestore {
     }
 
     function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      let uid = request.auth.uid;
+      return exists(/databases/$(database)/documents/users/$(uid)) 
+        ? get(/databases/$(database)/documents/users/$(uid)).data 
+        : null;
     }
 
     function isAdminEmail() {
@@ -32,7 +35,8 @@ service cloud.firestore {
     }
 
     function isNotSuspended() {
-      return isAuthenticated() && getUserData().get('suspended', false) == false;
+      let data = getUserData();
+      return isAuthenticated() && (data == null || data.get('suspended', false) == false);
     }
 
     function isBarber() {
@@ -174,8 +178,10 @@ service cloud.firestore {
     match /wallets/{walletId} {
       // Barbers can only see their own wallet balance and history
       allow read: if isAuthenticated() && (resource.data.user_id == request.auth.uid || isAdmin());
-      // Only system (Admin SDK) can write to wallets
-      allow write: if isAdmin();
+      // Users can initialize their wallet on creation
+      allow create: if isOwner(walletId);
+      // Only system (Admin SDK) can update/delete wallets to prevent tampering
+      allow update, delete: if isAdmin();
     }
 
     // ─── REFERRALS Collection ──────────────────────────────
@@ -214,6 +220,7 @@ service cloud.firestore {
 
     // ─── MONETIZATION & SUBSCRIPTIONS ────────────────────────
     match /subscriptions/{subId} {
+      // Public plans
       allow read: if true;
       allow write: if isAdmin();
     }

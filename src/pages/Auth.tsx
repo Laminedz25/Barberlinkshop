@@ -201,8 +201,9 @@ const Auth = () => {
 
       toast({ title: t('auth.signup.success'), description: t('auth.signup.success.desc') });
       navigate('/');
-    } catch (error: unknown) {
-      toast({ title: t('auth.error'), description: (error as Error).message, variant: 'destructive' });
+    } catch (error: any) {
+      console.error("[Auth Error]", error);
+      toast({ title: t('auth.error'), description: error?.message || "An unknown error occurred", variant: 'destructive' });
     } finally {
       setLoading(false);
       isRegistering.current = false;
@@ -225,8 +226,9 @@ const Auth = () => {
       } else {
          navigate('/');
       }
-    } catch (error: unknown) {
-      toast({ title: t('auth.error'), description: (error as Error).message, variant: 'destructive' });
+    } catch (error: any) {
+      console.error("[Auth Error]", error);
+      toast({ title: t('auth.error'), description: error?.message || "An unknown error occurred", variant: 'destructive' });
     } finally {
       setLoading(false);
     }
