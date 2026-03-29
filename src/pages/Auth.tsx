@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   createUserWithEmailAndPassword,
@@ -45,6 +45,7 @@ const Auth = () => {
   const [completingProfile, setCompletingProfile] = useState(false);
   const [socialUser, setSocialUser] = useState<User | null>(null);
   const [referrerId, setReferrerId] = useState<string | null>(null);
+  const isRegistering = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -57,7 +58,7 @@ const Auth = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user && !completingProfile) {
+      if (user && !completingProfile && !isRegistering.current) {
         // Check if they exist in firestore
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
@@ -176,6 +177,7 @@ const Auth = () => {
     }
 
     setLoading(true);
+    isRegistering.current = true;
     try {
       let userAcc = socialUser;
       if (!userAcc) {
@@ -190,7 +192,10 @@ const Auth = () => {
         toast({ title: 'Verification Email Sent', description: 'Please check your inbox to confirm your identity.' });
       }
       
-      if (!userAcc) return;
+      if (!userAcc) {
+          isRegistering.current = false;
+          return;
+      }
 
       await createFirestoreUser(userAcc);
 
@@ -200,6 +205,7 @@ const Auth = () => {
       toast({ title: t('auth.error'), description: (error as Error).message, variant: 'destructive' });
     } finally {
       setLoading(false);
+      isRegistering.current = false;
     }
   };
 

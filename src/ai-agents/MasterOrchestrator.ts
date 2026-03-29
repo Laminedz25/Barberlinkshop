@@ -2,6 +2,7 @@ import { db } from '@/lib/firebase';
 import { collection, updateDoc, doc, arrayUnion, getDocs, query, where, getDoc } from 'firebase/firestore';
 import { AGENT_REGISTRY } from './AgentRegistry';
 import { MemorySystem } from '@/lib/agent-memory';
+import { DBMaintenanceAgent } from './DBMaintenanceAgent';
 
 export class MasterOrchestrator {
   private static instance: MasterOrchestrator;
@@ -38,6 +39,9 @@ export class MasterOrchestrator {
     // Perform data isolation audit & DB maintenance
     await this.logDecision('cyber_security_sentinel', 'AUTH_ISOLATION_AUDIT', { scope: 'All Roles', target: 'Zero Proximity Leak' });
     await this.logDecision('cyber_security_sentinel', 'DB_VULNERABILITY_SCAN', { intensity: 'High' });
+    
+    // Explicit Database Maintenance Execution
+    await DBMaintenanceAgent.getInstance().executeNightlyMaintenance();
   }
 
   private async monitorInfrastructure() {
