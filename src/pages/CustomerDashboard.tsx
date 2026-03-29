@@ -29,9 +29,10 @@ interface Appointment {
     total_duration: number;
     appointment_date: string;
     appointment_time: string;
-    status: 'pending' | 'accepted' | 'rejected' | 'completed';
+    status: 'pending' | 'accepted' | 'rejected' | 'completed' | 'pending_payment' | 'failed';
     created_at: string;
     barber_name?: string;
+    ai_logic?: string;
 }
 
 interface FavoriteBarber {
@@ -149,9 +150,11 @@ const CustomerDashboard = () => {
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'pending': return 'bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg shadow-yellow-500/30';
+            case 'pending_payment': return 'bg-orange-500 animate-pulse text-white shadow-lg shadow-orange-500/30';
             case 'accepted': return 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30';
             case 'completed': return 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/30';
             case 'rejected': return 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30';
+            case 'failed': return 'bg-slate-900 text-white';
             default: return 'bg-gray-500';
         }
     };
@@ -231,8 +234,11 @@ const CustomerDashboard = () => {
                                     <div className="flex-1">
                                         <div className="flex flex-wrap items-center gap-3 mb-4">
                                             <Badge className={`px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider ${getStatusColor(appt.status)}`}>
-                                                {t(`dashboard.requests.${appt.status === 'pending' ? 'online' : appt.status}`) || appt.status}
+                                                {appt.status === 'pending_payment' ? (isRTL ? 'قيد التوثيق الآلي' : 'AI SECURING...') : (t(`dashboard.requests.${appt.status === 'pending' ? 'online' : appt.status}`) || appt.status)}
                                             </Badge>
+                                            {appt.ai_logic && (
+                                              <span className="text-[10px] font-bold text-primary italic opacity-60 animate-in fade-in slide-in-from-left-2">{appt.ai_logic}</span>
+                                            )}
                                             <h3 className="text-2xl font-bold truncate">{appt.barber_name || 'Barber'}</h3>
                                         </div>
 

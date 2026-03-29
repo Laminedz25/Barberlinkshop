@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { onSnapshot, collection, DocumentData } from 'firebase/firestore';
+import { onSnapshot, collection } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Check, Sparkles, Star, TrendingUp, Zap, Globe } from 'lucide-react';
+import { Check, Sparkles, Star, TrendingUp, Zap, Globe, CalendarDays } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSystemConfig } from '@/hooks/useSystemConfig';
 
@@ -21,11 +21,14 @@ interface SubscriptionPlan {
     btnVariant?: 'default' | 'outline';
 }
 
+type BillingInterval = 1 | 3 | 6 | 12;
+
 export default function PricingPlans() {
-    const { t, currency, setCurrency } = useLanguage();
+    const { t, currency, setCurrency, isRTL } = useLanguage();
     const { config } = useSystemConfig();
     const { toast } = useToast();
     const [dbPlans, setDbPlans] = useState<SubscriptionPlan[]>([]);
+    const [interval, setInterval] = useState<BillingInterval>(1);
 
     useEffect(() => {
         const unsub = onSnapshot(collection(db, 'subscriptions'), (snap) => {
@@ -38,17 +41,30 @@ export default function PricingPlans() {
         return () => unsub();
     }, []);
 
+    const getDiscount = (months: number) => {
+        if (months === 3) return 0.15; // 15% Off
+        if (months === 6) return 0.25; // 25% Off
+        if (months === 12) return 0.40; // 40% Off
+        return 0;
+    };
+
     const handleSubscribe = (planName: string) => {
+        const monthsText = interval === 1 ? 'month' : `${interval} months`;
         toast({
-            title: t('store.comingsoon'),
-            description: `Subscription for ${planName} will be available in the next release! Enjoy your 1-month free trial.`,
+            title: isRTL ? 'بدء الإعداد' : 'Initializing Setup',
+            description: isRTL 
+                ? `جاري تحضير اشتراكك لـ ${planName} لمدة ${interval} أشهر. استمتع بفترة تجريبية مجانية!` 
+                : `Preparing your ${planName} plan for ${monthsText}. Enjoy your automated trial!`,
             variant: 'default',
         });
     };
 
     const getPrice = (plan: SubscriptionPlan) => {
-        if (currency === 'USD') return plan.price_usd;
-        return plan.price_dzd;
+        const base = currency === 'USD' ? plan.price_usd : plan.price_dzd;
+        const totalBase = base * interval;
+        const discount = getDiscount(interval);
+        const final = Math.round(totalBase * (1 - discount));
+        return final;
     };
 
     const dzdBase = config?.global_pricing?.dzd || 1000;
@@ -97,7 +113,6 @@ export default function PricingPlans() {
             return {
                 ...fallback,
                 ...dbPlan,
-                // Ensure features are merged or overridden correctly
                 features: dbPlan.features && dbPlan.features.length > 0 ? dbPlan.features : fallback.features
             };
         }
@@ -110,29 +125,44 @@ export default function PricingPlans() {
             
             <div className="container mx-auto px-6 relative z-10">
                 <div className="text-center max-w-4xl mx-auto mb-20 space-y-6">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 font-bold text-xs text-primary uppercase tracking-widest animate-slide-up">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 font-bold text-xs text-primary uppercase tracking-widest">
                         <Globe className="w-3 h-3" /> Scale Globally
                     </div>
-                    <h2 className="text-5xl md:text-7xl font-black tracking-tighter animate-slide-up animation-delay-100">
-                        Invest in your <span className="text-primary">Success</span>
+                    <h2 className="text-5xl md:text-7xl font-black tracking-tighter">
+                        {isRTL ? 'استثمر في ' : 'Invest in your '}<span className="text-primary">{isRTL ? 'نجاحك' : 'Success'}</span>
                     </h2>
-                    <p className="text-xl text-muted-foreground font-medium animate-slide-up animation-delay-200">
-                        {t('pricing.subtitle')}
-                    </p>
+                    
+                    {/* Interval Selector */}
+                    <div className="flex flex-col items-center gap-8 mt-12">
+                        <div className="p-1.5 bg-muted/50 backdrop-blur-md rounded-2xl flex border border-border shadow-inner">
+                            {[1, 3, 6, 12].map((m) => (
+                                <button 
+                                    key={m}
+                                    onClick={() => setInterval(m as BillingInterval)}
+                                    className={`relative px-6 py-3 rounded-xl font-black text-xs transition-all uppercase tracking-widest flex flex-col items-center gap-1 ${interval === m ? 'bg-background text-primary shadow-xl ring-1 ring-primary/10' : 'text-muted-foreground hover:text-foreground'}`}
+                                >
+                                    {m === 1 ? (isRTL ? 'شهري' : 'Monthly') : `${m} ${isRTL ? 'أشهر' : 'Months'}`}
+                                    {getDiscount(m) > 0 && (
+                                        <Badge className="bg-green-500 text-white border-none py-0 px-1.5 text-[8px] animate-pulse">
+                                            -{getDiscount(m) * 100}%
+                                        </Badge>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
 
-                    <div className="flex justify-center mt-10 animate-slide-up animation-delay-300">
-                        <div className="p-1 bg-muted rounded-2xl flex border border-border shadow-sm">
+                        <div className="flex gap-3">
                             <button 
                                 onClick={() => setCurrency('DZD')}
-                                className={`px-8 py-2.5 rounded-xl font-bold transition-all ${currency === 'DZD' ? 'bg-background text-primary shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}
+                                className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${currency === 'DZD' ? 'bg-primary text-white shadow-lg' : 'bg-muted text-muted-foreground'}`}
                             >
-                                DZD (Algeria)
+                                DZD
                             </button>
                             <button 
                                 onClick={() => setCurrency('USD')}
-                                className={`px-8 py-2.5 rounded-xl font-bold transition-all ${currency === 'USD' ? 'bg-background text-primary shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}
+                                className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${currency === 'USD' ? 'bg-primary text-white shadow-lg' : 'bg-muted text-muted-foreground'}`}
                             >
-                                USD (Global)
+                                USD
                             </button>
                         </div>
                     </div>
@@ -142,49 +172,58 @@ export default function PricingPlans() {
                     {activePlans.map((plan, i) => (
                         <Card 
                             key={plan.id} 
-                            className={`group relative flex flex-col p-10 bg-card/40 backdrop-blur-xl rounded-[2.5rem] border transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl ${plan.color || (i === 1 ? "from-primary/20 to-primary/5 border-primary/40 shadow-primary/20" : "from-blue-500/10 to-transparent border-blue-500/20")} ${i === 1 ? 'animate-slide-up animation-delay-200 lg:scale-105 z-20' : 'animate-slide-up animation-delay-100'}`}
+                            className={`group relative flex flex-col p-10 bg-card/40 backdrop-blur-xl rounded-[3rem] border transition-all duration-700 hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)] ${plan.color || (i === 1 ? "from-primary/20 to-primary/5 border-primary/40" : "from-blue-500/10 to-transparent border-blue-500/20")} ${i === 1 ? 'lg:scale-105 z-20 shadow-2xl shadow-primary/10' : 'opacity-90 hover:opacity-100'}`}
                         >
                             {(plan.isPopular || i === 1) && (
-                                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-primary text-white px-6 py-2 rounded-full font-black text-sm shadow-xl shadow-primary/40 flex items-center gap-2 animate-bounce-subtle">
-                                    <Sparkles className="h-4 w-4" /> MOST POPULAR
+                                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-primary text-white px-8 py-2.5 rounded-full font-black text-[10px] tracking-[0.2em] shadow-2xl shadow-primary/40 flex items-center gap-2">
+                                    <Sparkles className="h-3 w-3 fill-white" /> {isRTL ? 'الأكثر طلباً' : 'MOST POPULAR'}
                                 </div>
                             )}
 
-                            <div className="mb-10">
-                                <div className="p-4 bg-background border rounded-2xl w-max shadow-sm mb-8">
-                                    {plan.icon || (i === 1 ? <Zap className="h-6 w-6 text-primary" /> : <Star className="h-6 w-6 text-blue-500" />)}
+                            <div className="mb-10 text-center lg:text-left">
+                                <div className="p-5 bg-background border rounded-[1.5rem] w-max shadow-sm mb-8 mx-auto lg:mx-0">
+                                    {plan.icon || (i === 1 ? <Zap className="h-8 w-8 text-primary fill-primary" /> : <Star className="h-8 w-8 text-blue-500" />)}
                                 </div>
-                                <h3 className="text-3xl font-black mb-3">{plan.name}</h3>
+                                <h3 className="text-4xl font-black mb-4 tracking-tighter uppercase">{plan.name}</h3>
                                 <p className="text-muted-foreground font-medium text-lg leading-relaxed">{plan.desc || t('pricing.pro.desc')}</p>
                             </div>
 
-                            <div className="mb-12 flex items-baseline gap-2">
-                                <span className="text-6xl font-black tracking-tighter decoration-primary underline-offset-8">
-                                    {getPrice(plan)}
+                            <div className="mb-12 flex items-baseline gap-3 justify-center lg:justify-start">
+                                <span className="text-7xl font-black tracking-tighter text-slate-900 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                    {getPrice(plan).toLocaleString()}
                                 </span>
                                 <div className="flex flex-col">
-                                    <span className="font-black text-xl text-primary">{currency}</span>
-                                    <span className="text-muted-foreground font-bold text-sm">{t('pricing.month')}</span>
+                                    <span className="font-black text-2xl text-primary">{currency}</span>
+                                    <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block mt-1">
+                                        / {interval === 1 ? (isRTL ? 'شهري' : 'Month') : `${interval} ${isRTL ? 'أشهر' : 'Months'}`}
+                                    </span>
                                 </div>
                             </div>
 
-                            <div className="space-y-5 mb-12 flex-1">
+                            {getDiscount(interval) > 0 && (
+                                <div className="mb-6 p-4 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-between">
+                                    <span className="text-xs font-black text-green-700 uppercase tracking-widest">{isRTL ? 'توفير ذكي' : 'SMART SAVINGS'}</span>
+                                    <Badge className="bg-green-600 text-white border-none font-black">-{getDiscount(interval) * 100}% {isRTL ? 'خصم' : 'OFF'}</Badge>
+                                </div>
+                            )}
+
+                            <div className="space-y-6 mb-12 flex-1">
                                 {plan.features.map((feat: string, idx: number) => (
                                     <div key={idx} className="flex items-start gap-4">
-                                        <div className="mt-1 bg-primary/10 p-1 rounded-full border border-primary/20">
-                                            <Check className="h-4 w-4 text-primary" />
+                                        <div className="mt-1 bg-primary/10 p-1 rounded-full border border-primary/20 shrink-0">
+                                            <Check className="h-3 w-3 text-primary stroke-[3px]" />
                                         </div>
-                                        <span className="font-semibold text-foreground/80 leading-tight">{feat}</span>
+                                        <span className="font-bold text-slate-700 leading-tight">{feat}</span>
                                     </div>
                                 ))}
                             </div>
 
                             <Button 
                                 variant={plan.btnVariant || (i === 1 ? 'default' : 'outline')}
-                                className={`w-full h-16 rounded-[1.25rem] text-lg font-black transition-all ${(plan.btnVariant || (i === 1 ? 'default' : 'outline')) === 'default' ? 'shadow-xl shadow-primary/30' : 'hover:bg-primary/5'}`}
+                                className={`w-full h-20 rounded-[1.75rem] text-xl font-black transition-all group/btn ${(plan.btnVariant || (i === 1 ? 'default' : 'outline')) === 'default' ? 'shadow-2xl shadow-primary/20 hover:scale-105' : 'hover:bg-primary/5 hover:border-primary/40'}`}
                                 onClick={() => handleSubscribe(plan.name)}
                             >
-                                {t('pricing.button.start')}
+                                {t('pricing.button.start')} <CalendarDays className="ml-3 h-5 w-5 group-hover/btn:translate-x-1 transition-transform" />
                             </Button>
                         </Card>
                     ))}
@@ -193,3 +232,9 @@ export default function PricingPlans() {
         </section>
     );
 }
+
+const Badge = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black ${className}`}>
+        {children}
+    </span>
+);

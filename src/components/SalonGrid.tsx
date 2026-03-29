@@ -22,14 +22,20 @@ const SalonGrid = ({ searchQuery = '', locationQuery = '' }: SalonGridProps) => 
 
   useEffect(() => {
     const q = query(collection(db, 'barbers'), orderBy('created_at', 'desc'));
-    const unsub = onSnapshot(q, (snap) => {
-      setDbSalons(snap.docs.map(doc => ({ 
-          id: doc.id, 
-          ...doc.data(),
-          image: doc.data().image || (doc.data().business_name?.includes('Elite') ? salon1 : salon2) 
-      })));
-      setLoading(false);
-    });
+    const unsub = onSnapshot(q, 
+      (snap) => {
+        setDbSalons(snap.docs.map(doc => ({ 
+            id: doc.id, 
+            ...doc.data(),
+            image: doc.data().image || (doc.data().business_name?.includes('Elite') ? salon1 : salon2) 
+        })));
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Firestore Registry Access Denied or Index Missing:", err);
+        setLoading(false); // Fallback to demo data
+      }
+    );
     return () => unsub();
   }, []);
 

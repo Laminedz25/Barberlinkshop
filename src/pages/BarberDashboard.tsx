@@ -15,7 +15,7 @@ import {
   Plus, Edit, Trash2, DollarSign, Clock, QrCode, 
   ImagePlus, UserPlus, Link as LinkIcon, CheckCircle2, 
   XCircle, Check, TrendingUp, TrendingDown, ShoppingBag, 
-  Activity, Bot, Users2, Zap, Star
+  Activity, Bot, Users2, Zap, Star, MapPin, ChevronRight, LayoutDashboard
 } from 'lucide-react';
 import {
   Dialog,
@@ -124,6 +124,9 @@ const BarberDashboard = () => {
     tiktok: '', snapchat: '', telegram: '', website: ''
   });
   const [referralLink, setReferralLink] = useState('');
+  const [coordinates, setCoordinates] = useState({ lat: 36.1898, lng: 5.4108 }); // Default Sétif
+  const [address, setAddress] = useState('');
+  const [detectedLocation, setDetectedLocation] = useState(false);
 
   const fetchBarberProfile = useCallback(async () => {
     if (!user?.uid) return;
@@ -135,6 +138,8 @@ const BarberDashboard = () => {
       setBarberId(snap.docs[0].id);
       setIsVerified(docData.is_verified || docData.verified || false);
       setSocials(docData.socials || {});
+      setCoordinates(docData.coordinates || { lat: 36.1898, lng: 5.4108 });
+      setAddress(docData.address || '');
       setReferralLink(`${window.location.origin}/auth?ref=${snap.docs[0].id}`);
     } catch (e) { 
       const error = e as Error;
@@ -288,14 +293,44 @@ const BarberDashboard = () => {
             </div>
           </div>
 
+          {/* AI FINANCIAL INSIGHTS - BARBER CFO NODE */}
+          <div className="mb-10 grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
+             <Card className="md:col-span-2 border-none shadow-2xl rounded-[2.5rem] bg-slate-900 text-white overflow-hidden group">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full -mr-32 -mt-32 group-hover:bg-primary/30 transition-all duration-1000" />
+                <div className="relative z-10 p-8 flex flex-col md:flex-row gap-8 items-center justify-between">
+                   <div className="space-y-4">
+                      <Badge variant="outline" className="text-primary border-primary/30 font-black uppercase tracking-widest text-[10px]">AI CFO Intelligence</Badge>
+                      <h2 className="text-3xl font-black uppercase tracking-tight leading-tight">Your Weekly<br /><span className="text-primary">Growth Catalyst</span></h2>
+                      <p className="text-white/50 text-xs font-medium max-w-sm">"Fridays are your peak revenue days (+14%). We recommend opening 2 extra slots for 'Precision Fades' which is currently trending in your city."</p>
+                   </div>
+                   <div className="flex gap-4">
+                      <div className="p-4 bg-white/5 rounded-3xl border border-white/5 text-center min-w-[100px]">
+                         <p className="text-[10px] text-white/40 font-black uppercase mb-1">Weekly Growth</p>
+                         <p className="text-2xl font-black text-emerald-400">+12%</p>
+                      </div>
+                      <div className="p-4 bg-white/5 rounded-3xl border border-white/5 text-center min-w-[100px]">
+                         <p className="text-[10px] text-white/40 font-black uppercase mb-1">Peak Day</p>
+                         <p className="text-2xl font-black text-amber-400">FRI</p>
+                      </div>
+                   </div>
+                </div>
+             </Card>
+             <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white overflow-hidden p-8 flex flex-col justify-center">
+                <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-4">Autonomous Revenue</h3>
+                <p className="text-5xl font-black tracking-tighter text-slate-900 mb-2">12.5k <span className="text-xs">DZD</span></p>
+                <p className="text-[10px] text-muted-foreground font-bold flex items-center gap-1"><TrendingUp className="w-3 h-3 text-emerald-500" /> +8% vs last week</p>
+             </Card>
+          </div>
+
           <Tabs defaultValue="services" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 bg-slate-200/50 dark:bg-slate-800/50 p-1 rounded-2xl h-auto">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 bg-slate-200/50 dark:bg-slate-800/50 p-1 rounded-2xl h-auto">
               <TabsTrigger value="services" className="rounded-xl py-3 font-bold">{t('dashboard.tabs.services')}</TabsTrigger>
               <TabsTrigger value="staff" className="rounded-xl py-3 font-bold gap-2"><Users2 className="w-4 h-4" /> {t('salon.staff')}</TabsTrigger>
-              <TabsTrigger value="store" className="rounded-xl py-3 font-bold gap-2"><ShoppingBag className="w-4 h-4" /> {t('store.title')}</TabsTrigger>
+              <TabsTrigger value="store_hub" className="rounded-xl py-3 font-bold gap-2"><ShoppingBag className="w-4 h-4" /> {isRTL ? 'مركز المتجر' : 'Store Hub'}</TabsTrigger>
               <TabsTrigger value="bookings" className="rounded-xl py-3 font-bold">{t('dashboard.tabs.bookings')}</TabsTrigger>
               <TabsTrigger value="finance" className="rounded-xl py-3 font-bold">{t('dashboard.tabs.finance')}</TabsTrigger>
               <TabsTrigger value="profile" className="rounded-xl py-3 font-bold">{t('dashboard.tabs.profile')}</TabsTrigger>
+              <TabsTrigger value="ai_marketing" className="rounded-xl py-3 font-bold gap-2"><Bot className="w-4 h-4 text-primary" /> Ads AI</TabsTrigger>
             </TabsList>
 
             <TabsContent value="services" className="mt-8 space-y-6">
@@ -358,29 +393,87 @@ const BarberDashboard = () => {
                </div>
             </TabsContent>
 
-            <TabsContent value="store" className="mt-8 space-y-6">
-               <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">{t('store.title')}</h2>
-                  <Button onClick={() => { setEditingProduct(null); setIsProductDialogOpen(true); }}>
-                    <Plus className="mr-2" /> Add Product
-                  </Button>
-               </div>
-               <div className="grid md:grid-cols-3 gap-6">
-                  {products.map(p => (
-                    <div key={p.id} className="group overflow-hidden flex flex-col bg-white/60 dark:bg-slate-900/60 rounded-3xl border-none shadow-xl transition-all hover:-translate-y-1">
-                       <div className="h-40 overflow-hidden">
-                          <img src={p.image || 'https://images.unsplash.com/photo-1599305090598-fe179d501227?w=500&auto=format&fit=crop'} alt={p.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                       </div>
-                       <div className="p-5 flex-1 flex flex-col">
-                          <div className="flex justify-between items-start mb-2">
-                             <h4 className="font-bold">{p.name}</h4>
-                             <span className="font-black text-primary">{p.price} {t('currency')}</span>
+            <TabsContent value="store_hub" className="mt-8 space-y-8">
+               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <Card className="md:col-span-3 p-8 rounded-[2.5rem] border-none shadow-xl bg-white space-y-6">
+                     <div className="flex justify-between items-center">
+                        <h2 className="text-2xl font-black uppercase tracking-tighter">Products & Inventory</h2>
+                        <Button onClick={() => { setEditingProduct(null); setIsProductDialogOpen(true); }} className="rounded-xl">
+                          <Plus className="mr-2 h-4 w-4" /> New Product
+                        </Button>
+                     </div>
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {products.map(p => (
+                          <div key={p.id} className="group relative bg-slate-50 rounded-3xl p-4 border border-slate-100 transition-all hover:bg-white hover:shadow-lg">
+                          <img src={p.image} alt={p.name || 'Product Image'} className="w-full h-32 object-cover rounded-2xl mb-4" />
+                             <h4 className="font-bold text-sm">{p.name}</h4>
+                             <p className="text-primary font-black text-xs">{p.price} DZD</p>
+                             <Button size="icon" variant="ghost" className="absolute top-2 right-2 text-rose-500 bg-white/80 rounded-full" onClick={async () => { await deleteDoc(doc(db, 'products', p.id)); fetchProducts(); }}><Trash2 className="h-3 w-3" /></Button>
                           </div>
-                          <Button variant="outline" className="mt-auto rounded-xl" onClick={async () => { await deleteDoc(doc(db, 'products', p.id)); fetchProducts(); }}><Trash2 className="h-4 w-4 mr-2" /> Delete</Button>
-                       </div>
-                    </div>
-                  ))}
+                        ))}
+                     </div>
+                  </Card>
+
+                  <div className="space-y-6">
+                     <Card className="p-6 rounded-[2rem] border-none shadow-xl bg-slate-900 text-white">
+                        <h3 className="text-xs font-black uppercase tracking-widest text-primary mb-4">Delivery Partner</h3>
+                        <div className="space-y-4">
+                           <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                              <p className="text-sm font-bold">Suggested: Yalidine Express</p>
+                              <p className="text-[10px] text-white/40">National coverage in Algeria detected.</p>
+                           </div>
+                           <Button variant="outline" className="w-full rounded-xl border-white/10 text-white hover:bg-white/10 text-xs">CONFIGURE API</Button>
+                        </div>
+                     </Card>
+                     
+                     <Card className="p-6 rounded-[2rem] border-none shadow-xl bg-white">
+                        <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-4">Orders Agent</h3>
+                        <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl">
+                           <div className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse" />
+                           <p className="text-[10px] font-bold">Syncing to Google Sheets...</p>
+                        </div>
+                        <Button variant="ghost" className="w-full mt-4 text-[10px] uppercase font-black tracking-widest">Open Analytics</Button>
+                     </Card>
+                  </div>
                </div>
+            </TabsContent>
+
+            <TabsContent value="ai_marketing" className="mt-8">
+               <Card className="p-12 rounded-[3.5rem] border-none shadow-2xl bg-white overflow-hidden relative group">
+                  <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 blur-[90px] rounded-full -mr-32 -mt-32" />
+                  <div className="relative z-10 max-w-2xl">
+                     <Badge className="bg-primary text-white border-none py-1.5 px-4 rounded-full uppercase text-[10px] tracking-[0.2em] mb-8">Campaign Manager v1.0</Badge>
+                     <h2 className="text-5xl font-black tracking-tighter uppercase mb-6 leading-none text-slate-900">Push your products<br />to the <span className="text-primary tracking-normal">Edge</span></h2>
+                     <p className="text-slate-600 font-medium text-lg leading-relaxed mb-10">
+                        Our AI Ads Agent generates professional creatives, targets local audiences in <span className="text-primary font-black">Setif, Algeria</span>, and optimizes your budget for maximum ROI.
+                     </p>
+                     
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+                        <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center gap-4">
+                           <div className="h-12 w-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                              <TrendingUp className="h-6 w-6" />
+                           </div>
+                           <div>
+                              <p className="text-[10px] font-black uppercase text-muted-foreground">Est. Reach</p>
+                              <p className="text-2xl font-black">45.2k <span className="text-xs">users</span></p>
+                           </div>
+                        </div>
+                        <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center gap-4">
+                           <div className="h-12 w-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white">
+                              <DollarSign className="h-6 w-6" />
+                           </div>
+                           <div>
+                              <p className="text-[10px] font-black uppercase text-muted-foreground">Daily Budget</p>
+                              <p className="text-2xl font-black">500 <span className="text-xs">DZD</span></p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <Button className="h-20 px-12 rounded-[1.75rem] bg-slate-900 text-white font-black text-xl hover:bg-black transition-all shadow-2xl shadow-slate-900/10 flex items-center gap-4 group/ai">
+                        CREATE AI CAMPAIGN <ChevronRight className="w-6 h-6 group-hover/ai:translate-x-1 transition-transform" />
+                     </Button>
+                  </div>
+               </Card>
             </TabsContent>
 
             <TabsContent value="bookings" className="mt-8 space-y-6">
@@ -503,6 +596,42 @@ const BarberDashboard = () => {
                              }} variant="outline" className="rounded-xl border-primary/20 bg-white">Request Official Badge</Button>
                           )}
                        </div>
+                    </Card>
+
+                    <Card className="p-10 rounded-[3rem] shadow-2xl bg-white/60 dark:bg-slate-900/60 border-none space-y-6 lg:col-span-2">
+                        <div className="flex justify-between items-center mb-4">
+                           <h3 className="text-2xl font-black uppercase tracking-tighter">Location Presence</h3>
+                           <Button variant="outline" size="sm" onClick={() => {
+                              navigator.geolocation.getCurrentPosition((pos) => {
+                                 setCoordinates({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                                 setDetectedLocation(true);
+                                 toast({ title: "GPS Detected", description: "Coordinates updated automatically." });
+                              });
+                           }} className="rounded-full gap-2">
+                              {detectedLocation ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <MapPin className="w-4 h-4" />}
+                              {detectedLocation ? "Detected" : "Auto-Detect Location"}
+                           </Button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                           <div className="space-y-1">
+                              <Label className="uppercase text-[10px] font-black">Latitude</Label>
+                              <Input type="number" step="any" value={coordinates.lat} onChange={(e) => setCoordinates({...coordinates, lat: Number(e.target.value)})} className="rounded-xl" />
+                           </div>
+                           <div className="space-y-1">
+                              <Label className="uppercase text-[10px] font-black">Longitude</Label>
+                              <Input type="number" step="any" value={coordinates.lng} onChange={(e) => setCoordinates({...coordinates, lng: Number(e.target.value)})} className="rounded-xl" />
+                           </div>
+                           <div className="space-y-1">
+                              <Label className="uppercase text-[10px] font-black">Store Address</Label>
+                              <Input placeholder="St. 25, Setif, Algeria" value={address} onChange={(e) => setAddress(e.target.value)} className="rounded-xl" />
+                           </div>
+                        </div>
+                        <Button className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black" onClick={async () => {
+                           if (barberId) {
+                              await updateDoc(doc(db, 'barbers', barberId), { coordinates, address });
+                              toast({ title: "Success", description: "Location saved to Google Maps Node." });
+                           }
+                        }}>SAVE LOCATION DATA</Button>
                     </Card>
 
                     <Card className="p-10 rounded-[3rem] shadow-2xl bg-white/60 dark:bg-slate-900/60 border-none space-y-6">

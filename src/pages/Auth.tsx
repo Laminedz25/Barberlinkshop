@@ -7,6 +7,8 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  sendPasswordResetEmail,
+  sendEmailVerification,
   User
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -33,7 +35,7 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [userType, setUserType] = useState<'customer' | 'salon_owner' | 'salon_barber' | 'mobile_barber'>('customer');
+  const [userType, setUserType] = useState<'customer' | 'salon_owner' | 'salon_barber' | 'mobile_barber' | 'investor'>('customer');
   const [country, setCountry] = useState('Algeria');
   const [stateProv, setStateProv] = useState('');
   const [municipality, setMunicipality] = useState('');
@@ -60,7 +62,17 @@ const Auth = () => {
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          navigate('/');
+          const userData = docSnap.data();
+          // SILENT REDIRECTION MESH
+          if (userData.role === 'admin') {
+            navigate('/admin');
+          } else if (userData.role === 'investor') {
+            navigate('/admin'); // Redirect to Admin Growth Hub for now or separate Dashboard
+          } else if (userData.role === 'barber') {
+            navigate('/dashboard');
+          } else {
+            navigate('/');
+          }
         } else {
           // They used social login but haven't completed profile
           setSocialUser(user);
@@ -77,6 +89,7 @@ const Auth = () => {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
@@ -89,8 +102,11 @@ const Auth = () => {
         setFullName(user.displayName || '');
         setCompletingProfile(true);
       } else {
-        toast({ title: 'Success', description: 'Logged in successfully!' });
-        navigate('/');
+        const u = docSnap.data();
+        toast({ title: 'Welcome Back', description: `Signed in as ${u.role}` });
+        if (u.role === 'admin' || u.role === 'investor') navigate('/admin');
+        else if (u.role === 'barber') navigate('/dashboard');
+        else navigate('/');
       }
     } catch (error: unknown) {
       toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
@@ -108,8 +124,8 @@ const Auth = () => {
       email: email,
       full_name: fullName,
       phone: phone,
-      role: userType === 'customer' ? 'customer' : 'barber',
-      barber_type: userType !== 'customer' ? userType : null,
+      role: userType === 'customer' ? 'customer' : (userType === 'investor' ? 'investor' : 'barber'),
+      barber_type: (userType !== 'customer' && userType !== 'investor') ? userType : null,
       country,
       state: stateProv,
       municipality,
@@ -151,23 +167,30 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email) {
+      toast({ title: 'Email Required', description: 'Please enter a valid email address.', variant: 'destructive' });
+      return;
+    }
     if (!privacyAccepted) {
       return toast({ title: 'Error', description: 'You must accept the privacy policy.', variant: 'destructive' });
     }
-    if (password !== confirmPassword) {
-      return toast({ title: 'Error', description: 'Passwords do not match.', variant: 'destructive' });
-    }
 
     setLoading(true);
-
     try {
       let userAcc = socialUser;
-
-      if (!socialUser) {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        userAcc = userCredential.user;
+      if (!userAcc) {
+        if (password !== confirmPassword) {
+          throw new Error('Passwords do not match');
+        }
+        const res = await createUserWithEmailAndPassword(auth, email, password);
+        userAcc = res.user;
         await updateProfile(userAcc, { displayName: fullName });
+        // LEVEL 3: Identity Verification Hook
+        await sendEmailVerification(userAcc);
+        toast({ title: 'Verification Email Sent', description: 'Please check your inbox to confirm your identity.' });
       }
+      
+      if (!userAcc) return;
 
       await createFirestoreUser(userAcc);
 
@@ -184,9 +207,36 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const res = await signInWithEmailAndPassword(auth, email, password);
+      // FORCE REDIRECTION SYNC
+      const snap = await getDoc(doc(db, 'users', res.user.uid));
+      if (snap.exists()) {
+        const u = snap.data();
+        toast({ title: 'Welcome Back', description: `Signed in as ${u.role}` });
+        if (u.role === 'admin' || u.role === 'investor') navigate('/admin');
+        else if (u.role === 'barber') navigate('/dashboard');
+        else navigate('/');
+      } else {
+         navigate('/');
+      }
     } catch (error: unknown) {
       toast({ title: t('auth.error'), description: (error as Error).message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({ title: 'Email Required', description: 'Please enter your email address to reset your password.', variant: 'destructive' });
+      return;
+    }
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast({ title: 'Success', description: 'Password reset email sent. Please check your inbox.' });
+    } catch (error: unknown) {
+      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -203,6 +253,17 @@ const Auth = () => {
           <CardContent>
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{isRTL ? 'البريد الإلكتروني' : 'Email Address'}</Label>
+                  <Input 
+                    type="email" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    placeholder="example@mail.com"
+                    required 
+                    disabled={!!socialUser} // Disable if google login, as email is already fixed
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label>{isRTL ? 'الاسم الكامل / اسم المستخدم' : 'Full Name / Username'}</Label>
                   <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
@@ -227,7 +288,7 @@ const Auth = () => {
 
               <div className="space-y-3 pt-4 border-t">
                 <Label className="text-lg font-semibold">{isRTL ? 'أنا...' : 'I am a...'}</Label>
-                <RadioGroup value={userType} onValueChange={(value: 'customer' | 'salon_owner' | 'salon_barber' | 'mobile_barber') => setUserType(value)} className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <RadioGroup value={userType} onValueChange={(value: 'customer' | 'salon_owner' | 'salon_barber' | 'mobile_barber' | 'investor') => setUserType(value)} className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="flex items-center space-x-2 border p-3 rounded-lg">
                     <RadioGroupItem value="customer" id="customer_comp" />
                     <Label htmlFor="customer_comp" className="cursor-pointer">{isRTL ? 'زبون' : 'Customer'}</Label>
@@ -244,15 +305,28 @@ const Auth = () => {
                     <RadioGroupItem value="mobile_barber" id="mobile_barber_comp" />
                     <Label htmlFor="mobile_barber_comp" className="cursor-pointer">{isRTL ? 'حلاق متنقل' : 'Mobile Barber'}</Label>
                   </div>
+                  <div className="flex items-center space-x-2 border p-3 rounded-lg border-primary/30 bg-primary/5">
+                    <RadioGroupItem value="investor" id="investor_comp" />
+                    <Label htmlFor="investor_comp" className="cursor-pointer font-bold text-primary">{isRTL ? 'مستثمر / شريك' : 'Investor / Partner'}</Label>
+                  </div>
                 </RadioGroup>
               </div>
 
               {!socialUser && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                   <div className="space-y-2">
+                  <div className="flex justify-between items-center">
                     <Label>{isRTL ? 'كلمة المرور' : 'Password'}</Label>
-                    <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+                    <button 
+                      type="button" 
+                      onClick={handleForgotPassword}
+                      className="text-xs text-primary hover:underline font-bold"
+                    >
+                      {isRTL ? 'نسيت كلمة المرور؟' : 'Forgot Password?'}
+                    </button>
                   </div>
+                  <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                </div>
                   <div className="space-y-2">
                     <Label>{isRTL ? 'تأكيد كلمة المرور' : 'Confirm Password'}</Label>
                     <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} />
@@ -312,7 +386,16 @@ const Auth = () => {
                   <Input id="email-signin" type="email" placeholder="example@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password-signin">{t('auth.password')}</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password-signin">{t('auth.password')}</Label>
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      className="text-xs text-primary hover:underline font-bold"
+                    >
+                      {isRTL ? 'نسيت كلمة المرور؟' : 'Forgot Password?'}
+                    </button>
+                  </div>
                   <Input id="password-signin" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>

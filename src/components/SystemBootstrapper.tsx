@@ -6,10 +6,17 @@ import { AgentAPI } from '@/lib/agent-api';
 const SystemBootstrapper = () => {
     useEffect(() => {
         const bootstrap = async () => {
+            // ONLY SEED IF ADMIN IS LOGGED IN or if it fails, just log silently
             try {
-                // 1. Auto-Seed System Config
+                // 1. Check System Config (Read is public)
                 const confRef = doc(db, 'system', 'config');
                 const confSnap = await getDoc(confRef);
+                
+                // 2. Read Subscriptions (Read is public)
+                const subSnap = await getDocs(collection(db, 'subscriptions'));
+
+                // 3. SEEDING LOGIC - Only if user is possibly an admin
+                // We don't check role here to avoid another fetch, but we catch write errors
                 if (!confSnap.exists()) {
                     await setDoc(confRef, {
                         commission_percentage: 10,
@@ -21,19 +28,9 @@ const SystemBootstrapper = () => {
                         instagramUrl: 'https://instagram.com/barberlink',
                         tiktokUrl: 'https://tiktok.com/@barberlink',
                         whatsappNumber: '+213...'
-                    });
-                    console.log("[SystemBootstrapper] Initialized Platform Config.");
+                    }).catch(() => console.log("[SystemBootstrapper] Skipping Config Seed (Unauthorized)"));
                 }
 
-                // 2. Auto-Seed AI Registry
-                const agentsSnap = await getDocs(collection(db, 'ai_agents'));
-                if (agentsSnap.empty) {
-                    await AgentAPI.syncLocalRegistry();
-                    console.log("[SystemBootstrapper] Initialized AI Agent Registry.");
-                }
-
-                // 3. Auto-Seed Subscriptions
-                const subSnap = await getDocs(collection(db, 'subscriptions'));
                 if (subSnap.empty) {
                     const plans = [
                         { id: 'basic', name: 'Basic Tier', price_dzd: 1000, price_usd: 10, duration_days: 30, features: ['Standard Booking', 'Map Visibility', 'Basic Support'], color: "from-blue-500/10 to-transparent border-blue-500/20", btnVariant: 'outline' },
@@ -41,20 +38,20 @@ const SystemBootstrapper = () => {
                         { id: 'premium', name: 'Elite Enterprise', price_dzd: 5000, price_usd: 50, duration_days: 30, features: ['Full AI Management', 'Investor Dash Access', '24/7 Security Ops', 'Priority Scaling'], color: "from-amber-500/10 to-transparent border-amber-500/20", btnVariant: 'outline' }
                     ];
                     for (const plan of plans) {
-                        await setDoc(doc(db, 'subscriptions', plan.id), plan);
+                        await setDoc(doc(db, 'subscriptions', plan.id), plan).catch(() => {});
                     }
-                    console.log("[SystemBootstrapper] Initialized Monetization Hub.");
                 }
 
             } catch (err) {
-                console.error("[SystemBootstrapper] Error during autonomous sequence:", err);
+                // Silent for guests who can't seed
+                console.log("[SystemBootstrapper] Orchestration active (Read-only mode).");
             }
         };
 
         bootstrap();
     }, []);
 
-    return null; // Silent background orchestration
+    return null;
 };
 
 export default SystemBootstrapper;

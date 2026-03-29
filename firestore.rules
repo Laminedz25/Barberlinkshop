@@ -15,8 +15,17 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
+    function isAdminEmail() {
+      return request.auth.token.email == 'lamine.sanfour25didou@gmail.com' ||
+             request.auth.token.email == 'admin@barberlink.cloud';
+    }
+
     function isAdmin() {
-      return isAuthenticated() && getUserData().role == 'admin';
+      return isAuthenticated() && getUserData().role == 'admin' && isAdminEmail();
+    }
+
+    function isInvestor() {
+      return isAuthenticated() && getUserData().role == 'investor';
     }
 
     function isNotSuspended() {
@@ -105,7 +114,7 @@ service cloud.firestore {
 
     // ─── ANALYTICS Collection ───────────────────────────────
     match /analytics/{docId} {
-      allow read: if isAdmin();
+      allow read: if isAdmin() || isInvestor();
       // Authenticated users can log their own events
       allow create: if isAuthenticated() && request.resource.data.user_id == request.auth.uid;
       allow update, delete: if isAdmin();
@@ -189,7 +198,8 @@ service cloud.firestore {
 
     // ─── SYSTEM / INVESTOR_METRICS ─────────────────────────
     match /system/investor_metrics {
-      allow read, write: if isAdmin();
+      allow read: if isAdmin() || isInvestor();
+      allow write: if isAdmin();
     }
 
     match /notifications/{notifId} {
@@ -197,6 +207,33 @@ service cloud.firestore {
       allow create: if isAdmin();
       allow update: if isAuthenticated() && resource.data.user_id == request.auth.uid;
       allow delete: if isAuthenticated() && resource.data.user_id == request.auth.uid;
+    }
+
+    // ─── MONETIZATION & SUBSCRIPTIONS ────────────────────────
+    match /subscriptions/{subId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ─── AI INFRASTRUCTURE ──────────────────────────────────
+    match /ai_agents/{agentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /ai_memories/{memoryId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ─── SYSTEM CONFIG ─────────────────────────────────────
+    match /system/config {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    // ─── MARKETPLACE & PRODUCTS ─────────────────────────────
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

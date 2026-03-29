@@ -1,18 +1,29 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, collection, getDocs, updateDoc, query, orderBy, limit, setDoc, deleteDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, updateDoc, query, orderBy, limit, setDoc, deleteDoc, serverTimestamp, Timestamp, addDoc, arrayUnion } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Scissors, ShoppingBag, TrendingUp, TrendingDown, Users, DollarSign, Calendar, MessageSquare, Bot, Brain, Activity, ShieldCheck, Mail, ShieldAlert, BarChart3, RefreshCw, Zap, Save, CheckCircle, XCircle, Settings, Plus, BookOpen } from 'lucide-react';
+import { 
+  Scissors, ShoppingBag, TrendingUp, TrendingDown, Users, DollarSign, Calendar, MessageSquare, Bot, Brain, Activity, 
+  ShieldCheck, Mail, ShieldAlert, BarChart3, RefreshCw, Zap, Save, CheckCircle, XCircle, Settings, Plus, BookOpen,
+  CalendarCheck, LogOut, Layers, BarChart, CreditCard, Trash2, Tag, Globe, CheckCircle2, MoreVertical, Search, Filter
+} from 'lucide-react';
 import { MasterOrchestrator } from '@/ai-agents/MasterOrchestrator';
 import { MemorySystem, MemoryNode } from '@/lib/agent-memory';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { AGENT_REGISTRY } from '@/ai-agents/AgentRegistry';
 import { AgentAPI, AgentRecord } from '@/lib/agent-api';
 import { useSystemConfig, SystemConfig } from '@/hooks/useSystemConfig';
@@ -26,6 +37,28 @@ interface UserRecord {
   role: string;
   created_at: string;
   suspended?: boolean;
+}
+
+interface BarberRecord {
+  id: string;
+  business_name: string;
+  email: string;
+  phone: string;
+  verification_status: 'pending' | 'verified' | 'rejected';
+  verified: boolean;
+  address?: string;
+  created_at: string;
+}
+
+interface BookingRecord {
+  id: string;
+  customer_id: string;
+  barber_id: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'completed' | 'cancelled';
+  total_price: number;
+  appointment_date: string;
+  appointment_time: string;
+  created_at: string;
 }
 
 interface Stats {
@@ -114,25 +147,6 @@ const AdminDashboard = () => {
   const [healthStatus, setHealthStatus] = useState<HealthStatus | null>(null);
   const [simulating, setSimulating] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setLoading(true);
-      if (user && user.email === 'admin@barberlink.cloud') {
-        setAuthorized(true);
-        setLoading(false);
-      } else {
-        setAuthorized(false);
-        setLoading(false);
-        navigate('/');
-        toast({ 
-            title: "Security Violation", 
-            description: "Unauthorized access attempts are logged. Please sign in with primary credentials.", 
-            variant: "destructive" 
-        });
-      }
-    });
-    return () => unsubscribe();
-  }, [navigate, toast]);
 
   const loadData = useCallback(async () => {
     try {
@@ -356,11 +370,40 @@ const AdminDashboard = () => {
       if (!user) { navigate('/auth'); return; }
       try {
         const snap = await getDoc(doc(db, 'users', user.uid));
-        if (!snap.exists() || snap.data().role !== 'admin') {
-          toast({ title: 'Access Denied', description: 'You do not have admin privileges.', variant: 'destructive' });
+        if (!snap.exists()) {
+           toast({ title: 'Access Denied', description: 'Account not found.', variant: 'destructive' });
+           navigate('/');
+           return;
+        }
+        
+        const userData = snap.data();
+        const isAdminEmail = user.email === 'lamine.sanfour25didou@gmail.com' || user.email === 'admin@barberlink.cloud';
+
+        if (userData.role === 'admin' && !isAdminEmail) {
+          toast({ 
+            title: 'Unauthorized Admin Address', 
+            description: `Admin privileges are restricted to primary owners only. Contact lamine for escalation.`, 
+            variant: 'destructive' 
+          });
           navigate('/');
           return;
         }
+
+        if (userData.role !== 'admin' && userData.role !== 'investor') {
+          toast({ 
+            title: 'Institutional Access Required', 
+            description: `Unauthorized Role: [${userData.role || 'none'}]. Administrative or Investor credentials only.`, 
+            variant: 'destructive' 
+          });
+          navigate('/');
+          return;
+        }
+
+        // ROLE-BASED Tab Management
+        if (userData.role === 'investor') {
+           setActiveTab('investors'); // Force focus on growth hub
+        }
+
         setAuthorized(true);
         await loadData();
       } catch {
@@ -810,6 +853,35 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="lg:col-span-1 space-y-6">
+                   <Card className="border-none shadow-2xl rounded-[2.5rem] bg-indigo-950 text-white overflow-hidden">
+                      <div className="p-6 border-b border-white/5 bg-white/5">
+                         <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                            <Settings className="w-4 h-4 text-primary" /> DevOps Console
+                         </h3>
+                      </div>
+                      <CardContent className="p-6 space-y-4">
+                         <div className="p-4 bg-white/5 rounded-2xl border border-white/5 space-y-3">
+                            <p className="text-[10px] text-white/60 uppercase font-black tracking-widest">Global Fleet Control</p>
+                            <Button onClick={async () => {
+                               await MasterOrchestrator.getInstance().logDecision('ai_devops', 'RESTART_MESH', { scope: 'All Nodes' });
+                               toast({ title: 'Mesh Restarted', description: 'Silent stabilization in progress.' });
+                            }} className="w-full h-10 rounded-xl bg-primary hover:bg-primary/90 text-[10px] font-black uppercase">RESTART MESH</Button>
+                            <Button onClick={async () => {
+                               await MasterOrchestrator.getInstance().logDecision('ai_devops', 'PURGE_IDLE_NODES', { threshold: '1h' });
+                               toast({ title: 'Nodes Purged', description: 'Background cleanup complete.' });
+                            }} variant="outline" className="w-full h-10 rounded-xl border-white/10 hover:bg-white/5 text-[10px] font-black uppercase">Purge Idle</Button>
+                            <Button onClick={async () => {
+                               await MasterOrchestrator.getInstance().logDecision('ai_devops', 'SCALE_PODS', { nodes: 5 });
+                               toast({ title: 'System Scaled', description: 'Shadow pods deployed silently.' });
+                            }} variant="outline" className="w-full h-10 rounded-xl border-white/10 hover:bg-white/5 text-[10px] font-black uppercase">Scale x5</Button>
+                         </div>
+                         <div className="text-[9px] font-mono text-white/30 italic">
+                            * DevOps actions are silent and backgrounded. 
+                            Users remain uninterrupted during fleet modification.
+                         </div>
+                      </CardContent>
+                   </Card>
+
                    <Card className="border-none shadow-2xl rounded-[2.5rem] bg-slate-950 text-white overflow-hidden">
                       <div className="p-6 border-b border-white/5 bg-white/5">
                          <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
@@ -846,9 +918,12 @@ const AdminDashboard = () => {
                  </DialogTitle>
               </DialogHeader>
               <div className="space-y-6 py-4">
-                 <div className="space-y-2">
-                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground italic">Neural Core Instructions (System Prompt)</Label>
+                 <div className="space-y-4">
+                    <Label htmlFor="system-prompt-editor" className="text-xs font-black uppercase tracking-widest text-muted-foreground italic">Neural Core Instructions (System Prompt)</Label>
                     <textarea 
+                       id="system-prompt-editor"
+                       title="System Prompt Editor"
+                       placeholder="Enter new neural core instructions..."
                        value={newSystemPrompt}
                        onChange={(e) => setNewSystemPrompt(e.target.value)}
                        className="w-full h-80 rounded-[2rem] p-6 bg-slate-50 border-2 border-slate-100 font-mono text-xs focus:border-primary transition-all outline-none"
@@ -1047,8 +1122,69 @@ const AdminDashboard = () => {
           {activeTab === 'investors' && (
             <div className="space-y-8 animate-slide-up">
               <h1 className="text-3xl font-black">Strategic Growth Hub 🚀</h1>
+              
+              {/* PLATFORM SELF-EVOLUTION & EXPANSION TELEMETRY */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                 <Card className="border-none shadow-2xl rounded-[3rem] bg-indigo-950 text-white overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-primary/20 blur-[120px] rounded-full -mr-40 -mt-40 group-hover:bg-primary/40 transition-all duration-1000" />
+                    <CardContent className="p-10 relative z-10">
+                       <div className="flex justify-between items-start mb-8">
+                          <div className="space-y-2">
+                             <Badge variant="outline" className="text-primary border-primary/30 font-black uppercase tracking-widest text-[10px]">Global Expansion Node</Badge>
+                             <h2 className="text-4xl font-black uppercase tracking-tighter italic">Regional <span className="text-primary">Maturity</span></h2>
+                          </div>
+                          <Globe className="w-10 h-10 text-primary animate-pulse" />
+                       </div>
+                       <div className="space-y-6">
+                          {[
+                            { country: 'Algeria', density: 85, status: 'Active', color: 'bg-emerald-500' },
+                            { country: 'France', density: 42, status: 'Scaling', color: 'bg-amber-500' },
+                            { country: 'USA', density: 15, status: 'Seeding', color: 'bg-indigo-400' },
+                          ].map(reg => (
+                            <div key={reg.country} className="space-y-2">
+                               <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-1">
+                                  <span>{reg.country}</span>
+                                  <span className="text-white/40">{reg.status} ({reg.density}%)</span>
+                               </div>
+                               <Progress value={reg.density} className={`h-1.5 bg-white/10 ${reg.color}`} />
+                            </div>
+                          ))}
+                       </div>
+                       <p className="mt-8 text-[10px] text-white/40 font-mono italic">* Global Expansion Agent triggers local currency and language activation at 100% density.</p>
+                    </CardContent>
+                 </Card>
+
+                 <Card className="border-none shadow-2xl rounded-[3rem] bg-slate-900 text-white overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-80 h-80 bg-blue-500/10 blur-[120px] rounded-full -ml-40 -mt-40" />
+                    <CardContent className="p-10 relative z-10">
+                       <div className="flex justify-between items-start mb-8">
+                          <div className="space-y-2">
+                             <Badge variant="outline" className="text-blue-400 border-blue-400/30 font-black uppercase tracking-widest text-[10px]">Recursive Evolution HUD</Badge>
+                             <h2 className="text-4xl font-black uppercase tracking-tighter italic text-blue-400">Self <span className="text-white">Improvement</span></h2>
+                          </div>
+                          <Zap className="w-10 h-10 text-blue-400" />
+                       </div>
+                       <div className="grid grid-cols-2 gap-4">
+                          <div className="p-6 bg-white/5 rounded-[2rem] border border-white/5 space-y-2">
+                             <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">Conversion Gap</p>
+                             <p className="text-2xl font-black text-rose-400">-12% <span className="text-[8px] text-white/20">at Payment</span></p>
+                             <Button size="sm" className="w-full mt-2 h-8 rounded-xl bg-blue-500 hover:bg-blue-600 text-[10px] font-black uppercase">Apply AI Fix</Button>
+                          </div>
+                          <div className="p-6 bg-white/5 rounded-[2rem] border border-white/5 space-y-2">
+                             <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">New Node Proposal</p>
+                             <p className="text-xs font-black">Support Assistant v2</p>
+                             <Badge className="bg-emerald-500/20 text-emerald-400 border-none text-[8px] px-2">Ready to Deploy</Badge>
+                          </div>
+                       </div>
+                       <div className="mt-8 p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10">
+                          <p className="text-[10px] text-blue-300 font-bold italic">"Autonomous Admin has identified high density in Lyon. Proposing 15% discount for French early adopters."</p>
+                       </div>
+                    </CardContent>
+                 </Card>
+              </div>
+
               <Card className="p-8 rounded-[2.5rem] bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
-                <h3 className="text-xl font-bold mb-6">Real-time Performance Metrics</h3>
+                 <h3 className="text-xl font-bold mb-6">Real-time Performance Metrics</h3>
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   <div className="space-y-2">
                     <Label>Total Revenue (DZD)</Label>

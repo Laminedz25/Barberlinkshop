@@ -187,6 +187,8 @@ const Book = () => {
         setBookingLoading(true);
 
         try {
+            const initialStatus = paymentMethod === 'cash' ? 'pending' : 'pending_payment';
+
             await addDoc(collection(db, 'appointments'), {
                 barber_id: id,
                 customer_id: user.uid,
@@ -197,15 +199,23 @@ const Book = () => {
                 appointment_time: time,
                 payment_method: paymentMethod,
                 barber_chair_id: selectedChair,
-                status: 'pending',
+                status: initialStatus,
                 created_at: new Date().toISOString()
             });
 
-            toast({
+            if (initialStatus === 'pending_payment') {
+              toast({
+                title: 'Payment Initiated',
+                description: 'Please complete your payment. Your booking will be confirmed once validated.',
+              });
+              navigate(`/bookings?status=processing`);
+            } else {
+              toast({
                 title: 'Success',
                 description: 'Your appointment has been booked successfully!',
-            });
-            navigate(`/bookings`); // Navigate to customer dashboard
+              });
+              navigate(`/bookings`);
+            }
         } catch (error) {
             const err = error as Error;
             toast({

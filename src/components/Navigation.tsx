@@ -67,6 +67,7 @@ const Navigation = () => {
         {/* Center: Desktop Navigation Hub */}
         <nav className="hidden lg:flex items-center gap-1 p-1 bg-muted/30 backdrop-blur-md rounded-full border border-white/10">
           <NavLink to="/" icon={<MapPin className="h-4 w-4" />} label={t('nav.explore')} active={location.pathname === '/'} />
+          <NavLink to="/marketplace" icon={<ShoppingBag className="h-4 w-4" />} label={isRTL ? 'المتجر' : 'Marketplace'} active={location.pathname === '/marketplace'} />
           {user && (
             <>
               <NavLink to="/bookings" icon={<Calendar className="h-4 w-4" />} label={t('nav.bookings')} active={location.pathname === '/bookings'} />

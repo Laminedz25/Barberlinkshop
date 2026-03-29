@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import Book from "./pages/Book";
 import AdminDashboard from "./pages/AdminDashboard";
 import Investors from "./pages/Investors";
+import Marketplace from "./pages/Marketplace";
 import AIAssistant from "./components/AIAssistant";
 import SystemBootstrapper from "./components/SystemBootstrapper";
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/investors" element={<Investors />} />
+            <Route path="/marketplace" element={<Marketplace />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

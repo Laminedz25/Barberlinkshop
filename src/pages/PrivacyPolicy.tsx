@@ -1,132 +1,70 @@
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { useLanguage } from "@/contexts/LanguageContext";
+import React from 'react';
+import Navigation from '@/components/Navigation';
+import { ShieldCheck, Lock, Eye, FileText, Globe, Scale } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const PrivacyPolicy = () => {
-  const { language } = useLanguage();
-
-  const content = {
-    en: {
-      title: "Privacy Policy",
-      lastUpdated: "Last Updated: January 2025",
-      sections: [
-        {
-          title: "1. Information We Collect",
-          content: "We collect information you provide directly to us, such as when you create an account, book an appointment, or contact us for support. This may include your name, email address, phone number, and payment information."
-        },
-        {
-          title: "2. How We Use Your Information",
-          content: "We use the information we collect to provide, maintain, and improve our services, process your bookings, communicate with you, and ensure the security of our platform."
-        },
-        {
-          title: "3. Information Sharing",
-          content: "We do not sell your personal information. We may share your information with service providers who help us operate our platform, and with salons when you make a booking."
-        },
-        {
-          title: "4. Data Security",
-          content: "We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction."
-        },
-        {
-          title: "5. Your Rights",
-          content: "You have the right to access, update, or delete your personal information. You can do this through your account settings or by contacting us directly."
-        },
-        {
-          title: "6. Contact Us",
-          content: "If you have any questions about this Privacy Policy, please contact us at privacy@barber.com"
-        }
-      ]
-    },
-    fr: {
-      title: "Politique de Confidentialité",
-      lastUpdated: "Dernière mise à jour : Janvier 2025",
-      sections: [
-        {
-          title: "1. Informations que nous collectons",
-          content: "Nous collectons les informations que vous nous fournissez directement, par exemple lorsque vous créez un compte, réservez un rendez-vous ou nous contactez pour obtenir de l'aide. Cela peut inclure votre nom, adresse e-mail, numéro de téléphone et informations de paiement."
-        },
-        {
-          title: "2. Comment nous utilisons vos informations",
-          content: "Nous utilisons les informations que nous collectons pour fournir, maintenir et améliorer nos services, traiter vos réservations, communiquer avec vous et assurer la sécurité de notre plateforme."
-        },
-        {
-          title: "3. Partage des informations",
-          content: "Nous ne vendons pas vos informations personnelles. Nous pouvons partager vos informations avec des prestataires de services qui nous aident à exploiter notre plateforme et avec des salons lorsque vous effectuez une réservation."
-        },
-        {
-          title: "4. Sécurité des données",
-          content: "Nous mettons en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos informations personnelles contre l'accès, la modification, la divulgation ou la destruction non autorisés."
-        },
-        {
-          title: "5. Vos droits",
-          content: "Vous avez le droit d'accéder, de mettre à jour ou de supprimer vos informations personnelles. Vous pouvez le faire via les paramètres de votre compte ou en nous contactant directement."
-        },
-        {
-          title: "6. Contactez-nous",
-          content: "Si vous avez des questions concernant cette politique de confidentialité, veuillez nous contacter à privacy@barber.com"
-        }
-      ]
-    },
-    ar: {
-      title: "سياسة الخصوصية",
-      lastUpdated: "آخر تحديث: يناير 2025",
-      sections: [
-        {
-          title: "1. المعلومات التي نجمعها",
-          content: "نجمع المعلومات التي تقدمها لنا مباشرة، مثل عند إنشاء حساب أو حجز موعد أو الاتصال بنا للحصول على الدعم. قد يشمل ذلك اسمك وعنوان بريدك الإلكتروني ورقم هاتفك ومعلومات الدفع."
-        },
-        {
-          title: "2. كيف نستخدم معلوماتك",
-          content: "نستخدم المعلومات التي نجمعها لتوفير خدماتنا وصيانتها وتحسينها، ومعالجة حجوزاتك، والتواصل معك، وضمان أمن منصتنا."
-        },
-        {
-          title: "3. مشاركة المعلومات",
-          content: "نحن لا نبيع معلوماتك الشخصية. قد نشارك معلوماتك مع مقدمي الخدمات الذين يساعدوننا في تشغيل منصتنا، ومع الصالونات عند إجراء حجز."
-        },
-        {
-          title: "4. أمن البيانات",
-          content: "نطبق التدابير التقنية والتنظيمية المناسبة لحماية معلوماتك الشخصية من الوصول غير المصرح به أو التعديل أو الإفشاء أو الإتلاف."
-        },
-        {
-          title: "5. حقوقك",
-          content: "لديك الحق في الوصول إلى معلوماتك الشخصية أو تحديثها أو حذفها. يمكنك القيام بذلك من خلال إعدادات حسابك أو عن طريق الاتصال بنا مباشرة."
-        },
-        {
-          title: "6. اتصل بنا",
-          content: "إذا كان لديك أي أسئلة حول سياسة الخصوصية هذه، يرجى الاتصال بنا على privacy@barber.com"
-        }
-      ]
-    }
-  };
-
-  const currentContent = content[language];
-
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-50">
       <Navigation />
       
-      <main className="container mx-auto px-4 py-12 mt-20">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-gold bg-clip-text text-transparent">
-            {currentContent.title}
-          </h1>
-          <p className="text-muted-foreground mb-8">{currentContent.lastUpdated}</p>
+      <main className="max-w-4xl mx-auto px-6 py-32 space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
+        <header className="text-center space-y-4">
+           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-black text-xs uppercase tracking-widest">
+              <ShieldCheck className="w-4 h-4" /> Trusted Governance
+           </div>
+           <h1 className="text-6xl font-black tracking-tighter uppercase">Privacy <span className="text-primary">Policy</span></h1>
+           <p className="text-muted-foreground font-medium text-lg">Last Updated: March 29, 2026</p>
+        </header>
 
-          <div className="space-y-8">
-            {currentContent.sections.map((section, index) => (
-              <div key={index} className="prose prose-lg dark:prose-invert max-w-none">
-                <h2 className="text-2xl font-semibold mb-3 text-foreground">
-                  {section.title}
-                </h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  {section.content}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <section className="grid gap-8">
+           <Card className="border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white">
+              <CardContent className="p-12 space-y-8">
+                 <div className="space-y-4">
+                    <h2 className="text-3xl font-black flex items-center gap-4">
+                       <Eye className="w-8 h-8 text-primary" /> 1. Information Collection
+                    </h2>
+                    <p className="text-slate-600 leading-relaxed font-medium">
+                       BarberLink ("we", "our", "platform") collects personal information including your name, email, phone number, and location data to provide and improve our autonomous SaaS services. We use AI agents to analyze this data for optimization purposes.
+                    </p>
+                 </div>
+
+                 <div className="space-y-4">
+                    <h2 className="text-3xl font-black flex items-center gap-4">
+                       <Lock className="w-8 h-8 text-primary" /> 2. Data Security
+                    </h2>
+                    <p className="text-slate-600 leading-relaxed font-medium">
+                       Your data is encrypted both in transit and at rest using industry-standard protocols. Administrative access is strictly limited to authorized "Super Admins" as identified by our Identity Federation system.
+                    </p>
+                 </div>
+
+                 <div className="space-y-4">
+                    <h2 className="text-3xl font-black flex items-center gap-4">
+                       <Globe className="w-8 h-8 text-primary" /> 3. Regional Compliance
+                    </h2>
+                    <p className="text-slate-600 leading-relaxed font-medium">
+                       We operate in compliance with Algerian data protection laws and international standards (e.g., GDPR principles). Users have the right to request data deletion at any time.
+                    </p>
+                 </div>
+
+                 <div className="space-y-4">
+                    <h2 className="text-3xl font-black flex items-center gap-4">
+                       <Scale className="w-8 h-8 text-primary" /> 4. AI Orchestration
+                    </h2>
+                    <p className="text-slate-600 leading-relaxed font-medium">
+                       Our "Master Orchestrator" and associated agents (Ads, Delivery, Finance) process data to automate business workflows. This processing is performed silently and securely within our private cloud environment.
+                    </p>
+                 </div>
+              </CardContent>
+           </Card>
+
+           <footer className="text-center p-8 bg-slate-900 rounded-[2.5rem] text-white space-y-4 shadow-2xl">
+              <FileText className="w-12 h-12 text-primary mx-auto opacity-50" />
+              <h3 className="text-xl font-black tracking-tight uppercase">Questions?</h3>
+              <p className="text-white/60 text-sm font-medium">Contact our Legal Sentinel at legal@barberlink.cloud</p>
+           </footer>
+        </section>
       </main>
-
-      <Footer />
     </div>
   );
 };
