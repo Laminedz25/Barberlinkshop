@@ -16,6 +16,7 @@ import Book from "./pages/Book";
 import AdminDashboard from "./pages/AdminDashboard";
 import Investors from "./pages/Investors";
 import Marketplace from "./pages/Marketplace";
+import SalonProfile from "./pages/SalonProfile";
 import AIAssistant from "./components/AIAssistant";
 import SystemBootstrapper from "./components/SystemBootstrapper";
 
@@ -34,7 +35,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/barber/:id" element={<BarberProfile />} />
-            <Route path="/salon/:id" element={<BarberProfile />} />
+            <Route path="/salon/:id" element={<SalonProfile />} />
             <Route path="/store/:id" element={<Marketplace />} />
             <Route path="/dashboard" element={<BarberDashboard />} />
             <Route path="/bookings" element={<CustomerDashboard />} />

@@ -71,7 +71,7 @@ const SalonCard = ({ salon }: SalonCardProps) => {
 
   return (
     <Card className="group overflow-hidden hover:shadow-xl transition-all duration-500 animate-fade-in border-slate-100 rounded-[2.5rem] bg-white">
-      <div className="relative overflow-hidden aspect-[4/3] cursor-pointer" onClick={() => navigate(`/barber/${salon.id}`)}>
+      <div className="relative overflow-hidden aspect-[4/3] cursor-pointer" onClick={() => navigate(`/salon/${salon.id}`)}>
         <img
           src={salon.image}
           alt={businessName}
@@ -103,7 +103,7 @@ const SalonCard = ({ salon }: SalonCardProps) => {
           <Badge className={`${getSalonTypeBadgeColor(salon.salonType || salon.gender)} border-0 rounded-full py-1 text-[9px] font-black uppercase tracking-tighter`}>
              {getSalonTypeText(salon.salonType || salon.gender)}
           </Badge>
-          <div className="cursor-pointer" onClick={() => navigate(`/barber/${salon.id}`)}>
+          <div className="cursor-pointer" onClick={() => navigate(`/salon/${salon.id}`)}>
             <h3 className="font-black text-2xl tracking-tighter hover:text-primary transition-colors uppercase leading-none">{businessName}</h3>
           </div>
         </div>
@@ -143,7 +143,7 @@ const SalonCard = ({ salon }: SalonCardProps) => {
           </Button>
           <Button
             className="flex-1 h-14 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
-            onClick={() => navigate(`/barber/${salon.id}`)}
+            onClick={() => navigate(`/salon/${salon.id}`)}
           >
             EXPLORE
           </Button>

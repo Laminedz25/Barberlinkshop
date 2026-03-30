@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   LogOut,
   ChevronRight,
-  ChevronRight,
   ShoppingBag,
   Menu
 } from "lucide-react";

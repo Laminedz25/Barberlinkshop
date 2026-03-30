@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useParams } from 'react-router-dom';
 
 interface Product {
   id: string;
@@ -26,14 +27,25 @@ interface Product {
 const Marketplace = () => {
   const { t, isRTL } = useLanguage();
   const { toast } = useToast();
+  const params = useParams();
+  const storeId = params.id; // If visiting /store/:id
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<{product: Product, quantity: number}[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // SEO
   useEffect(() => {
-    const q = query(collection(db, 'products'), orderBy('name', 'asc'));
+    document.title = storeId ? `Store | BarberLink` : 'Marketplace | BarberLink - Algeria Premium Grooming';
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', 'Shop top-tier barber tools, care products and salon supplies on BarberLink Marketplace. Free Algerian delivery available.');
+  }, [storeId]);
+
+  useEffect(() => {
+    const q = storeId 
+      ? query(collection(db, 'products'), where('barber_id', '==', storeId), orderBy('name', 'asc'))
+      : query(collection(db, 'products'), orderBy('name', 'asc'));
     const unsub = onSnapshot(q, (snap) => {
       setDbProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product)));
       setLoading(false);
@@ -82,8 +94,8 @@ const Marketplace = () => {
       
       <main className="max-w-7xl mx-auto px-4 py-32">
         <header className="mb-12 text-center animate-in fade-in slide-in-from-top-4 duration-700">
-           <Badge variant="outline" className="mb-4 rounded-full px-4 py-1 border-primary/20 text-primary font-black uppercase tracking-widest text-[10px] bg-primary/5">
-              {isRTL ? 'المتجر الذكي الصامت' : 'Silent Marketplace'}
+        <Badge variant="outline" className="mb-4 rounded-full px-4 py-1 border-primary/20 text-primary font-black uppercase tracking-widest text-[10px] bg-primary/5">
+               {storeId ? 'Merchant Store' : (isRTL ? 'المتجر الذكي الصامت' : 'Silent Marketplace')}
            </Badge>
            <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase mb-4 scale-in-center">
              {isRTL ? 'مركز الحلاقة الفاخر' : 'Luxury Grooming Hub'}
@@ -91,6 +103,17 @@ const Marketplace = () => {
            <p className="text-muted-foreground font-medium max-w-2xl mx-auto text-lg">
              {isRTL ? 'أدوات ومنتجات متميزة مختارة بعناية بواسطة شبكة الذكاء الاصطناعي لـ BarberLink.' : 'Premium tools and care products curated by the BarberLink AI network.'}
            </p>
+           {storeId && (
+             <button
+               onClick={() => {
+                 navigator.clipboard.writeText(window.location.href);
+                 toast({ title: isRTL ? 'تم النسخ!' : 'Link Copied!', description: isRTL ? 'ارفق رابط متجرك في إعلانات الفيسبوك أو انستغرام الآن!' : 'Paste your store link in Facebook, TikTok, or Instagram ads now!' });
+               }}
+               className="mt-4 inline-flex items-center gap-2 px-6 py-2 rounded-full border border-primary/30 text-primary text-sm font-bold hover:bg-primary/10 transition-all"
+             >
+               <Share2 className="w-4 h-4" /> {isRTL ? 'شارك رابط متجرك' : 'Share Store Link for Ads'}
+             </button>
+           )}
         </header>
 
         <div className="flex flex-col lg:flex-row gap-12">
