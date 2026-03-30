@@ -9,13 +9,18 @@ import AiStylist from "@/components/AiStylist";
 import Testimonials from "@/components/Testimonials";
 
 import { useState, useEffect } from "react";
-import { Activity, Zap, TrendingUp, Users } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Activity, Zap, TrendingUp, Users, ShoppingBag, ArrowRight } from "lucide-react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
+  const { t, isRTL } = useLanguage();
   const [ticker, setTicker] = useState("AI AGENT #092 initialized in Algiers...");
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
@@ -67,6 +72,30 @@ const Index = () => {
             </div>
           </div>
         </div>
+
+        {/* Global Marketplace CTA Section */}
+        <section className="py-24 bg-gradient-to-tr from-slate-950 via-slate-900 to-primary/20 relative overflow-hidden">
+           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[100px]" />
+           <div className="container mx-auto px-6 relative z-10 text-center text-white">
+              <Badge className="bg-primary/20 text-primary border-none mb-6 px-4 py-2 uppercase tracking-widest text-[10px]">New Feature Ecosystem</Badge>
+              <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter">
+                {isRTL ? 'تسوق من ' : 'Shop the '}<span className="text-primary">{isRTL ? 'السوق العالمية' : 'Global Marketplace'}</span>
+              </h2>
+              <p className="text-lg md:text-xl max-w-2xl mx-auto mb-10 text-white/70">
+                {isRTL 
+                  ? 'اكتشف واشتري أفضل منتجات العناية والمكائن الحلاقة من متاجر صالوناتك المفضلة مباشرة. ادعم أعمالهم أو حسّن أدواتك!' 
+                  : 'Discover and purchase top-tier grooming products directly from your favorite salons. Support local businesses or upgrade your toolkit.'}
+              </p>
+              
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                 <Button asChild className="h-16 px-10 rounded-full text-lg font-black shadow-[0_0_40px_-10px] shadow-primary/50 text-white hover:scale-105 transition-all">
+                   <Link to="/marketplace">
+                     <ShoppingBag className="w-5 h-5 mr-3" /> {isRTL ? 'استكشف المتجر الآن' : 'Explore Marketplace Now'}
+                   </Link>
+                 </Button>
+              </div>
+           </div>
+        </section>
 
         <AiStylist />
         <PricingPlans />

@@ -6,12 +6,15 @@ import {
   LayoutDashboard,
   LogOut,
   ChevronRight,
-  ShoppingBag
+  ChevronRight,
+  ShoppingBag,
+  Menu
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import GlobalSettings from "./GlobalSettings";
 import ThemeToggle from "./ThemeToggle";
 import { doc, getDoc } from "firebase/firestore";
@@ -109,11 +112,42 @@ const Navigation = () => {
                <Button variant="ghost" className="hidden xl:flex items-center gap-2 rounded-full font-bold px-6 text-foreground/80 hover:text-primary transition-all group" onClick={() => navigate('/auth')}>
                  {t('nav.signin')} <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                </Button>
-               <Button className="bg-primary hover:bg-primary/90 text-white font-black px-8 rounded-full shadow-[0_4px_20px_-5px] shadow-primary/40 animate-pulse-glow" onClick={() => navigate('/auth')}>
+                <Button className="bg-primary hover:bg-primary/90 text-white font-black px-8 rounded-full shadow-[0_4px_20px_-5px] shadow-primary/40 animate-pulse-glow" onClick={() => navigate('/auth')}>
                  {t('nav.signup')}
                </Button>
             </div>
           )}
+
+          {/* Mobile Navigation Trigger */}
+          <div className="lg:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side={isRTL ? 'right' : 'left'} className={`flex flex-col gap-6 pt-12 ${isRTL ? 'rtl' : 'ltr'}`}>
+                <SheetTitle className="text-left sr-only">Navigation Menu</SheetTitle>
+                <nav className="flex flex-col gap-2">
+                  <NavLink to="/" icon={<MapPin className="h-5 w-5" />} label={t('nav.explore')} active={location.pathname === '/'} />
+                  <NavLink to="/marketplace" icon={<ShoppingBag className="h-5 w-5" />} label={isRTL ? 'المتجر' : 'Marketplace'} active={location.pathname === '/marketplace'} />
+                  {user && (
+                    <>
+                      <NavLink to="/bookings" icon={<Calendar className="h-5 w-5" />} label={t('nav.bookings')} active={location.pathname === '/bookings'} />
+                      <NavLink to="/dashboard" icon={<User className="h-5 w-5" />} label={t('nav.account')} active={location.pathname === '/dashboard'} />
+                      {isAdmin && (
+                        <NavLink to="/admin" icon={<LayoutDashboard className="h-5 w-5" />} label="Super Admin" active={location.pathname === '/admin'} color="text-primary font-bold animate-pulse-glow" />
+                      )}
+                    </>
+                  )}
+                </nav>
+                <div className="flex flex-col gap-4 mt-auto">
+                    <GlobalSettings />
+                    <ThemeToggle />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
 
       </div>

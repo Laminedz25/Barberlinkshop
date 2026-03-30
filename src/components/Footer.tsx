@@ -120,11 +120,27 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* Investor & Trust Section */}
+        <div className="border-t border-border mt-16 pt-8 pb-4">
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">Supported By Elite Tech Innovators</h4>
+            <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+               {/* Partner placeholder SVGs/Brands */}
+               <div className="flex items-center gap-2 font-black text-xl"><svg className="w-6 h-6 border rounded" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> VENTURES</div>
+               <div className="flex items-center gap-2 font-black text-xl"><svg className="w-6 h-6 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81z"/></svg> G-CLOUD</div>
+               <div className="flex items-center gap-2 font-black text-xl italic"><span className="text-rose-500">#</span>ALGERIA_STARTUP</div>
+            </div>
+          </div>
+        </div>
+
         {/* Bottom Bar */}
-        <div className="border-t border-border mt-8 pt-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            © {currentYear} Barber. {t('footer.rights')}.
+        <div className="border-t border-border mt-8 pt-8 text-center flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground font-bold">
+            © {currentYear} BarberLink Global AI. {t('footer.rights')}.
           </p>
+          <div className="text-xs text-muted-foreground opacity-50 font-mono">
+            NODE V2.1.0 | AUTONOMOUS SYSTEM ACTIVE
+          </div>
         </div>
       </div>
     </footer>
