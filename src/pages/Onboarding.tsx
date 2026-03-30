@@ -130,7 +130,10 @@ const Onboarding = () => {
             <p className="text-primary font-black text-sm">{progress}%</p>
           </div>
           <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-            <div className="h-full bg-primary transition-all duration-700" style={{width: `${progress}%`}} />
+            <div
+              className="onboarding-progress-bar"
+              style={{'--progress': `${progress}%`} as React.CSSProperties}
+            />
           </div>
         </div>
 

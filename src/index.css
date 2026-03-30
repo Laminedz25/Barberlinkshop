@@ -132,3 +132,11 @@ h1, h2, h3, h4 { @apply tracking-tighter font-extrabold; }
   @apply bg-slate-200 dark:bg-slate-800 rounded-full border-2 border-solid border-transparent bg-clip-content;
 }
 ::-webkit-scrollbar-thumb:hover { @apply bg-slate-300 dark:bg-slate-700; }
+/* Onboarding Progress Bar - CSS Variable Width */
+.onboarding-progress-bar {
+  height: 100%;
+  background-color: hsl(var(--primary));
+  width: var(--progress, 0%);
+  transition: width 0.7s ease-in-out;
+  border-radius: inherit;
+}
