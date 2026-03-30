@@ -17,6 +17,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Investors from "./pages/Investors";
 import Marketplace from "./pages/Marketplace";
 import SalonProfile from "./pages/SalonProfile";
+import Onboarding from "./pages/Onboarding";
 import AIAssistant from "./components/AIAssistant";
 import SystemBootstrapper from "./components/SystemBootstrapper";
 
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/investors" element={<Investors />} />
             <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

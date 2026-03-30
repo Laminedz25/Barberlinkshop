@@ -68,12 +68,16 @@ const Auth = () => {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const userData = docSnap.data();
-          // SILENT REDIRECTION MESH
-          if (userData.role === 'admin') {
+          // New professional users who haven't completed onboarding
+          const needsOnboarding = !userData.onboarding_complete &&
+            ['barber', 'salon_owner', 'salon_barber', 'mobile_barber', 'investor', 'seller'].includes(userData.role);
+          if (needsOnboarding) {
+            navigate('/onboarding');
+          } else if (userData.role === 'admin') {
             navigate('/admin');
           } else if (userData.role === 'investor') {
-            navigate('/admin'); // Redirect to Admin Growth Hub for now or separate Dashboard
-          } else if (userData.role === 'barber') {
+            navigate('/admin');
+          } else if (userData.role === 'barber' || userData.role === 'salon_owner') {
             navigate('/dashboard');
           } else {
             navigate('/');
