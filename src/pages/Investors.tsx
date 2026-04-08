@@ -56,13 +56,13 @@ const Investors = () => {
         {/* Hero Section */}
         <section className="container mx-auto px-6 mb-20 text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 font-black text-xs text-primary uppercase tracking-widest mb-8">
-                <Rocket className="w-4 h-4" /> Global Seed Round Open
+                <Rocket className="w-4 h-4" /> {t('investor.seed')}
             </div>
             <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6">
-                Invest in the <span className="text-primary italic">Autonomous Future</span> of Grooming
+                {t('investor.title')}
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-medium leading-relaxed">
-                BarberLink is transforming the $80B grooming industry through AI-orchestrated marketplaces and global SaaS automation.
+                {t('investor.subtitle')}
             </p>
         </section>
 
@@ -131,7 +131,7 @@ const Investors = () => {
                    </ul>
                 </div>
                 <Button size="lg" className="bg-white text-primary hover:bg-slate-100 rounded-2xl h-16 text-lg font-black w-full shadow-2xl shadow-black/20">
-                   <MessageSquareDot className="mr-2 w-5 h-5" /> Request Pitch Deck
+                   <MessageSquareDot className="mr-2 w-5 h-5" /> {t('investor.deck')}
                 </Button>
             </Card>
         </div>

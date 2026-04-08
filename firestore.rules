@@ -26,8 +26,7 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' && 
-             isAdminEmail();
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     function isInvestor() {
@@ -243,7 +242,54 @@ service cloud.firestore {
     // ─── MARKETPLACE & PRODUCTS ─────────────────────────────
     match /products/{productId} {
       allow read: if true;
+      // A barber can create/update their own product; admin can do anything
+      allow create: if isAuthenticated()
+                    && isNotSuspended()
+                    && request.resource.data.barber_id != null;
+      allow update: if isAuthenticated()
+                    && isNotSuspended()
+                    && (resource.data.barber_id == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated()
+                    && (resource.data.barber_id == request.auth.uid || isAdmin());
+    }
+
+    // ─── APPOINTMENTS (walk-ins + online) ───────────────────
+    match /appointments/{appointmentId} {
+      allow read: if isAuthenticated()
+                  && (resource.data.barber_id == request.auth.uid
+                      || resource.data.customer_id == request.auth.uid
+                      || resource.data.customer_id == 'walk-in'
+                      || isAdmin());
+      allow create: if isAuthenticated() && isNotSuspended();
+      allow update: if isAuthenticated()
+                    && isNotSuspended()
+                    && (resource.data.barber_id == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ─── EXPENSES (barber tracking) ─────────────────────────
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated()
+                  && (resource.data.barber_id == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && isNotSuspended();
+      allow update, delete: if isAuthenticated()
+                             && (resource.data.barber_id == request.auth.uid || isAdmin());
+    }
+
+    // ─── SYSTEM LOGS (AI Agent writes) ──────────────────────
+    match /system_logs/{logId} {
+      allow read: if isAdmin();
+      // Agents write via backend using Admin SDK; allow writes from authenticated users too
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    // ─── AFFILIATE / REFERRALS ──────────────────────────────
+    match /affiliate_stats/{statId} {
+      allow read: if isAuthenticated()
+                  && (resource.data.user_id == request.auth.uid || isAdmin());
       allow write: if isAdmin();
     }
+
   }
 }

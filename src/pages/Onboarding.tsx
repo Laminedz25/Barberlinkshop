@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db, auth } from '@/lib/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -36,9 +36,19 @@ interface OnboardingData {
 const Onboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isRTL } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  const totalSteps = 4;
+  const progress = Math.round((step / totalSteps) * 100);
+
+  useEffect(() => {
+    if (progressRef.current) {
+      progressRef.current.style.setProperty('--progress', `${progress}%`);
+    }
+  }, [progress]);
   const [data, setData] = useState<OnboardingData>({
     accountType: null,
     fullName: '',
@@ -58,10 +68,10 @@ const Onboarding = () => {
   const set = (key: keyof OnboardingData, val: string) => setData(d => ({ ...d, [key]: val }));
 
   const accountTypes = [
-    { id: 'barber', icon: <Scissors className="w-8 h-8" />, label: isRTL ? 'حلاق / حلاقة' : 'Barber / Hairdresser', desc: isRTL ? 'عمل مستقل أو متنقل' : 'Independent or mobile barber' },
-    { id: 'salon_owner', icon: <Building2 className="w-8 h-8" />, label: isRTL ? 'صاحب صالون' : 'Salon Owner', desc: isRTL ? 'أدر صالونك وفريقك' : 'Manage your salon & staff' },
-    { id: 'investor', icon: <TrendingUp className="w-8 h-8" />, label: isRTL ? 'مستثمر' : 'Investor', desc: isRTL ? 'استثمر في المنصة' : 'Partner & invest in BarberLink' },
-    { id: 'seller', icon: <ShoppingBag className="w-8 h-8" />, label: isRTL ? 'بائع منتجات' : 'Product Seller', desc: isRTL ? 'بع منتجاتك في المتجر' : 'Sell products on the marketplace' },
+    { id: 'barber', icon: <Scissors className="w-8 h-8" />, label: t('onboarding.type.barber'), desc: t('onboarding.type.barber.desc') },
+    { id: 'salon_owner', icon: <Building2 className="w-8 h-8" />, label: t('onboarding.type.salon'), desc: t('onboarding.type.salon.desc') },
+    { id: 'investor', icon: <TrendingUp className="w-8 h-8" />, label: t('onboarding.type.investor'), desc: t('onboarding.type.investor.desc') },
+    { id: 'seller', icon: <ShoppingBag className="w-8 h-8" />, label: t('onboarding.type.seller'), desc: t('onboarding.type.seller.desc') },
   ];
 
   const handleFinish = async () => {
@@ -113,9 +123,6 @@ const Onboarding = () => {
     }
   };
 
-  const totalSteps = data.accountType ? 4 : 1;
-  const progress = Math.round((step / totalSteps) * 100);
-
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-primary/20 ${isRTL ? 'rtl' : 'ltr'}`}>
       <Navigation />
@@ -125,14 +132,14 @@ const Onboarding = () => {
         <div className="mb-10">
           <div className="flex justify-between mb-3">
             <p className="text-white/60 text-sm font-bold uppercase tracking-widest">
-              {isRTL ? `خطوة ${step + 1} من ${totalSteps + 1}` : `Step ${step + 1} of ${totalSteps + 1}`}
+              {t('onboarding.step')} {step + 1} {t('onboarding.of')} {totalSteps + 1}
             </p>
             <p className="text-primary font-black text-sm">{progress}%</p>
           </div>
           <div className="h-2 bg-white/10 rounded-full overflow-hidden">
             <div
+              ref={progressRef}
               className="onboarding-progress-bar"
-              style={{'--progress': `${progress}%`} as React.CSSProperties}
             />
           </div>
         </div>
@@ -143,9 +150,9 @@ const Onboarding = () => {
             <div className="text-center text-white mb-10">
               <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
               <h1 className="text-4xl font-black tracking-tighter mb-2">
-                {isRTL ? 'مرحباً! أنت...' : 'Welcome! I am a...'}
+                {t('onboarding.welcome')}
               </h1>
-              <p className="text-white/50">{isRTL ? 'اختر نوع حسابك للبدء' : 'Choose your account type to get started'}</p>
+              <p className="text-white/50">{t('onboarding.subtitle')}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {accountTypes.map(type => (
@@ -177,10 +184,10 @@ const Onboarding = () => {
             <Input placeholder={isRTL ? 'رقم الهاتف *' : 'Phone Number *'} value={data.phone} onChange={e => set('phone', e.target.value)} className="h-14 rounded-2xl text-base" />
             <div className="flex gap-4">
               <Button variant="outline" onClick={() => setStep(0)} className="flex-1 h-14 rounded-2xl font-bold">
-                <ArrowLeft className="w-4 h-4 mr-2" /> {isRTL ? 'رجوع' : 'Back'}
+                <ArrowLeft className="w-4 h-4 mr-2" /> {t('onboarding.back')}
               </Button>
               <Button onClick={() => setStep(2)} disabled={!data.fullName || !data.phone} className="flex-1 h-14 rounded-2xl font-black">
-                {isRTL ? 'التالي' : 'Next'} <ChevronRight className="w-4 h-4 ml-2" />
+                {t('onboarding.next')} <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
           </Card>
@@ -205,8 +212,8 @@ const Onboarding = () => {
               <Input placeholder={isRTL ? 'ميزانية الاستثمار المتوقعة ($)' : 'Expected Investment Budget ($)'} value={data.investmentBudget} onChange={e => set('investmentBudget', e.target.value)} className="h-14 rounded-2xl text-base" />
             )}
             <div className="flex gap-4">
-              <Button variant="outline" onClick={() => setStep(1)} className="flex-1 h-14 rounded-2xl font-bold"><ArrowLeft className="w-4 h-4 mr-2" /> {isRTL ? 'رجوع' : 'Back'}</Button>
-              <Button onClick={() => setStep(3)} disabled={!data.city} className="flex-1 h-14 rounded-2xl font-black">{isRTL ? 'التالي' : 'Next'} <ChevronRight className="w-4 h-4 ml-2" /></Button>
+              <Button variant="outline" onClick={() => setStep(1)} className="flex-1 h-14 rounded-2xl font-bold"><ArrowLeft className="w-4 h-4 mr-2" /> {t('onboarding.back')}</Button>
+              <Button onClick={() => setStep(3)} disabled={!data.city} className="flex-1 h-14 rounded-2xl font-black">{t('onboarding.next')} <ChevronRight className="w-4 h-4 ml-2" /></Button>
             </div>
           </Card>
         )}
@@ -233,8 +240,8 @@ const Onboarding = () => {
               </>
             )}
             <div className="flex gap-4">
-              <Button variant="outline" onClick={() => setStep(2)} className="flex-1 h-14 rounded-2xl font-bold"><ArrowLeft className="w-4 h-4 mr-2" /> {isRTL ? 'رجوع' : 'Back'}</Button>
-              <Button onClick={() => setStep(4)} className="flex-1 h-14 rounded-2xl font-black">{isRTL ? 'التالي' : 'Next'} <ChevronRight className="w-4 h-4 ml-2" /></Button>
+              <Button variant="outline" onClick={() => setStep(2)} className="flex-1 h-14 rounded-2xl font-bold"><ArrowLeft className="w-4 h-4 mr-2" /> {t('onboarding.back')}</Button>
+              <Button onClick={() => setStep(4)} className="flex-1 h-14 rounded-2xl font-black">{t('onboarding.next')} <ChevronRight className="w-4 h-4 ml-2" /></Button>
             </div>
           </Card>
         )}
@@ -254,7 +261,7 @@ const Onboarding = () => {
             <div className="flex gap-4">
               <Button variant="outline" onClick={() => setStep(3)} className="h-14 px-8 rounded-2xl font-bold"><ArrowLeft className="w-4 h-4 mr-2" /></Button>
               <Button onClick={handleFinish} disabled={saving} className="flex-1 h-14 rounded-2xl font-black text-lg">
-                {saving ? '⏳ ...' : (isRTL ? '🚀 إطلاق بروفايلي' : '🚀 Launch My Profile')}
+                {saving ? '⏳ ...' : t('onboarding.finish')}
               </Button>
             </div>
           </Card>

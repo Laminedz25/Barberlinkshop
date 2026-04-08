@@ -3,6 +3,8 @@ import { collection, updateDoc, doc, arrayUnion, getDocs, query, where, getDoc }
 import { AGENT_REGISTRY } from './AgentRegistry';
 import { MemorySystem } from '@/lib/agent-memory';
 import { DBMaintenanceAgent } from './DBMaintenanceAgent';
+import { AdminAgent } from './AdminAgent';
+import { SocialMediaAgent } from './SocialMediaAgent';
 
 export class MasterOrchestrator {
   private static instance: MasterOrchestrator;
@@ -32,6 +34,15 @@ export class MasterOrchestrator {
       await this.evolutionAndSelfImprovementCheck();
       await this.autonomousAdminCycle();
       await this.cyberSecurityMaintenance();
+      
+      // Admin orchestrating and actively monitoring sub-agents
+      await AdminAgent.getInstance().evaluateSystemNeeds();
+      
+      // Daily automated publishing on TikTok/IG/FB + WPPConnect triggers
+      // (This will normally check time before executing daily tasks)
+      await SocialMediaAgent.getInstance().orchestrateDailyContent();
+      await SocialMediaAgent.getInstance().scanAndEngageComments();
+      
     }, 60000);
   }
 

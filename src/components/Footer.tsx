@@ -123,7 +123,7 @@ const Footer = () => {
         {/* Investor & Trust Section */}
         <div className="border-t border-border mt-16 pt-8 pb-4">
           <div className="flex flex-col items-center justify-center space-y-4">
-            <h4 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">Supported By Elite Tech Innovators</h4>
+            <h4 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">{t('footer.supporters')}</h4>
             <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
                {/* Partner placeholder SVGs/Brands */}
                <div className="flex items-center gap-2 font-black text-xl"><svg className="w-6 h-6 border rounded" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> VENTURES</div>
@@ -139,7 +139,7 @@ const Footer = () => {
             © {currentYear} BarberLink Global AI. {t('footer.rights')}.
           </p>
           <div className="text-xs text-muted-foreground opacity-50 font-mono">
-            NODE V2.1.0 | AUTONOMOUS SYSTEM ACTIVE
+            {t('footer.status')}
           </div>
         </div>
       </div>

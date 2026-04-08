@@ -325,7 +325,10 @@ const BarberProfile = () => {
             </Card>
 
              <div className="grid grid-cols-2 gap-4">
-               <Button onClick={() => navigate(`/chat?recipient=${barber.user_id}`)} className="h-16 rounded-2xl border-none bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold gap-3">
+               <Button onClick={() => navigate(`/marketplace?store=${id}`)} className="col-span-2 h-16 rounded-[1.2rem] border-none bg-primary/10 hover:bg-primary/20 text-primary font-extrabold gap-3 shadow-none transition-all active:scale-[0.98]">
+                  <ShoppingBag className="w-5 h-5" /> EXPLORE SALON STORE
+               </Button>
+               <Button onClick={() => navigate(`/chat?recipient=${barber.user_id}`)} className="h-16 rounded-[1.2rem] border-none bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold gap-3">
                   <MessageSquare className="w-5 h-5 text-primary" /> CHAT
                </Button>
                <Button onClick={() => {

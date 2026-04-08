@@ -10,8 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Scissors, ShoppingBag, TrendingUp, TrendingDown, Users, DollarSign, Calendar, MessageSquare, Bot, Brain, Activity, 
   ShieldCheck, Mail, ShieldAlert, BarChart3, RefreshCw, Zap, Save, CheckCircle, XCircle, Settings, Plus, BookOpen,
-  CalendarCheck, LogOut, Layers, BarChart, CreditCard, Trash2, Tag, Globe, CheckCircle2, MoreVertical, Search, Filter
+  CalendarCheck, LogOut, Layers, BarChart, CreditCard, Trash2, Tag, Globe, CheckCircle2, MoreVertical, Search, Filter,
+  LayoutDashboard, Star, Heart, ChevronRight, Check, ImagePlus
 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { MasterOrchestrator } from '@/ai-agents/MasterOrchestrator';
 import { MemorySystem, MemoryNode } from '@/lib/agent-memory';
 import { Label } from '@/components/ui/label';
@@ -116,6 +118,7 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
+  const { t, isRTL } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'subscriptions' | 'ai_agents' | 'marketing' | 'monitoring' | 'settings' | 'verification' | 'investors'>('overview');
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [barbers, setBarbers] = useState<BarberRecord[]>([]);
@@ -447,8 +450,8 @@ const AdminDashboard = () => {
           <div className="flex items-center gap-3">
             <ShieldAlert className="h-7 w-7 text-primary" />
             <div>
-              <h1 className="text-xl font-bold">BarberLink Admin</h1>
-              <p className="text-xs text-muted-foreground">Platform Control Panel</p>
+              <h1 className="text-xl font-bold">{t('admin.title')}</h1>
+              <p className="text-xs text-muted-foreground">{t('admin.subtitle')}</p>
             </div>
           </div>
           <Button variant="ghost" onClick={() => { auth.signOut(); navigate('/'); }}>
@@ -476,15 +479,15 @@ const AdminDashboard = () => {
         {/* Tabs */}
         <div className="flex flex-wrap gap-2 border-b overflow-x-auto pb-px">
           {[
-            { id: 'overview', label: 'Overview' },
-            { id: 'users', label: 'Users' },
-            { id: 'subscriptions', label: 'SaaS Plans' },
-            { id: 'ai_agents', label: 'AI Agents' },
-            { id: 'verification', label: 'Verification', color: 'text-orange-600' },
-            { id: 'marketing', label: 'Marketing' },
-            { id: 'monitoring', label: 'Health' },
-            { id: 'investors', label: 'Investor Hub' },
-            { id: 'settings', label: 'Settings' }
+            { id: 'overview', label: t('admin.tabs.overview') },
+            { id: 'users', label: t('admin.tabs.users') },
+            { id: 'subscriptions', label: t('admin.tabs.plans') },
+            { id: 'ai_agents', label: t('admin.tabs.agents') },
+            { id: 'verification', label: t('admin.tabs.verification'), color: 'text-orange-600' },
+            { id: 'marketing', label: t('admin.tabs.marketing') },
+            { id: 'monitoring', label: t('admin.tabs.health') },
+            { id: 'investors', label: t('admin.tabs.investors') },
+            { id: 'settings', label: t('admin.tabs.settings') }
           ].map(tab => (
             <Button
               key={tab.id}
@@ -506,7 +509,7 @@ const AdminDashboard = () => {
                 <CardContent className="p-8 relative z-10">
                   <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                      <div className="space-y-2">
-                        <h3 className="text-2xl font-black flex items-center gap-2 tracking-tighter uppercase"><Activity className="text-primary h-6 w-6" /> Global OS Heartbeat</h3>
+                        <h3 className="text-2xl font-black flex items-center gap-2 tracking-tighter uppercase"><Activity className="text-primary h-6 w-6" /> {t('admin.overview.heartbeat')}</h3>
                         <p className="text-muted-foreground font-medium max-w-xl">
                            Manage the entire ecosystem from AI Cognitive Nodes to Financial Gates. 
                            <span className="block mt-2 font-black text-primary uppercase">Current Protocol: Level 3 Autonomous SaaS</span>
@@ -518,13 +521,13 @@ const AdminDashboard = () => {
                            variant="outline"
                            className="h-14 px-8 rounded-2xl font-black border-primary text-primary hover:bg-primary hover:text-white transition-all"
                         >
-                           <RefreshCw className="mr-3 h-5 w-5" /> RE-SYNC COGNITIVE CORE
+                           <RefreshCw className="mr-3 h-5 w-5" /> {t('admin.overview.resync')}
                         </Button>
                         <Button 
                            onClick={seedDemoBarbersAction} 
                            className="h-14 px-8 rounded-2xl font-black shadow-xl shadow-primary/20"
                         >
-                           <Scissors className="mr-3 h-5 w-5" /> GENERATE DEMO SALON
+                           <Scissors className="mr-3 h-5 w-5" /> {t('admin.overview.demo')}
                         </Button>
                      </div>
                   </div>
@@ -533,19 +536,19 @@ const AdminDashboard = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                <Card><CardContent className="pt-4">
-                 <p className="text-xs text-muted-foreground uppercase font-semibold">Total Revenue (DZD)</p>
-                 <p className="text-2xl font-bold">{stats.revenue_dzd.toLocaleString()} دج</p>
+                 <p className="text-xs text-muted-foreground uppercase font-semibold">{t('admin.stats.revenue_dzd')}</p>
+                 <p className="text-2xl font-bold">{stats.revenue_dzd.toLocaleString()} {t('currency')}</p>
                </CardContent></Card>
                <Card><CardContent className="pt-4">
-                 <p className="text-xs text-muted-foreground uppercase font-semibold">Total Revenue (USD)</p>
+                 <p className="text-xs text-muted-foreground uppercase font-semibold">{t('admin.stats.revenue_usd')}</p>
                  <p className="text-2xl font-bold">${stats.revenue_usd.toLocaleString()}</p>
                </CardContent></Card>
                <Card><CardContent className="pt-4">
-                 <p className="text-xs text-muted-foreground uppercase font-semibold">Uptime</p>
+                 <p className="text-xs text-muted-foreground uppercase font-semibold">{t('admin.stats.uptime')}</p>
                  <p className="text-2xl font-bold text-green-500">{vpsHealth.uptime}</p>
                </CardContent></Card>
                <Card><CardContent className="pt-4">
-                 <p className="text-xs text-muted-foreground uppercase font-semibold">Active AI Agents</p>
+                 <p className="text-xs text-muted-foreground uppercase font-semibold">{t('admin.stats.agents')}</p>
                  <p className="text-2xl font-bold">{aiAgents.filter(a => a.status === 'active').length}</p>
                </CardContent></Card>
             </div>
@@ -1037,7 +1040,7 @@ const AdminDashboard = () => {
 
                <Card className="bg-slate-900 text-white border-none shadow-2xl relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-[60px] rounded-full -mr-16 -mt-16 group-hover:bg-primary/30 transition-all" />
-                  <CardHeader><CardTitle className="text-sm font-black tracking-widest uppercase text-primary/80">Stress Simulation</CardTitle></CardHeader>
+                  <CardHeader><CardTitle className="text-sm font-black tracking-widest uppercase text-primary/80">{t('admin.tabs.marketing')} Stress Simulation</CardTitle></CardHeader>
                   <CardContent className="relative z-10">
                      <p className="text-xs text-white/60 mb-6">Simulate 100-500 concurrent users to validate platform resilience and auto-scaling pods.</p>
                      <Button 
@@ -1079,10 +1082,10 @@ const AdminDashboard = () => {
 
         {activeTab === 'verification' && (
           <Card className="animate-slide-up">
-            <CardHeader className="flex flex-row items-center justify-between">
-               <CardTitle className="flex items-center gap-2"><ShieldCheck className="w-6 h-6 text-primary" /> Professional Verification Center</CardTitle>
-               <Badge variant="outline">{pendingVerifications.length} Pending Nodes</Badge>
-            </CardHeader>
+             <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="flex items-center gap-2"><ShieldCheck className="w-6 h-6 text-primary" /> {t('admin.tabs.verification')}</CardTitle>
+                <Badge variant="outline">{pendingVerifications.length} Pending Nodes</Badge>
+             </CardHeader>
             <CardContent>
               {pendingVerifications.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1095,15 +1098,17 @@ const AdminDashboard = () => {
                         <p className="text-xs text-muted-foreground font-bold">{b.address}</p>
                         <div className="pt-4 flex gap-2">
                            <Button onClick={async () => {
-                              await updateDoc(doc(db, 'barbers', b.id), { verified: true, verification_status: 'verified' });
+                               await updateDoc(doc(db, 'barbers', b.id), { verified: true, verification_status: 'verified' });
+                               await updateDoc(doc(db, 'users', b.id), { verified: true, verification_status: 'verified' });
                               toast({ title: 'Barber Verified', description: `${b.business_name} is now a Level-3 partner.` });
                               loadData();
-                           }} className="flex-1 rounded-xl bg-green-600 hover:bg-green-700 font-bold">Approve</Button>
+                           }} className="flex-1 rounded-xl bg-green-600 hover:bg-green-700 font-bold">{t('dashboard.requests.accept')}</Button>
                            <Button onClick={async () => {
-                              await updateDoc(doc(db, 'barbers', b.id), { verification_status: 'rejected' });
+                               await updateDoc(doc(db, 'barbers', b.id), { verification_status: 'rejected' });
+                               await updateDoc(doc(db, 'users', b.id), { verification_status: 'rejected' });
                               toast({ title: 'Request Rejected', variant: 'destructive' });
                               loadData();
-                           }} variant="outline" className="flex-1 rounded-xl text-destructive font-bold">Reject</Button>
+                           }} variant="outline" className="flex-1 rounded-xl text-destructive font-bold">{t('dashboard.requests.reject')}</Button>
                         </div>
                      </div>
                    ))}
@@ -1296,6 +1301,43 @@ const AdminDashboard = () => {
                         <input id="wa-num" type="text" className="w-full p-2 border border-slate-200 rounded-md text-sm" value={systemSettings.whatsappNumber || ''} onChange={(e) => setSystemSettings({ ...systemSettings, whatsappNumber: e.target.value })} />
                       </div>
                    </div>
+                </div>
+
+                <div className="pt-6 border-t pb-6">
+                    <h4 className="font-semibold mb-3">{t('admin.settings.app.title')}</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div className="space-y-1">
+                          <label htmlFor="android-link" className="text-xs font-semibold">{t('admin.settings.app.android')}</label>
+                          <input id="android-link" type="text" placeholder="https://play.google.com/store/apps/details?id=..." className="w-full p-2 border border-slate-200 rounded-md text-sm" value={systemSettings.androidAppLink || ''} onChange={(e) => setSystemSettings({ ...systemSettings, androidAppLink: e.target.value })} />
+                       </div>
+                       <div className="space-y-1">
+                          <label htmlFor="ios-link" className="text-xs font-semibold">{t('admin.settings.app.ios')}</label>
+                          <input id="ios-link" type="text" placeholder="https://apps.apple.com/app/..." className="w-full p-2 border border-slate-200 rounded-md text-sm" value={systemSettings.iosAppLink || ''} onChange={(e) => setSystemSettings({ ...systemSettings, iosAppLink: e.target.value })} />
+                       </div>
+                    </div>
+                </div>
+
+                <div className="pt-6 border-t pb-6">
+                    <h4 className="font-black text-primary mb-6 flex items-center gap-2 uppercase tracking-tighter"><Bot className="h-5 w-5" /> AUTOMATION & AI API INTEGRATIONS</h4>
+                    <p className="text-xs font-bold text-muted-foreground mb-4">Centralized control for platform autonomous agents and services. These endpoints power your Social Media marketing, Auto-Scheduling, and Media generation.</p>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                       <div className="space-y-4 p-5 rounded-3xl bg-slate-100/50">
+                          <label className="text-[10px] font-black uppercase flex items-center gap-2"><MessageSquare className="w-4 h-4 text-emerald-500" /> WPPConnect Endpoint</label>
+                          <input type="text" placeholder="https://api.wppconnect.io/..." className="w-full p-2 border border-slate-200 rounded-xl bg-white font-mono text-xs" />
+                          <input type="password" placeholder="WPPConnect Auth Token" className="w-full p-2 border border-slate-200 rounded-xl bg-white font-mono text-xs" />
+                          <p className="text-[9px] text-muted-foreground font-bold">Powers Auto-responders & CRM</p>
+                       </div>
+                       <div className="space-y-4 p-5 rounded-3xl bg-slate-100/50">
+                          <label className="text-[10px] font-black uppercase flex items-center gap-2"><Zap className="w-4 h-4 text-blue-500" /> OpenAI / DeepSeek Key</label>
+                          <input type="password" placeholder="sk-..." className="w-full p-2 border border-slate-200 rounded-xl bg-white font-mono text-xs" />
+                          <p className="text-[9px] text-muted-foreground font-bold">Powers Admin & Content Agents</p>
+                       </div>
+                       <div className="space-y-4 p-5 rounded-3xl bg-slate-100/50">
+                          <label className="text-[10px] font-black uppercase flex items-center gap-2"><ImagePlus className="w-4 h-4 text-pink-500" /> Stable Diffusion / D-ID</label>
+                          <input type="password" placeholder="API Key for media" className="w-full p-2 border border-slate-200 rounded-xl bg-white font-mono text-xs" />
+                          <p className="text-[9px] text-muted-foreground font-bold">Powers Promotional Videos & Images</p>
+                       </div>
+                    </div>
                 </div>
 
                 <div className="pt-6 border-t">

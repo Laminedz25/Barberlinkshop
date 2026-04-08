@@ -15,6 +15,8 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const translations = {
   en: {
+    // Global
+    'currency': 'DZD',
     // Navigation
     'nav.home': 'Home',
     'nav.explore': 'Explore',
@@ -24,6 +26,7 @@ const translations = {
     'nav.signup': 'Create Account',
     'nav.signout': 'Sign Out',
     'nav.profile': 'Profile',
+    'nav.about': 'About',
 
     // Hero Section
     'hero.title': 'Book Your Appointment with the Best Barbers',
@@ -135,13 +138,23 @@ const translations = {
     'barber.favorite': 'Favorite',
     'barber.share': 'Share',
     'barber.services': 'Services',
-    'barber.gallery': 'Gallery',
     'barber.reviews': 'Reviews',
     'barber.minutes': 'min',
+    'barber.whatsapp': 'WhatsApp',
+    'barber.call': 'Call',
+    'barber.share': 'Share',
+    'barber.roaming': 'Mobile/Roaming',
+    'salon.type.men': 'Men',
+    'salon.type.women': 'Women',
+    'salon.type.unisex': 'Unisex',
+    'salon.type.roaming': 'Mobile Barber',
+    'salon.reviews': 'reviews',
+    'salon.vip': 'VIP ELITE',
+    'salon.quickbook': 'Quick Book',
+    'salon.explore': 'Explore',
     'salon.staff': 'Staff & Chairs',
     'staff.book': 'Book with',
     'booking.notspecified': 'Any Available',
-    'currency': 'DZD',
     'loading': 'Loading...',
     'error': 'Error',
 
@@ -305,11 +318,75 @@ const translations = {
     'dashboard.finance.recent': 'Recent Expenses',
 
     // Notifications
-    'notification.upcoming.30m': 'Appointment in 30 minutes!',
-    'notification.upcoming.15m': 'Appointment in 15 minutes!',
     'notification.upcoming.msg': 'You have an appointment scheduled with',
+
+    // Admin Dashboard
+    'admin.title': 'BarberLink Admin',
+    'admin.subtitle': 'Platform Control Panel',
+    'admin.tabs.overview': 'Overview',
+    'admin.tabs.users': 'Users',
+    'admin.tabs.plans': 'SaaS Plans',
+    'admin.tabs.agents': 'AI Agents',
+    'admin.tabs.verification': 'Verification',
+    'admin.tabs.marketing': 'Marketing',
+    'admin.tabs.health': 'Health',
+    'admin.tabs.investors': 'Investor Hub',
+    'admin.tabs.settings': 'Settings',
+    'admin.overview.heartbeat': 'Global OS Heartbeat',
+    'admin.overview.resync': 'RE-SYNC COGNITIVE CORE',
+    'admin.overview.demo': 'GENERATE DEMO SALON',
+    'admin.stats.revenue_dzd': 'Total Revenue (DZD)',
+    'admin.stats.revenue_usd': 'Total Revenue (USD)',
+    'admin.stats.uptime': 'Uptime',
+    'admin.stats.agents': 'Active AI Agents',
+
+    // Onboarding
+    'onboarding.welcome': 'Welcome! I am a...',
+    'onboarding.subtitle': 'Choose your account type to get started',
+    'onboarding.type.barber': 'Barber / Hairdresser',
+    'onboarding.type.barber.desc': 'Independent or mobile barber',
+    'onboarding.type.salon': 'Salon Owner',
+    'onboarding.type.salon.desc': 'Manage your salon & staff',
+    'onboarding.type.investor': 'Investor',
+    'onboarding.type.investor.desc': 'Partner & invest in BarberLink',
+    'onboarding.type.seller': 'Product Seller',
+    'onboarding.type.seller.desc': 'Sell products on the marketplace',
+    'onboarding.step': 'Step',
+    'onboarding.of': 'of',
+    'onboarding.next': 'Next',
+    'onboarding.back': 'Back',
+    'onboarding.finish': 'Launch My Profile',
+
+    // Marketplace
+    'market.tags.merchant': 'Professional Store',
+    'market.tags.silent': 'Global Marketplace',
+    'market.title': 'Luxury Grooming Hub',
+    'market.subtitle': 'Premium tools and care products curated by the BarberLink AI network.',
+    'market.share': 'Share Store',
+    'market.categories': 'Categories',
+    'market.search': 'Search premium products...',
+    'market.cart.title': 'Shopping Cart',
+    'market.cart.empty': 'Your cart is empty',
+    'market.checkout': 'Checkout on WhatsApp',
+    'market.quantity': 'Quantity',
+    'market.search.image': 'Search by Image',
+    'market.payment.title': 'Accepted Methods',
+    'market.payment.cib': 'CIB / Edahabia',
+    'market.payment.baridimob': 'Baridi Mob',
+    'market.payment.stripe': 'Credit Card',
+    'market.payment.cash': 'Cash on Delivery',
+
+    // Investors
+    'investor.title': 'Invest in the Autonomous Future of Grooming',
+    'investor.subtitle': 'BarberLink is transforming the $80B grooming industry through AI-orchestrated marketplaces and global SaaS automation.',
+    'investor.seed': 'Global Seed Round Open',
+    'investor.arr': 'Annual Run Rate',
+    'investor.growth': 'Revenue Growth (USD)',
+    'investor.vision': 'TAM & Global Vision',
+    'investor.deck': 'Request Pitch Deck',
   },
   fr: {
+    'currency': 'DZD',
     // Navigation
     'nav.home': 'Accueil',
     'nav.explore': 'Explorer',
@@ -319,6 +396,7 @@ const translations = {
     'nav.signup': 'Créer un Compte',
     'nav.signout': 'Déconnexion',
     'nav.profile': 'Profil',
+    'nav.about': 'À propos',
 
     // Hero Section
     'hero.title': 'Réservez Votre Rendez-vous avec les Meilleurs Coiffeurs',
@@ -433,10 +511,21 @@ const translations = {
     'barber.gallery': 'Galerie',
     'barber.reviews': 'Avis',
     'barber.minutes': 'min',
+    'barber.whatsapp': 'WhatsApp',
+    'barber.call': 'Appeler',
+    'barber.share': 'Partager',
+    'barber.roaming': 'Mobile/À domicile',
+    'salon.type.men': 'Hommes',
+    'salon.type.women': 'Femmes',
+    'salon.type.unisex': 'Mixte',
+    'salon.type.roaming': 'Coiffeur Mobile',
+    'salon.reviews': 'avis',
+    'salon.vip': 'VIP ELITE',
+    'salon.quickbook': 'Réserver vite',
+    'salon.explore': 'Explorer',
     'salon.staff': 'Personnel & Chaises',
     'staff.book': 'Réserver avec',
     'booking.notspecified': 'N\'importe qui',
-    'currency': 'DZD',
     'loading': 'Chargement...',
     'error': 'Erreur',
 
@@ -596,11 +685,107 @@ const translations = {
     'dashboard.finance.recent': 'Dépenses Récentes',
 
     // Notifications
-    'notification.upcoming.30m': 'Rendez-vous dans 30 minutes!',
-    'notification.upcoming.15m': 'Rendez-vous dans 15 minutes!',
     'notification.upcoming.msg': 'Vous avez un rendez-vous prévu avec',
+
+    // Admin Dashboard
+    'admin.title': 'Admin BarberLink',
+    'admin.subtitle': 'Panneau de Contrôle de la Plateforme',
+    'admin.tabs.overview': 'Aperçu',
+    'admin.tabs.users': 'Utilisateurs',
+    'admin.tabs.plans': 'Plans SaaS',
+    'admin.tabs.agents': 'Agents IA',
+    'admin.tabs.verification': 'Vérification',
+    'admin.tabs.marketing': 'Marketing',
+    'admin.tabs.health': 'Santé',
+    'admin.tabs.investors': 'Hub Investisseurs',
+    'admin.tabs.settings': 'Paramètres',
+    'admin.overview.heartbeat': 'Pulsation Globale de l\'OS',
+    'admin.overview.resync': 'RE-SYNCHRONISER LE CŒUR COGNITIF',
+    'admin.overview.demo': 'GÉNÉRER UN SALON DÉMO',
+    'admin.stats.revenue_dzd': 'Revenu Total (DZD)',
+    'admin.stats.revenue_usd': 'Revenu Total (USD)',
+    'admin.stats.uptime': 'Temps de Fonctionnement',
+    'admin.stats.agents': 'Agents IA Actifs',
+
+    // Onboarding
+    'onboarding.welcome': 'Bienvenue ! Je suis...',
+    'onboarding.subtitle': 'Choisissez votre type de compte pour commencer',
+    'onboarding.type.barber': 'Coiffeur / Coiffeuse',
+    'onboarding.type.barber.desc': 'Coiffeur indépendant ou mobile',
+    'onboarding.type.salon': 'Propriétaire de Salon',
+    'onboarding.type.salon.desc': 'Gérez votre salon et votre personnel',
+    'onboarding.type.investor': 'Investisseur',
+    'onboarding.type.investor.desc': 'Devenir partenaire et investir dans BarberLink',
+    'onboarding.type.seller': 'Vendeur de Produits',
+    'onboarding.type.seller.desc': 'Vendez des produits sur le marketplace',
+    'onboarding.step': 'Étape',
+    'onboarding.of': 'sur',
+    'onboarding.next': 'Suivant',
+    'onboarding.back': 'Retour',
+    'onboarding.finish': 'Lancer mon Profil',
+
+    // Marketplace
+    'market.tags.merchant': 'Boutique Pro',
+    'market.tags.silent': 'Marché Global',
+    'market.title': 'Hub de Toilettage de Luxe',
+    'market.subtitle': 'Outils et produits de soin haut de gamme sélectionnés par le réseau IA BarberLink.',
+    'market.share': 'Partager la Boutique',
+    'market.categories': 'Catégories',
+    'market.search': 'Rechercher des produits premium...',
+    'market.cart.title': 'Panier d\'achat',
+    'market.cart.empty': 'Votre panier est vide',
+    'market.checkout': 'Commander sur WhatsApp',
+    'market.quantity': 'Quantité',
+    'market.search.image': 'Recherche par image',
+    'market.payment.title': 'Méthodes acceptées',
+    'market.payment.cib': 'CIB / Edahabia',
+    'market.payment.baridimob': 'Baridi Mob',
+    'market.payment.stripe': 'Carte Bancaire',
+    'market.payment.cash': 'Paiement à la livraison',
+
+    // Admin Dashboard
+    'admin.title': 'Admin BarberLink',
+    'admin.subtitle': 'Panneau de contrôle',
+    'admin.tabs.overview': 'Aperçu',
+    'admin.tabs.users': 'Utilisateurs',
+    'admin.tabs.plans': 'Forfaits SaaS',
+    'admin.tabs.agents': 'Agents IA',
+    'admin.tabs.verification': 'Vérification',
+    'admin.tabs.marketing': 'Marketing',
+    'admin.tabs.health': 'Santé',
+    'admin.tabs.investors': 'Investisseurs',
+    'admin.tabs.settings': 'Paramètres',
+    'admin.overview.heartbeat': 'Pulsation Système',
+    'admin.overview.resync': 'Synchro Cœur',
+    'admin.overview.demo': 'Générer Démo',
+    'admin.stats.revenue_dzd': 'Revenu (DZD)',
+    'admin.stats.revenue_usd': 'Revenu (USD)',
+    'admin.stats.uptime': 'Temps de fonctionnement',
+    'admin.stats.agents': 'Agents IA',
+    'admin.rescue': 'Promouvoir mon compte en Admin',
+    'admin.settings.app.title': 'Liens de l\'Application',
+    'admin.settings.app.android': 'Lien Play Store Android',
+    'admin.settings.app.ios': 'Lien App Store iOS',
+    'admin.plans.edit': 'Modifier',
+    'admin.plans.save': 'Enregistrer',
+    'admin.plans.discount': 'Pourcentage de Rémise',
+    'admin.health.db': 'Connexion BD',
+    'admin.health.ai': 'Orchestration IA',
+    'admin.health.latency': 'Latence Noeud',
+    'admin.health.diagnostic': 'Lancer Diagnostic',
+    'admin.health.stress': 'Simulation de Charge',
+
+    // Investors
+    'investor.title': 'Investissez dans l\'Avenir Autonome du Toilettage',
+    'investor.subtitle': 'BarberLink transforme l\'industrie du toilettage de 80 milliards de dollars grâce à des marketplaces orchestrées par l\'IA.',
+    'investor.seed': 'Tour de Table Global Ouvert',
+    'investor.arr': 'Taux de Run Rate Annuel',
+    'investor.growth': 'Croissance des Revenus (USD)',
+    'investor.vision': 'TAM & Vision Globale',
+    'investor.deck': 'Demander le Pitch Deck',
   },
   ar: {
+    'currency': 'د.ج',
     // Navigation
     'nav.home': 'الرئيسية',
     'nav.explore': 'استكشف',
@@ -610,6 +795,7 @@ const translations = {
     'nav.signup': 'إنشاء حساب',
     'nav.signout': 'تسجيل الخروج',
     'nav.profile': 'الملف الشخصي',
+    'nav.about': 'عن المنصة',
 
     // Hero Section
     'hero.title': 'احجز موعدك مع أفضل الحلاقين',
@@ -724,10 +910,21 @@ const translations = {
     'barber.gallery': 'المعرض',
     'barber.reviews': 'التقييمات',
     'barber.minutes': 'دقيقة',
+    'barber.whatsapp': 'واتساب',
+    'barber.call': 'اتصال',
+    'barber.share': 'مشاركة',
+    'barber.roaming': 'حلاق متنقل',
+    'salon.type.men': 'رجال',
+    'salon.type.women': 'نساء',
+    'salon.type.unisex': 'مختلط',
+    'salon.type.roaming': 'حلاق متنقل',
+    'salon.reviews': 'تقييمات',
+    'salon.vip': 'VIP نخبة',
+    'salon.quickbook': 'حجز سريع',
+    'salon.explore': 'استكشف',
     'salon.staff': 'الحلاقين والكراسي',
     'staff.book': 'حجز موعد مع',
     'booking.notspecified': 'أي حلاق متاح',
-    'currency': 'دج',
     'loading': 'جاري التحميل...',
     'error': 'خطأ',
 
@@ -887,9 +1084,84 @@ const translations = {
     'dashboard.finance.recent': 'المنصرفات الأخيرة',
 
     // Notifications
-    'notification.upcoming.30m': 'موعدك بعد 30 دقيقة!',
-    'notification.upcoming.15m': 'موعدك بعد 15 دقيقة!',
     'notification.upcoming.msg': 'لديك موعد مقرر مع',
+
+    // Onboarding
+    'onboarding.welcome': 'مرحبًا! أنا...',
+    'onboarding.subtitle': 'اختر نوع حسابك للبدء',
+    'onboarding.type.barber': 'حلاق / حلاقة',
+    'onboarding.type.barber.desc': 'حلاق مستقل أو متنقل',
+    'onboarding.type.salon': 'صاحب صالون',
+    'onboarding.type.salon.desc': 'أدر صالونك وفريق عملك',
+    'onboarding.type.investor': 'مستثمر',
+    'onboarding.type.investor.desc': 'شريك ومستثمر في BarberLink',
+    'onboarding.type.seller': 'بائع منتجات',
+    'onboarding.type.seller.desc': 'بع منتجاتك في المتجر',
+    'onboarding.step': 'خطوة',
+    'onboarding.of': 'من',
+    'onboarding.next': 'التالي',
+    'onboarding.back': 'رجوع',
+    'onboarding.finish': 'إطلاق ملفي الشخصي',
+
+    // Marketplace
+    'market.tags.merchant': 'متجر احترافي',
+    'market.tags.silent': 'السوق العالمية',
+    'market.title': 'مركز الحلاقة الفاخر',
+    'market.subtitle': 'أدوات ومنتجات عناية متميزة مختارة بواسطة شبكة الذكاء الاصطناعي لـ BarberLink.',
+    'market.share': 'مشاركة المتجر',
+    'market.categories': 'الفئات',
+    'market.search': 'ابحث عن منتجات فاخرة...',
+    'market.cart.title': 'سلة المشتريات',
+    'market.cart.empty': 'سلتك فارغة',
+    'market.checkout': 'الدفع عبر واتساب',
+    'market.quantity': 'الكمية',
+    'market.search.image': 'البحث بالصورة',
+    'market.payment.title': 'طرق الدفع',
+    'market.payment.cib': 'البطاقة الذهبية / CIB',
+    'market.payment.baridimob': 'بريدي موب',
+    'market.payment.stripe': 'البطاقة البنكية',
+    'market.payment.cash': 'الدفع عند الاستلام',
+
+    // Admin Dashboard
+    'admin.title': 'لوحة تحكم BarberLink',
+    'admin.subtitle': 'لوحة تحكم المنصة',
+    'admin.tabs.overview': 'نظرة عامة',
+    'admin.tabs.users': 'المستخدمين',
+    'admin.tabs.plans': 'الاشتراكات السحابية',
+    'admin.tabs.agents': 'عملاء الذكاء',
+    'admin.tabs.verification': 'التحقق',
+    'admin.tabs.marketing': 'التسويق',
+    'admin.tabs.health': 'حالة النظام',
+    'admin.tabs.investors': 'المستثمرين',
+    'admin.tabs.settings': 'الإعدادات',
+    'admin.overview.heartbeat': 'نبض النظام',
+    'admin.overview.resync': 'إعادة المزامنة',
+    'admin.overview.demo': 'توليد ديمو',
+    'admin.stats.revenue_dzd': 'الأرباح (د.ج)',
+    'admin.stats.revenue_usd': 'الأرباح (دولار)',
+    'admin.stats.uptime': 'مدة التشغيل',
+    'admin.stats.agents': 'عملاء الذكاء النشطين',
+    'admin.rescue': 'ترقية حسابي لمدير',
+    'admin.settings.app.title': 'روابط التطبيق',
+    'admin.settings.app.android': 'رابط الاندرويد قوقل بلاي',
+    'admin.settings.app.ios': 'رابط الايفون اب ستور',
+    'admin.plans.edit': 'تعديل الباقة',
+    'admin.plans.save': 'حفظ التغييرات',
+    'admin.plans.discount': 'نسبة الخصم',
+    'admin.health.db': 'قاعدة البيانات',
+    'admin.health.ai': 'محرك الذكاء',
+    'admin.health.latency': 'سرعة الاستجابة',
+    'admin.health.diagnostic': 'الفحص الشامل',
+    'admin.health.stress': 'تجربة الضغط',
+
+    // Investors
+    'investor.title': 'استثمر في المستقبل الذكي للحلاقة',
+    'investor.subtitle': 'BarberLink تقوم بتحويل صناعة الحلاقة التي تبلغ قيمتها 80 مليار دولار من خلال الأسواق المنسقة بالذكاء الاصطناعي.',
+    'investor.seed': 'جولة التمويل الأولي العالمية مفتوحة',
+    'investor.arr': 'معدل التشغيل السنوي',
+    'investor.growth': 'نمو الإيرادات (دولار)',
+    'investor.vision': 'TAM والرؤية العالمية',
+    'investor.deck': 'اطلب عرض المشروع',
   }
 };
 
@@ -907,13 +1179,34 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setCurrency(savedCurr);
     }
 
-    // Auto-detect global users (if no preference saved)
+    // Auto-detect language/currency based on IP geolocation
     if (!savedLang) {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      if (!tz.includes('Algiers') && !navigator.language.startsWith('ar')) {
-        setLanguage('en');
-        setCurrency('USD');
-      }
+      // Use ipapi.co - free, no key needed, up to 1000 req/day
+      fetch('https://ipapi.co/json/')
+        .then(res => res.json())
+        .then(data => {
+          const country = data?.country_code;
+          if (country === 'DZ') {
+            // Algeria → Arabic + DZD
+            setLanguage('ar');
+            setCurrency('DZD');
+          } else {
+            // International → English + USD
+            setLanguage('en');
+            setCurrency('USD');
+          }
+        })
+        .catch(() => {
+          // Fallback: timezone/browser language
+          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          if (!tz.includes('Algiers') && !navigator.language.startsWith('ar')) {
+            setLanguage('en');
+            setCurrency('USD');
+          } else {
+            setLanguage('ar');
+            setCurrency('DZD');
+          }
+        });
     }
   }, []);
 

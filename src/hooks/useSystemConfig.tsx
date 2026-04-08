@@ -27,6 +27,8 @@ export interface SystemConfig {
   security_level?: 'standard' | 'high' | 'paranoid';
   auto_assign_agent?: boolean;
   supported_currencies?: string[];
+  androidAppLink?: string;
+  iosAppLink?: string;
 }
 
 export const useSystemConfig = () => {

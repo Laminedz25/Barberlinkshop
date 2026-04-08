@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Navigation from '@/components/Navigation';
-import { ShoppingBag, Star, ShieldCheck, Zap, Heart, Search, Filter, ShoppingCart, Trash2, ChevronRight, Check } from 'lucide-react';
+import { ShoppingBag, Star, ShieldCheck, Zap, Heart, Search, Filter, ShoppingCart, Trash2, ChevronRight, Check, Share2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -51,7 +51,7 @@ const Marketplace = () => {
       setLoading(false);
     });
     return () => unsub();
-  }, []);
+  }, [storeId]);
 
   const fallbackProducts: Product[] = [
     { id: 'f1', name: 'Premium Beard Oil', brand: 'BarberElite', price: 4500, rating: 4.9, category: 'Care', image: 'https://images.unsplash.com/photo-1590439471364-192aa70c0b53?w=800&auto=format&fit=crop&q=60' },
@@ -79,7 +79,17 @@ const Marketplace = () => {
       }
       return [...prev, { product, quantity: 1 }];
     });
-    toast({ title: 'Added to Cart', description: `${product.name} has been added.` });
+    toast({ title: isRTL ? 'أضيف للسلة' : 'Added to Cart', description: `${product.name} ${isRTL ? 'تم الإضافة للسلة.' : 'has been added.'}` });
+  };
+
+  const updateQuantity = (productId: string, delta: number) => {
+    setCart(prev => prev.map(item => {
+      if (item.product.id === productId) {
+        const newQuantity = Math.max(1, item.quantity + delta);
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    }));
   };
 
   const removeFromCart = (productId: string) => {
@@ -95,13 +105,13 @@ const Marketplace = () => {
       <main className="max-w-7xl mx-auto px-4 py-32">
         <header className="mb-12 text-center animate-in fade-in slide-in-from-top-4 duration-700">
         <Badge variant="outline" className="mb-4 rounded-full px-4 py-1 border-primary/20 text-primary font-black uppercase tracking-widest text-[10px] bg-primary/5">
-               {storeId ? 'Merchant Store' : (isRTL ? 'المتجر الذكي الصامت' : 'Silent Marketplace')}
+               {storeId ? t('market.tags.merchant') : t('market.tags.silent')}
            </Badge>
            <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase mb-4 scale-in-center">
-             {isRTL ? 'مركز الحلاقة الفاخر' : 'Luxury Grooming Hub'}
+             {t('market.title')}
            </h1>
            <p className="text-muted-foreground font-medium max-w-2xl mx-auto text-lg">
-             {isRTL ? 'أدوات ومنتجات متميزة مختارة بعناية بواسطة شبكة الذكاء الاصطناعي لـ BarberLink.' : 'Premium tools and care products curated by the BarberLink AI network.'}
+             {t('market.subtitle')}
            </p>
            {storeId && (
              <button
@@ -122,11 +132,15 @@ const Marketplace = () => {
               <div className="relative group">
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                  <Input 
-                   className="pl-12 h-16 rounded-[1.5rem] border-none shadow-sm bg-white font-bold text-lg focus:ring-2 focus:ring-primary/20 transition-all" 
+                   className="pl-12 pr-12 h-16 rounded-[1.5rem] border-none shadow-sm bg-white font-bold text-lg focus:ring-2 focus:ring-primary/20 transition-all" 
                    placeholder={isRTL ? 'البحث عن منتجات...' : 'Search products...'}
                    value={searchTerm}
                    onChange={(e) => setSearchTerm(e.target.value)}
                  />
+                 <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-slate-100 rounded-full transition-colors" title={t('market.search.image')}>
+                    <span className="text-[10px] sm:hidden font-bold mr-1">{t('market.search.image')}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                 </button>
               </div>
 
               <div className="p-8 bg-white rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
@@ -228,7 +242,7 @@ const Marketplace = () => {
             <SheetContent className="w-full sm:max-w-md bg-white border-l-0 rounded-l-[3rem] p-0 flex flex-col shadow-2xl">
                <SheetHeader className="p-8 pb-4 border-b">
                   <SheetTitle className="text-3xl font-black uppercase tracking-tighter flex items-center gap-3">
-                    <ShoppingBag className="w-6 h-6 text-primary" /> {isRTL ? 'حقيبة التسوق' : 'Shopping Bag'}
+                    <ShoppingBag className="w-6 h-6 text-primary" /> {t('market.cart.title')}
                   </SheetTitle>
                </SheetHeader>
                
@@ -236,7 +250,7 @@ const Marketplace = () => {
                   {cart.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center space-y-6 opacity-40">
                         <ShoppingCart className="w-20 h-20 stroke-[1.5]" />
-                        <p className="font-black uppercase tracking-widest text-sm">{isRTL ? 'حقيبتك فارغة' : 'Your bag is empty'}</p>
+                        <p className="font-black uppercase tracking-widest text-sm">{t('market.cart.empty')}</p>
                     </div>
                   ) : (
                     cart.map(item => (
@@ -247,9 +261,13 @@ const Marketplace = () => {
                         <div className="flex-1">
                            <h4 className="font-black text-sm uppercase tracking-tight">{item.product.name}</h4>
                            <p className="text-xs text-muted-foreground font-bold mb-2">{item.product.brand}</p>
-                           <div className="flex items-center gap-3">
+                           <div className="flex items-center gap-3 mt-1">
                               <span className="text-sm font-black text-primary">{item.product.price} DZD</span>
-                              <span className="text-[10px] font-bold text-muted-foreground">x{item.quantity}</span>
+                              <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1 ml-auto">
+                                 <button onClick={() => updateQuantity(item.product.id, -1)} className="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm text-lg font-bold hover:text-primary transition-colors">-</button>
+                                 <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
+                                 <button onClick={() => updateQuantity(item.product.id, 1)} className="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm text-lg font-bold hover:text-primary transition-colors">+</button>
+                              </div>
                            </div>
                         </div>
                         <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.product.id)} className="text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors">
@@ -276,6 +294,18 @@ const Marketplace = () => {
                            <span className="text-primary">{totalAmount.toLocaleString()} DZD</span>
                         </div>
                     </div>
+                    
+                    <div className="space-y-2 border-t border-slate-200 pt-4">
+                       <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center mb-2">{t('market.payment.title')}</p>
+                       <div className="flex flex-wrap justify-center gap-2">
+                           {/* Render dynamically based on store settings, showing all by default */}
+                           <Badge variant="outline" className="text-[9px] bg-white shadow-sm border-slate-200">{t('market.payment.baridimob')}</Badge>
+                           <Badge variant="outline" className="text-[9px] bg-white shadow-sm border-slate-200">{t('market.payment.cib')}</Badge>
+                           <Badge variant="outline" className="text-[9px] bg-white shadow-sm border-slate-200">{t('market.payment.stripe')}</Badge>
+                           <Badge variant="outline" className="text-[9px] bg-white shadow-sm border-slate-200">{t('market.payment.cash')}</Badge>
+                       </div>
+                    </div>
+
                     <Button 
                       className="w-full h-16 rounded-[1.5rem] bg-slate-900 hover:bg-black text-white font-black text-sm shadow-2xl flex items-center justify-center gap-3"
                       onClick={() => {
@@ -283,7 +313,7 @@ const Marketplace = () => {
                         window.open(`https://wa.me/213000000000?text=${encodeURIComponent(message)}`);
                       }}
                     >
-                      {isRTL ? 'إتمام الطلب عبر WhatsApp' : 'Checkout via WhatsApp'} <ChevronRight className="w-5 h-5" />
+                      {t('market.checkout')} <ChevronRight className="w-5 h-5" />
                     </Button>
                  </SheetFooter>
                )}

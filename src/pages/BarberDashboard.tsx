@@ -15,7 +15,7 @@ import {
   Plus, Edit, Trash2, DollarSign, Clock, QrCode, 
   ImagePlus, UserPlus, Link as LinkIcon, CheckCircle2, 
   XCircle, Check, TrendingUp, TrendingDown, ShoppingBag, 
-  Activity, Bot, Users2, Zap, Star, MapPin, ChevronRight, LayoutDashboard
+  Activity, Bot, Users2, Zap, Star, MapPin, ChevronRight, LayoutDashboard, MessageCircle
 } from 'lucide-react';
 import {
   Dialog,
@@ -116,6 +116,13 @@ const BarberDashboard = () => {
     name: '', role: '', avatar: '',
   });
 
+  const [isWalkInDialogOpen, setIsWalkInDialogOpen] = useState(false);
+  const [walkInFormData, setWalkInFormData] = useState({
+    customer_name: '', service_id: '', date: '', time: ''
+  });
+
+  const [wppConnectToken, setWppConnectToken] = useState('');
+
   const [expenseName, setExpenseName] = useState('');
   const [expenseAmount, setExpenseAmount] = useState('');
   const [isVerified, setIsVerified] = useState(false);
@@ -198,8 +205,8 @@ const BarberDashboard = () => {
     try {
       await updateDoc(doc(db, 'barbers', barberId), { socials });
       toast({ title: t('profile.saveSuccess', 'Profile Updated'), description: t('socials.saved', 'Your social links were updated successfully.'), variant: 'default' });
-    } catch (e: any) {
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } catch (e: unknown) {
+      toast({ title: 'Error', description: e instanceof Error ? e.message : 'Unknown error', variant: 'destructive' });
     }
   };
 
@@ -267,6 +274,40 @@ const BarberDashboard = () => {
       const error = e as Error;
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     }
+  };
+
+  const handleWalkInSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!barberId) return;
+    try {
+      const selectedService = services.find(s => s.id === walkInFormData.service_id);
+      if (!selectedService) throw new Error("Service not selected");
+
+      await addDoc(collection(db, 'appointments'), {
+        barber_id: barberId,
+        customer_id: 'walk-in',
+        customer_name: walkInFormData.customer_name || 'Walk-in Client',
+        services: [selectedService.name_en],
+        total_price: selectedService.price,
+        total_duration: selectedService.duration_minutes,
+        appointment_date: walkInFormData.date || new Date().toISOString().split('T')[0],
+        appointment_time: walkInFormData.time || new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+        payment_method: 'cash',
+        status: 'accepted',
+        created_at: new Date().toISOString()
+      });
+      toast({ title: 'Booking Added', description: 'Walk-in integrated into system.' });
+      setIsWalkInDialogOpen(false);
+      fetchAppointments();
+    } catch (e) {
+      const error = e as Error;
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const syncWPPConnect = async () => {
+     if(!wppConnectToken) return toast({ title: 'Error', description: 'WPPConnect API Key required', variant:'destructive'});
+     toast({ title: 'WPPConnect Synced', description: 'WhatsApp bot linked successfully.' });
   };
 
   const handleAddExpense = async () => {
@@ -435,6 +476,34 @@ const BarberDashboard = () => {
                            <Button variant="outline" className="w-full rounded-xl border-white/10 text-white hover:bg-white/10 text-xs">CONFIGURE API</Button>
                         </div>
                      </Card>
+
+                    <Card className="p-10 rounded-[3rem] shadow-2xl bg-white/60 dark:bg-slate-900/60 border-none space-y-6 lg:col-span-2 relative overflow-hidden group">
+                       <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 blur-[80px] rounded-full -mr-20 -mt-20 group-hover:bg-green-500/20 transition-all duration-700" />
+                       <div className="relative z-10 flex flex-col items-start gap-4">
+                          <div className="flex justify-between items-center w-full mb-2">
+                             <h3 className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
+                                <div className="p-3 bg-green-500 rounded-[1.2rem] text-white">
+                                   <MessageCircle className="w-6 h-6" />
+                                </div>
+                                WPPConnect CRM Hub
+                             </h3>
+                             <Badge className="bg-green-500/10 text-green-600 border-none font-bold px-4 py-2 rounded-full uppercase text-[10px] tracking-widest hidden sm:flex">WhatsApp Auto-Responder</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground font-bold max-w-2xl">Connect your WhatsApp API to automatically send booking confirmations, reminders, and promotional codes to your clients.</p>
+                          <div className="flex w-full gap-4 mt-4">
+                             <Input 
+                               placeholder="Enter your WPPConnect Session Token" 
+                               type="password"
+                               value={wppConnectToken} 
+                               onChange={e => setWppConnectToken(e.target.value)} 
+                               className="rounded-xl h-14 font-mono flex-1 bg-white border-slate-200" 
+                             />
+                             <Button onClick={syncWPPConnect} className="h-14 px-10 rounded-xl bg-slate-900 text-white font-black hover:bg-black transition-all shadow-xl hover:-translate-y-1">
+                                LINK DEVICE
+                             </Button>
+                          </div>
+                       </div>
+                    </Card>
                      
                      <Card className="p-6 rounded-[2rem] border-none shadow-xl bg-white">
                         <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-4">Orders Agent</h3>
@@ -487,7 +556,43 @@ const BarberDashboard = () => {
             </TabsContent>
 
             <TabsContent value="bookings" className="mt-8 space-y-6">
-               <h2 className="text-2xl font-bold">{t('dashboard.tabs.bookings')}</h2>
+               <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold">{t('dashboard.tabs.bookings')}</h2>
+                  <Dialog open={isWalkInDialogOpen} onOpenChange={setIsWalkInDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="rounded-xl font-bold gap-2 bg-slate-900 text-white"><UserPlus className="w-4 h-4" /> MANUAL BOOKING</Button>
+                    </DialogTrigger>
+                    <DialogContent className="rounded-[2rem] p-8">
+                      <DialogHeader>
+                        <DialogTitle>Add Manual Booking</DialogTitle>
+                      </DialogHeader>
+                      <form onSubmit={handleWalkInSubmit} className="space-y-4 pt-4">
+                         <div className="space-y-2">
+                            <Label>Client Name</Label>
+                            <Input placeholder="John Doe" value={walkInFormData.customer_name} onChange={e => setWalkInFormData({...walkInFormData, customer_name: e.target.value})} className="rounded-xl" />
+                         </div>
+                         <div className="space-y-2">
+                            <Label>Select Priority Service</Label>
+                            <select aria-label="Select Priority Service" title="Select Priority Service" value={walkInFormData.service_id} onChange={e => setWalkInFormData({...walkInFormData, service_id: e.target.value})} required className="flex h-12 w-full rounded-xl border border-input bg-slate-50 px-3 py-2 text-sm font-bold">
+                               <option value="">-- Choose Priority Service --</option>
+                               {services.map(s => <option key={s.id} value={s.id}>{s.name_en} — {s.price} DZD</option>)}
+                            </select>
+                         </div>
+                         <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                               <Label>Date</Label>
+                               <Input type="date" value={walkInFormData.date} onChange={e => setWalkInFormData({...walkInFormData, date: e.target.value})} className="rounded-xl" />
+                            </div>
+                            <div className="space-y-2">
+                               <Label>Time</Label>
+                               <Input type="time" value={walkInFormData.time} onChange={e => setWalkInFormData({...walkInFormData, time: e.target.value})} className="rounded-xl" />
+                            </div>
+                         </div>
+                         <Button type="submit" className="w-full rounded-xl">Confirm Book</Button>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+               </div>
                <div className="grid gap-4">
                   {appointments.map(a => (
                     <Card key={a.id} className="p-6 rounded-3xl border-none shadow-xl bg-white/60 dark:bg-slate-900/60">

@@ -3,22 +3,50 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useSystemConfig } from "@/hooks/useSystemConfig";
+
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: Array<string>;
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed',
+    platform: string
+  }>;
+  prompt(): Promise<void>;
+}
 
 const AppDownload = () => {
   const { t, isRTL } = useLanguage();
   const { toast } = useToast();
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
   }, []);
 
+  const { config } = useSystemConfig();
+
   const handleInstallClick = async () => {
+    // Detect mobile OS if links are provided
+    const userAgent = navigator.userAgent || navigator.vendor || (window as unknown as { opera?: string }).opera;
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent || '') && !(window as unknown as { MSStream?: unknown }).MSStream;
+    const isAndroid = /android/i.test(userAgent);
+
+    if (isAndroid && config?.androidAppLink) {
+      window.location.href = config.androidAppLink;
+      return;
+    }
+
+    if (isIOS && config?.iosAppLink) {
+      window.location.href = config.iosAppLink;
+      return;
+    }
+
+    // Fallback to PWA
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
@@ -28,7 +56,7 @@ const AppDownload = () => {
     } else {
       toast({
         title: isRTL ? 'إضافة للشاشة الرئيسية' : 'Add to Home Screen',
-        description: isRTL ? 'تطبيقنا يعمل مباشرة من المتصفح! اضغط على "إضافة للشاشة الرئيسية" (Add to Home Screen) من خيارات المتصفح لتثبيته كبرنامج.' : 'Our app runs natively from your browser! Tap "Add to Home Screen" from your browser menu to install it.',
+        description: isRTL ? 'تطبيقنا يعمل مباشرة من المتصفح! اضغط على "إضافة للشاشة الرئيسية" من خيارات المتصفح لتثبيته أو استخدم روابط المتاجر إن توفرت.' : 'Our app runs natively from your browser! Tap "Add to Home Screen" from your browser menu to install it.',
         variant: 'default',
       });
     }
