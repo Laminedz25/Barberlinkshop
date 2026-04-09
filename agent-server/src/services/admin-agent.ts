@@ -86,4 +86,26 @@ export class AdminAgent {
         );
      }
   }
+
+  /**
+   * 4. Evaluation Logic: System-wide health checks and autonomous scaling
+   */
+  public async evaluateSystemNeeds() {
+    console.log('[AdminAgent] Performing deep system audit...');
+    try {
+      const barbersCount = await db.collection('barbers').get().then(s => s.size);
+      const bookingsCount = await db.collection('bookings').get().then(s => s.size);
+      
+      const decision = bookingsCount > barbersCount * 10 ? 'STRATEGY_SCALE_ADS' : 'STRATEGY_MAINTAIN';
+      
+      await this.logDecision('admin', 'SYSTEM_EVALUATION', { 
+        metrics: { barbers: barbersCount, bookings: bookingsCount },
+        recommended_strategy: decision
+      });
+      
+      console.log(`[AdminAgent] Evaluation complete. Strategy: ${decision}`);
+    } catch (e: any) {
+      console.error('[AdminAgent] Evaluation failed:', e.message);
+    }
+  }
 }
