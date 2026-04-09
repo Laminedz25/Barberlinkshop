@@ -5,6 +5,8 @@ import { initializeAgents } from './orchestrator';
 import { wppRouter } from './routes/wppRoutes';
 import { agentRouter } from './routes/agentRoutes';
 
+import { AdminAgent } from './services/admin-agent';
+
 dotenv.config();
 
 const app = express();
@@ -23,6 +25,8 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, async () => {
   console.log(`[Agent-Server] Core initialized on port ${PORT}`);
+  // Start Master Controller (Telegram Bot)
+  AdminAgent.getInstance().start();
   // Initialize cron jobs and WPPConnect instances
   await initializeAgents();
 });

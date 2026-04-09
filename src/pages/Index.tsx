@@ -10,7 +10,7 @@ import Testimonials from "@/components/Testimonials";
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Activity, Zap, TrendingUp, Users, ShoppingBag, ArrowRight } from "lucide-react";
+import { Activity, Zap, TrendingUp, Users, ShoppingBag, ArrowRight, X } from "lucide-react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -22,6 +22,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const Index = () => {
   const { t, isRTL } = useLanguage();
   const [ticker, setTicker] = useState("AI AGENT #092 initialized in Algiers...");
+  const [showTicker, setShowTicker] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
 
@@ -43,15 +44,20 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="fixed top-0 left-0 right-0 z-[60] py-1 bg-primary text-[9px] font-black text-white uppercase tracking-[0.2em] flex items-center justify-center gap-4 overflow-hidden shadow-2xl">
-         <div className="flex items-center gap-2 animate-pulse"><Activity className="w-2.5 h-2.5" /> LIVE STATUS:</div>
-         <span className="animate-in fade-in slide-in-from-right-1 duration-500">{ticker}</span>
-         <div className="flex items-center gap-6 ml-8 opacity-40">
-            <span className="flex items-center gap-1"><Users className="w-2 h-2" /> 8.4k ONLINE</span>
-            <span className="flex items-center gap-1"><Zap className="w-2 h-2" /> 0.2ms LATENCY</span>
-            <span className="flex items-center gap-1"><TrendingUp className="w-2 h-2" /> DZD SYSTEM ACTIVE</span>
-         </div>
-      </div>
+      {showTicker && (
+        <div className="fixed top-0 left-0 right-0 z-[60] py-1 bg-primary text-[9px] font-black text-white uppercase tracking-[0.2em] flex items-center justify-center gap-4 overflow-hidden shadow-2xl">
+           <div className="flex items-center gap-2 animate-pulse"><Activity className="w-2.5 h-2.5" /> LIVE STATUS:</div>
+           <span className="animate-in fade-in slide-in-from-right-1 duration-500">{ticker}</span>
+           <div className="flex items-center gap-6 ml-8 opacity-40">
+              <span className="flex items-center gap-1"><Users className="w-2 h-2" /> 8.4k ONLINE</span>
+              <span className="flex items-center gap-1"><Zap className="w-2 h-2" /> 0.2ms LATENCY</span>
+              <span className="flex items-center gap-1"><TrendingUp className="w-2 h-2" /> DZD SYSTEM ACTIVE</span>
+           </div>
+           <button onClick={() => setShowTicker(false)} className="ml-4 opacity-50 hover:opacity-100 transition-opacity" title="Dismiss Status Bar" aria-label="Dismiss Status Bar">
+              <X className="w-2.5 h-2.5" />
+           </button>
+        </div>
+      )}
       <Navigation />
 
       <main>
@@ -99,6 +105,64 @@ const Index = () => {
 
         <AiStylist />
         <PricingPlans />
+
+        {/* Affiliate Marketing Section */}
+        <section className="py-24 bg-card relative overflow-hidden">
+           <div className="container mx-auto px-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                 <div className="space-y-8">
+                    <Badge variant="outline" className="text-primary border-primary/20 px-4 py-2 rounded-full font-black uppercase tracking-widest text-[10px]">
+                       <TrendingUp className="w-3 h-3 mr-2" /> {isRTL ? 'نظام التسويق بالعمولة' : 'Affiliate Power Engine'}
+                    </Badge>
+                    <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight italic">
+                       {isRTL ? 'كن شريكاً في الربح. ' : 'Earn Passive Income. '}<br />
+                       <span className="text-primary">{isRTL ? 'اربح مع كل حلاق ينضم!' : 'Refer a Barber, Get Paid.'}</span>
+                    </h2>
+                    <p className="text-lg text-muted-foreground font-medium leading-relaxed">
+                       {isRTL 
+                        ? 'انضم إلى شبكة شركاء BarberLink. احصل على نسبة من اشتراكات كل صالون أو حلاق تدعوه باستخدام رابطك الخاص. تتبع أرباحك لحظة بلحظة مع محرك الذكاء الاصطناعي الخاص بنا!'
+                        : 'Join the BarberLink Global Affiliate Mesh. Earn recurring commissions for every salon or barber you onboard. Track your growth in real-time with our AI Financial Hub.'}
+                    </p>
+                    <div className="grid grid-cols-2 gap-6">
+                       <div className="p-4 bg-muted/50 rounded-2xl">
+                          <p className="text-2xl font-black text-primary">10%</p>
+                          <p className="text-xs font-bold uppercase text-muted-foreground tracking-widest">{isRTL ? 'عمولة لكل اشتراك' : 'Per Subscription'}</p>
+                       </div>
+                       <div className="p-4 bg-muted/50 rounded-2xl">
+                          <p className="text-2xl font-black text-primary">DZD</p>
+                          <p className="text-xs font-bold uppercase text-muted-foreground tracking-widest">{isRTL ? 'دفع فوري' : 'Instant Payouts'}</p>
+                       </div>
+                    </div>
+                    <Button asChild size="lg" className="h-16 px-10 rounded-2xl font-black text-lg shadow-xl shadow-primary/20 group">
+                       <Link to="/auth">
+                          {isRTL ? 'ابدأ كمسوق الآن' : 'Start Earning Now'} 
+                          <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                       </Link>
+                    </Button>
+                 </div>
+                 <div className="relative">
+                    <div className="absolute inset-0 bg-primary/20 blur-[120px] rounded-full animate-pulse" />
+                    <Card className="relative z-10 border-none bg-slate-900 shadow-2xl p-8 rounded-[3rem] text-white">
+                        <div className="flex justify-between items-center mb-8">
+                           <h3 className="font-black text-xs uppercase tracking-[0.3em] text-primary">Mesh Dashboard</h3>
+                           <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
+                        </div>
+                        <div className="space-y-6">
+                           <div className="p-6 bg-white/5 border border-white/10 rounded-2xl">
+                              <p className="text-xs text-white/50 font-bold uppercase mb-2">Total Earnings</p>
+                              <p className="text-4xl font-black tracking-tighter">14,200.00 <span className="text-sm text-primary">DZD</span></p>
+                           </div>
+                           <div className="p-6 bg-white/5 border border-white/10 rounded-2xl">
+                              <p className="text-xs text-white/50 font-bold uppercase mb-2">Active Referrals</p>
+                              <p className="text-4xl font-black tracking-tighter">12 <span className="text-sm text-primary">SALONS</span></p>
+                           </div>
+                        </div>
+                    </Card>
+                 </div>
+              </div>
+           </div>
+        </section>
+
         <Testimonials />
         <AppDownload />
       </main>

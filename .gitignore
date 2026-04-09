@@ -25,6 +25,7 @@ dist-ssr
 
 # Security — never commit these
 serviceAccountKey.json
+service-account.json
 .env
 .env.*
 .ssh/

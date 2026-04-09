@@ -313,7 +313,7 @@ const BarberProfile = () => {
                         <Phone className="w-6 h-6 text-primary" />
                         <div>
                            <p className="text-[10px] font-black uppercase tracking-widest text-primary">Priority Contact</p>
-                           <p className="font-bold">+213 555 000 000</p>
+                           <p className="font-bold">{barber.socials?.whatsapp || '+213 — — —'}</p>
                         </div>
                      </div>
                   </div>
@@ -328,19 +328,11 @@ const BarberProfile = () => {
                <Button onClick={() => navigate(`/marketplace?store=${id}`)} className="col-span-2 h-16 rounded-[1.2rem] border-none bg-primary/10 hover:bg-primary/20 text-primary font-extrabold gap-3 shadow-none transition-all active:scale-[0.98]">
                   <ShoppingBag className="w-5 h-5" /> EXPLORE SALON STORE
                </Button>
-               <Button onClick={() => navigate(`/chat?recipient=${barber.user_id}`)} className="h-16 rounded-[1.2rem] border-none bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold gap-3">
-                  <MessageSquare className="w-5 h-5 text-primary" /> CHAT
+               <Button onClick={() => window.open(`https://wa.me/${barber.socials?.whatsapp}`, '_blank')} className="h-16 rounded-[1.2rem] border-none bg-green-500/10 hover:bg-green-500/20 text-green-600 font-extrabold gap-3">
+                  <MessageSquare className="w-5 h-5" /> WHATSAPP
                </Button>
-               <Button onClick={() => {
-                  const url = window.location.href;
-                  if (navigator.share) {
-                      navigator.share({ title: barber.business_name, url });
-                  } else {
-                      navigator.clipboard.writeText(url);
-                      toast({ title: "Copied!", description: "Profile link saved to clipboard." });
-                  }
-               }} className="h-16 rounded-2xl border-none bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold gap-3">
-                  <Share2 className="w-5 h-5 text-primary" /> SHARE
+               <Button onClick={() => window.location.href = `tel:${barber.socials?.whatsapp}`} className="h-16 rounded-2xl border-none bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold gap-3">
+                  <Phone className="w-5 h-5 text-primary" /> CALL
                </Button>
             </div>
           </div>

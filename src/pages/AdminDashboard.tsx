@@ -92,6 +92,7 @@ interface SubscriptionPlan {
   price_usd: number;
   features: string[];
   duration_days: number;
+  discount_percent?: number;
   auto_assign_agent?: boolean;
   supported_currencies?: string[];
   beta_mode?: boolean;
@@ -669,6 +670,8 @@ const AdminDashboard = () => {
                          <input aria-label="Plan Name" className="p-2 border rounded" placeholder="Plan Name" value={newPlan.name} onChange={e => setNewPlan({...newPlan, name: e.target.value})} />
                          <input aria-label="Price in DZD" className="p-2 border rounded" type="number" placeholder="Price DZD" value={newPlan.price_dzd} onChange={e => setNewPlan({...newPlan, price_dzd: Number(e.target.value)})} />
                          <input aria-label="Price in USD" className="p-2 border rounded" type="number" placeholder="Price USD" value={newPlan.price_usd} onChange={e => setNewPlan({...newPlan, price_usd: Number(e.target.value)})} />
+                         <input aria-label="Discount Percentage" className="p-2 border rounded" type="number" placeholder="Discount %" value={newPlan.discount_percent || 0} onChange={e => setNewPlan({...newPlan, discount_percent: Number(e.target.value)})} />
+                         <textarea aria-label="Features" className="p-2 border rounded md:col-span-3" placeholder="Features (comma separated)" value={newPlan.features?.join(', ')} onChange={e => setNewPlan({...newPlan, features: e.target.value.split(',').map(f => f.trim())})} />
                       </div>
                      <div className="flex gap-2">
                         <Button onClick={() => { addPlan(newPlan); setIsAddingPlan(false); }}>Save New Plan</Button>
@@ -700,11 +703,37 @@ const AdminDashboard = () => {
                               setPlans(prev => prev.map(p => p.id === plan.id ? {...p, price_usd: newVal} : p));
                            }} />
                         </div>
+                        <div className="flex justify-between items-center">
+                           <span className="text-[10px] font-black uppercase text-rose-500">Discount %</span>
+                           <input aria-label={`Discount for ${plan.name}`} type="number" className="w-24 p-1 text-sm border rounded bg-transparent font-black text-rose-500 text-right" value={plan.discount_percent || 0} onChange={async (e) => {
+                              const newVal = Number(e.target.value);
+                              await updateDoc(doc(db, 'subscriptions', plan.id), { discount_percent: newVal });
+                              setPlans(prev => prev.map(p => p.id === plan.id ? {...p, discount_percent: newVal} : p));
+                           }} />
+                        </div>
                       </div>
-                      <div className="mt-4 space-y-1">
-                        {plan.features?.map((f, i) => (
-                           <p key={i} className="text-[10px] flex items-center gap-1"><CheckCircle className="h-2 w-2 text-green-500" /> {f}</p>
-                        ))}
+                      <div className="mt-4 space-y-2">
+                         <div className="flex justify-between items-center mb-1">
+                            <span className="text-[9px] font-black uppercase text-muted-foreground">Features Ledger</span>
+                            <Button size="sm" variant="ghost" className="h-5 px-2 text-[8px]" onClick={async () => {
+                               const feat = prompt("Add feature:", "");
+                               if(feat) {
+                                  const updatedFeatures = [...(plan.features || []), feat];
+                                  await updateDoc(doc(db, 'subscriptions', plan.id), { features: updatedFeatures });
+                                  setPlans(prev => prev.map(p => p.id === plan.id ? {...p, features: updatedFeatures} : p));
+                               }
+                            }}>ADD</Button>
+                         </div>
+                         {plan.features?.map((f, i) => (
+                           <p key={i} className="text-[10px] flex items-center justify-between group/feat">
+                             <span className="flex items-center gap-1"><CheckCircle className="h-2 w-2 text-green-500" /> {f}</span>
+                             <button onClick={async () => {
+                                const updatedFeatures = plan.features.filter((_, idx) => idx !== i);
+                                await updateDoc(doc(db, 'subscriptions', plan.id), { features: updatedFeatures });
+                                setPlans(prev => prev.map(p => p.id === plan.id ? {...p, features: updatedFeatures} : p));
+                             }} className="opacity-0 group-hover/feat:opacity-100 text-rose-500 transition-opacity" title="Remove Feature" aria-label="Remove Feature"><Trash2 className="h-2 w-2" /></button>
+                           </p>
+                         ))}
                       </div>
                     </div>
                   ))}

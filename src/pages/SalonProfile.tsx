@@ -122,39 +122,39 @@ const SalonProfile = () => {
               </div>
               {salon.bio && <p className="mt-4 max-w-xl text-white/60 text-sm leading-relaxed">{salon.bio}</p>}
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-4">
               {salon.phone && (
-                <Button size="icon" onClick={() => window.location.href = `tel:${salon.phone}`} className="h-14 w-14 rounded-2xl bg-white/10 hover:bg-white/20">
-                  <Phone className="w-5 h-5" />
+                <Button onClick={() => window.location.href = `tel:${salon.phone}`} className="h-16 px-8 rounded-2xl bg-white text-slate-900 font-black gap-2 hover:bg-slate-100 shadow-xl">
+                  <Phone className="w-5 h-5" /> {isRTL ? 'اتصل الآن' : 'CALL NOW'}
                 </Button>
               )}
               {salon.socials?.whatsapp && (
-                <Button size="icon" onClick={() => window.open(`https://wa.me/${salon.socials!.whatsapp}`, '_blank')} className="h-14 w-14 rounded-2xl bg-green-500/20 hover:bg-green-500/40">
-                  <MessageCircle className="w-5 h-5" />
+                <Button onClick={() => window.open(`https://wa.me/${salon.socials!.whatsapp}`, '_blank')} className="h-16 px-8 rounded-2xl bg-green-500 text-white font-black gap-2 hover:bg-green-600 shadow-xl">
+                  <MessageCircle className="w-5 h-5" /> {isRTL ? 'واتساب' : 'WHATSAPP'}
                 </Button>
               )}
-              <Button size="icon" onClick={handleShare} className="h-14 w-14 rounded-2xl bg-white/10 hover:bg-white/20">
-                <Share2 className="w-5 h-5" />
+              <Button variant="outline" size="icon" onClick={handleShare} className="h-16 w-16 rounded-2xl border-white/20 bg-white/5 hover:bg-white/10 text-white">
+                <Share2 className="w-6 h-6" />
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Socials */}
-        <div className="flex flex-wrap gap-3 mb-10">
+        {/* Extended Social Grid */}
+        <div className="flex flex-wrap gap-4 mb-12">
           {salon.socials?.instagram && (
-            <Button variant="outline" onClick={() => window.open(`https://instagram.com/${salon.socials!.instagram}`, '_blank')} className="rounded-xl h-11 gap-2 font-bold px-5">
-              <Instagram className="w-4 h-4 text-pink-500" /> @{salon.socials.instagram}
+            <Button variant="ghost" onClick={() => window.open(`https://instagram.com/${salon.socials!.instagram}`, '_blank')} className="rounded-2xl h-14 gap-3 font-extrabold px-8 bg-white dark:bg-slate-900 shadow-sm hover:text-pink-500">
+              <Instagram className="w-5 h-5" /> Instagram
             </Button>
           )}
           {salon.socials?.facebook && (
-            <Button variant="outline" onClick={() => window.open(`https://facebook.com/${salon.socials!.facebook}`, '_blank')} className="rounded-xl h-11 gap-2 font-bold px-5">
-              <Facebook className="w-4 h-4 text-blue-500" /> Facebook
+            <Button variant="ghost" onClick={() => window.open(`https://facebook.com/${salon.socials!.facebook}`, '_blank')} className="rounded-2xl h-14 gap-3 font-extrabold px-8 bg-white dark:bg-slate-900 shadow-sm hover:text-blue-600">
+              <Facebook className="w-5 h-5" /> Facebook
             </Button>
           )}
           {salon.socials?.website && (
-            <Button variant="outline" onClick={() => window.open(salon.socials!.website, '_blank')} className="rounded-xl h-11 gap-2 font-bold px-5">
-              <Globe className="w-4 h-4" /> Website
+            <Button variant="ghost" onClick={() => window.open(salon.socials!.website, '_blank')} className="rounded-2xl h-14 gap-3 font-extrabold px-8 bg-white dark:bg-slate-900 shadow-sm">
+              <Globe className="w-5 h-5 text-primary" /> {isRTL ? 'الموقع الإلكتروني' : 'Official Website'}
             </Button>
           )}
         </div>

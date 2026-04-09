@@ -245,7 +245,7 @@ service cloud.firestore {
       // A barber can create/update their own product; admin can do anything
       allow create: if isAuthenticated()
                     && isNotSuspended()
-                    && request.resource.data.barber_id != null;
+                    && request.resource.data.barber_id == request.auth.uid;
       allow update: if isAuthenticated()
                     && isNotSuspended()
                     && (resource.data.barber_id == request.auth.uid || isAdmin());
