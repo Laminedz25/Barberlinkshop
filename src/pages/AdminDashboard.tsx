@@ -120,7 +120,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const { t, isRTL } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'subscriptions' | 'ai_agents' | 'marketing' | 'monitoring' | 'settings' | 'verification' | 'investors'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'subscriptions' | 'ai_agents' | 'marketing' | 'monitoring' | 'settings' | 'verification' | 'investors' | 'revenue' | 'evolution'>('overview');
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [barbers, setBarbers] = useState<BarberRecord[]>([]);
   const [pendingVerifications, setPendingVerifications] = useState<BarberRecord[]>([]);
@@ -488,13 +488,15 @@ const AdminDashboard = () => {
             { id: 'marketing', label: t('admin.tabs.marketing') },
             { id: 'monitoring', label: t('admin.tabs.health') },
             { id: 'investors', label: t('admin.tabs.investors') },
+            { id: 'revenue', label: 'Revenue Hub', color: 'text-emerald-600 font-bold' },
+            { id: 'evolution', label: 'AI Evolution', color: 'text-purple-600 font-bold' },
             { id: 'settings', label: t('admin.tabs.settings') }
           ].map(tab => (
             <Button
               key={tab.id}
               variant={activeTab === tab.id ? 'default' : 'ghost'}
               className={`rounded-none border-b-2 ${activeTab === tab.id ? 'border-primary' : 'border-transparent'} ${tab.color || ''}`}
-              onClick={() => setActiveTab(tab.id as 'overview' | 'users' | 'subscriptions' | 'ai_agents' | 'marketing' | 'monitoring' | 'settings' | 'verification' | 'investors')}
+              onClick={() => setActiveTab(tab.id as 'overview' | 'users' | 'subscriptions' | 'ai_agents' | 'marketing' | 'monitoring' | 'settings' | 'verification' | 'investors' | 'revenue' | 'evolution')}
             >
               {tab.label}
             </Button>
@@ -1109,6 +1111,115 @@ const AdminDashboard = () => {
           </div>
         )}
 
+        {/* AI Evolution Tab */}
+        {activeTab === 'evolution' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+             <div className="flex justify-between items-center">
+                <h2 className="text-4xl font-black tracking-tighter flex items-center gap-3">
+                  <Bot className="text-purple-600 h-10 w-10" /> NEURAL EVOLUTION CENTER
+                </h2>
+                <Badge className="bg-purple-100 text-purple-700 animate-pulse">AUTONOMOUS MODE ACTIVE</Badge>
+             </div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Knowledge Graph (AutoSkills) */}
+                <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-purple-50 to-white">
+                   <CardHeader>
+                      <CardTitle className="flex items-center gap-2"><Trophy className="text-purple-600" /> KNOWLEDGE MAP</CardTitle>
+                   </CardHeader>
+                   <CardContent>
+                      <div className="space-y-4">
+                         <div className="p-4 bg-white/50 rounded-2xl border border-purple-100">
+                            <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Technological Skills</p>
+                            <div className="flex flex-wrap gap-2">
+                               {['React Core', 'Firestore Realtime', 'TypeScript Advanced', 'Express Node', 'Playwright Debugger'].map(skill => (
+                                 <Badge key={skill} variant="secondary" className="px-3 py-1 bg-purple-100 text-purple-700 border-none">{skill}</Badge>
+                               ))}
+                            </div>
+                         </div>
+                         <Button variant="outline" className="w-full rounded-xl border-purple-200 text-purple-700 font-bold">RE-INDEX CODEBASE (AUTOSKILLS)</Button>
+                      </div>
+                   </CardContent>
+                </Card>
+
+                {/* AI Proposals (Dev Agent) */}
+                <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-blue-50 to-white">
+                   <CardHeader>
+                      <CardTitle className="flex items-center gap-2"><Zap className="text-blue-600" /> DEV AGENT PROPOSALS</CardTitle>
+                   </CardHeader>
+                   <CardContent>
+                      <div className="space-y-4 max-h-[400px] overflow-y-auto">
+                         {[1, 2].map(i => (
+                           <div key={i} className="p-4 bg-white rounded-2xl border border-blue-100 space-y-3">
+                              <div className="flex justify-between items-center">
+                                 <Badge className="bg-blue-600 text-white">PROPOSAL: REFAC_LOGIC</Badge>
+                                 <span className="text-[10px] text-muted-foreground font-bold">2H AGO</span>
+                              </div>
+                              <p className="text-xs font-semibold">"Detected redundancy in auth-chain. Proposing migration to streamlined JWT-Firebase hybrid for 15% latency reduction."</p>
+                              <div className="flex gap-2">
+                                 <Button size="sm" className="bg-blue-600 h-8 rounded-lg text-[10px] flex-1">EXECUTE FIX</Button>
+                                 <Button size="sm" variant="ghost" className="h-8 rounded-lg text-[10px] flex-1">REJECT</Button>
+                              </div>
+                           </div>
+                         ))}
+                      </div>
+                   </CardContent>
+                </Card>
+             </div>
+          </div>
+        )}
+
+        {/* Revenue Hub Tab */}
+        {activeTab === 'revenue' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+             <div className="flex justify-between items-center">
+                <h2 className="text-4xl font-black tracking-tighter flex items-center gap-3">
+                  <TrendingUp className="text-emerald-600 h-10 w-10" /> REVENUE & MONETIZATION
+                </h2>
+                <div className="flex gap-2">
+                   <Badge className="bg-emerald-100 text-emerald-700">MRR: 25,400 DZD</Badge>
+                   <Badge className="bg-blue-100 text-blue-700">CONVERSION: 4.2%</Badge>
+                </div>
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[
+                  { label: 'Total Revenue', value: '450,000 DZD', icon: <DollarSign />, color: 'emerald' },
+                  { label: 'Marketplace Fees', value: '12,500 DZD', icon: <ShoppingBag />, color: 'blue' },
+                  { label: 'Affiliate Payouts', value: '8,000 DZD', icon: <Users2 />, color: 'pink' },
+                  { label: 'Avg Customer LTV', value: '15,000 DZD', icon: <Target />, color: 'purple' }
+                ].map((stat, i) => (
+                   <Card key={i} className="p-6 rounded-3xl border-none shadow-lg hover:shadow-xl transition-shadow bg-white text-center">
+                      <div className={`p-3 bg-${stat.color}-100 text-${stat.color}-600 rounded-2xl w-fit mx-auto mb-4`}>{stat.icon}</div>
+                      <p className="text-[10px] font-black uppercase text-muted-foreground">{stat.label}</p>
+                      <h3 className="text-2xl font-black">{stat.value}</h3>
+                   </Card>
+                ))}
+             </div>
+
+             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <Card className="lg:col-span-2 rounded-[2.5rem] border-none shadow-xl bg-white p-8">
+                   <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><BarChart3 className="text-primary" /> GROWTH ANALYTICS</h3>
+                   <div className="h-[300px] w-full bg-slate-50 rounded-2xl flex items-center justify-center text-muted-foreground italic">
+                      [Interactive Chart: Subscriptions vs Commissions]
+                   </div>
+                </Card>
+                
+                <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-emerald-50 to-white p-6">
+                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Target className="text-emerald-600" /> LEAD GEN OPS</h3>
+                   <div className="space-y-4">
+                      <div className="p-3 bg-white rounded-xl border border-emerald-100">
+                         <p className="text-[10px] font-black text-muted-foreground">ACTIVE CAMPAIGN: Algiers-Hair-Expo</p>
+                         <div className="h-1 bg-emerald-100 rounded-full mt-2"><div className="w-[65%] h-full bg-emerald-500 rounded-full"></div></div>
+                      </div>
+                      <Button className="w-full bg-emerald-600 rounded-xl font-bold hover:bg-emerald-700">TRIGGER NEW LEAD SWEEP</Button>
+                   </div>
+                </Card>
+             </div>
+          </div>
+        )}
+
+        {/* Verification Tab */}
         {activeTab === 'verification' && (
           <Card className="animate-slide-up">
              <CardHeader className="flex flex-row items-center justify-between">
@@ -1360,6 +1471,11 @@ const AdminDashboard = () => {
                           <label className="text-[10px] font-black uppercase flex items-center gap-2"><Zap className="w-4 h-4 text-blue-500" /> OpenAI / DeepSeek Key</label>
                           <input type="password" placeholder="sk-..." className="w-full p-2 border border-slate-200 rounded-xl bg-white font-mono text-xs" />
                           <p className="text-[9px] text-muted-foreground font-bold">Powers Admin & Content Agents</p>
+                       </div>
+                       <div className="space-y-4 p-5 rounded-3xl bg-slate-100/50">
+                          <label className="text-[10px] font-black uppercase flex items-center gap-2"><Bug className="w-4 h-4 text-purple-500" /> AI Debug Proxy (MSE API)</label>
+                          <input type="text" placeholder="http://localhost:7777/v1" className="w-full p-2 border border-slate-200 rounded-xl bg-white font-mono text-xs" value={systemSettings.ai_debug_proxy_url || ''} onChange={(e) => setSystemSettings({ ...systemSettings, ai_debug_proxy_url: e.target.value })} />
+                          <p className="text-[9px] text-muted-foreground font-bold">Powers Self-Healing & Debug Agents</p>
                        </div>
                        <div className="space-y-4 p-5 rounded-3xl bg-slate-100/50">
                           <label className="text-[10px] font-black uppercase flex items-center gap-2"><ImagePlus className="w-4 h-4 text-pink-500" /> Stable Diffusion / D-ID</label>

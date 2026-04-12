@@ -382,6 +382,7 @@ const BarberDashboard = () => {
               <TabsTrigger value="finance" className="rounded-xl py-3 font-bold">{t('dashboard.tabs.finance')}</TabsTrigger>
               <TabsTrigger value="profile" className="rounded-xl py-3 font-bold">{t('dashboard.tabs.profile')}</TabsTrigger>
               <TabsTrigger value="ai_marketing" className="rounded-xl py-3 font-bold gap-2"><Bot className="w-4 h-4 text-primary" /> Ads AI</TabsTrigger>
+              <TabsTrigger value="referrals" className="rounded-xl py-3 font-bold gap-2 text-emerald-600"><DollarSign className="w-4 h-4" /> Affiliate Hub</TabsTrigger>
             </TabsList>
 
             <TabsContent value="services" className="mt-8 space-y-6">
@@ -553,6 +554,55 @@ const BarberDashboard = () => {
                      </Button>
                   </div>
                </Card>
+            </TabsContent>
+
+            <TabsContent value="referrals" className="mt-8 animate-in fade-in slide-in-from-bottom-4">
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <Card className="lg:col-span-2 p-10 rounded-[3rem] border-none shadow-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white relative overflow-hidden">
+                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] rounded-full -mr-32 -mt-32" />
+                     <div className="relative z-10">
+                        <Badge className="bg-white/20 text-white border-none mb-6">AFFILIATE PROGRAM ACTIVE</Badge>
+                        <h2 className="text-4xl font-black tracking-tighter uppercase mb-4">Earn for every node<br />you bring to the mesh</h2>
+                        <p className="text-white/80 font-bold text-lg mb-8 max-w-xl">Invite other barbers or salon owners to join BarberLink. For every successful subscription, you earn a 10% lifetime commission.</p>
+                        
+                        <div className="bg-white/10 rounded-2xl p-6 border border-white/10 mb-8">
+                           <p className="text-[10px] font-black uppercase text-white/60 mb-2">Your Unique Referral Link</p>
+                           <div className="flex gap-4">
+                              <Input readOnly value={referralLink} className="bg-white/10 border-white/20 text-white font-mono rounded-xl h-12" />
+                              <Button onClick={() => { navigator.clipboard.writeText(referralLink); toast({ title: 'Link Copied!' }); }} variant="outline" className="h-12 border-white/20 text-white hover:bg-white/10 rounded-xl px-6">COPY</Button>
+                           </div>
+                        </div>
+                        
+                        <div className="flex gap-8">
+                           <div>
+                              <p className="text-[10px] font-black uppercase text-white/50 mb-1">Total Earnings</p>
+                              <p className="text-3xl font-black">2,500 <span className="text-sm">DZD</span></p>
+                           </div>
+                           <div>
+                              <p className="text-[10px] font-black uppercase text-white/50 mb-1">Active Referrals</p>
+                              <p className="text-3xl font-black">12</p>
+                           </div>
+                        </div>
+                     </div>
+                  </Card>
+
+                  <Card className="p-8 rounded-[2.5rem] border-none shadow-xl bg-white space-y-6">
+                     <h3 className="text-xl font-bold flex items-center gap-2"><Trophy className="text-emerald-500" /> TOP REFERRERS</h3>
+                     <div className="space-y-4">
+                        {[1, 2, 3].map(i => (
+                          <div key={i} className="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl">
+                             <div className="h-10 w-10 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center font-black">#{i}</div>
+                             <div className="flex-1">
+                                <p className="text-sm font-bold">Node_User_{i}42</p>
+                                <p className="text-[10px] text-muted-foreground uppercase font-black">Barber Elite</p>
+                             </div>
+                             <p className="text-sm font-black text-emerald-600">+{i * 1000} DZD</p>
+                          </div>
+                        ))}
+                     </div>
+                     <Button variant="ghost" className="w-full text-xs font-bold uppercase tracking-widest text-emerald-600">View Full Leaderboard</Button>
+                  </Card>
+               </div>
             </TabsContent>
 
             <TabsContent value="bookings" className="mt-8 space-y-6">

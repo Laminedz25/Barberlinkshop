@@ -2,42 +2,59 @@ import cron from 'node-cron';
 import { SocialMediaAgent } from './services/social-media';
 import { AdminAgent } from './services/admin-agent';
 import { WPPManager } from './services/wppconnect';
+import { KnowledgeService } from './services/knowledge-service';
+import { AIDebugService } from './services/ai-debug';
+import { DevAgent } from './services/dev-agent';
+import { MonetizationEngine } from './services/monetization-engine';
 
 export async function initializeAgents() {
-  console.log('[Orchestrator] Starting Autonomous Node Agents...');
+  console.log('[Orchestrator] Initializing Phase 2 AI Evolution...');
 
-  // Start WhatsApp Client
+  // 1. Build Initial Knowledge Map (AutoSkills Integration)
+  await KnowledgeService.getInstance().buildKnowledgeMap();
+
+  // 2. Start Autonomous Debugger
+  AIDebugService.getInstance().listenForLogs();
+
+  // 3. Start WhatsApp Client
   await WPPManager.getInstance().startGlobalClient();
 
-  // Every day at 9 AM, the social media agent generates and publishes content
+  // ─── CRON SCHEDULES ───────────────────────────────────────────────
+
+  // Knowledge Refresh: Every 12 hours
+  cron.schedule('0 */12 * * *', async () => {
+    await KnowledgeService.getInstance().buildKnowledgeMap();
+  });
+
+  // Daily Content: 9 AM
   cron.schedule('0 9 * * *', async () => {
-    console.log('[Cron] Triggering Daily Social Media Cycle');
     await SocialMediaAgent.getInstance().orchestrateDailyContent();
   });
 
-  // Every 5 minutes, scan comments and DMs
+  // Engagement Scanner: Every 5 minutes
   cron.schedule('*/5 * * * *', async () => {
-    console.log('[Cron] Triggering Engagement Scanner');
     await SocialMediaAgent.getInstance().scanAndEngageComments();
   });
 
-  // Every Monday at 8 AM: lead generation global sweep
+  // Dev Improvement Cycle: 11 PM
+  cron.schedule('0 23 * * *', async () => {
+    await DevAgent.getInstance().runImprovementCycle();
+  });
+
+  // Lead Sweep & SEO Generation: Every 6 hours
+  cron.schedule('0 */6 * * *', async () => {
+    await MonetizationEngine.getInstance().performLeadSweep();
+  });
+
+  // Weekly Big Lead Sweep: Monday 8 AM
   cron.schedule('0 8 * * 1', async () => {
-    console.log('[Cron] Triggering Weekly Lead Generation');
     await SocialMediaAgent.getInstance().runLeadGenerationCycle();
   });
 
-  // Every Friday at 10 AM: follow-up reminders
-  cron.schedule('0 10 * * 5', async () => {
-    console.log('[Cron] Triggering Follow-Up Reminders');
-    await SocialMediaAgent.getInstance().sendFollowUpReminders();
-  });
-
-  // Every hour, admin agent evaluates system needs
+  // System Evaluation: Hourly
   cron.schedule('0 * * * *', async () => {
-    console.log('[Cron] Triggering System Evaluation');
     await AdminAgent.getInstance().evaluateSystemNeeds();
   });
 
-  console.log('[Orchestrator] All CRON Jobs registered.');
+  console.log('[Orchestrator] Phase 2 Neural Loop Active.');
 }

@@ -159,6 +159,7 @@ const Auth = () => {
         total_reviews: 0,
         verification_status: 'pending', // Level 3 Requirement
         revenue_total: 0,
+        referred_by: referrerId || null,
         created_at: new Date().toISOString()
       });
 

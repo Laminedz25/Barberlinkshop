@@ -21,6 +21,8 @@ import Onboarding from "./pages/Onboarding";
 import AIAssistant from "./components/AIAssistant";
 import SystemBootstrapper from "./components/SystemBootstrapper";
 
+import SeoPost from "./pages/SeoPost";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -47,6 +49,7 @@ const App = () => (
             <Route path="/investors" element={<Investors />} />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/guide/:city" element={<SeoPost />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
